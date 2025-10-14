@@ -47,7 +47,39 @@ submitBtn.addEventListener('click', async () => {
         });
 
         currentData = await response.json();
-        displayResponses();
+
+        // If cached, display immediately
+        if (currentData.cached) {
+            displayResponses();
+            return;
+        }
+
+        // Otherwise, poll for status
+        const pollInterval = setInterval(async () => {
+            try {
+                const statusResponse = await fetch(`/api/compete/status?suggestion_id=${currentData.suggestion_id}`);
+                const status = await statusResponse.json();
+
+                // Update loading text
+                const loadingText = document.querySelector('#loading-section p');
+                if (loadingText) {
+                    loadingText.textContent = `Loading responses (${status.completed}/${status.total})...`;
+                }
+
+                // When ready, stop polling and display
+                if (status.ready) {
+                    clearInterval(pollInterval);
+                    currentData.responses = status.responses;
+                    currentData.contestant_ids = status.contestant_ids;
+                    displayResponses();
+                }
+            } catch (error) {
+                clearInterval(pollInterval);
+                alert('Error: ' + error.message);
+                showSection(inputSection);
+            }
+        }, 500);
+
     } catch (error) {
         alert('Error: ' + error.message);
         showSection(inputSection);
@@ -71,9 +103,13 @@ function displayResponses() {
     shuffled.forEach((item, index) => {
         const card = document.createElement('div');
         card.className = 'response-card';
+
+        const timeInfo = item.response_time ? `<div class="time-info-small">${item.response_time.toFixed(2)}s</div>` : '';
+
         card.innerHTML = `
             <div class="response-number">${index + 1}</div>
             <div class="response-text">"${item.response}"</div>
+            ${timeInfo}
         `;
         card.addEventListener('click', () => vote(item, card));
         responsesContainer.appendChild(card);
@@ -118,28 +154,50 @@ function reveal(selectedItem) {
         </div>
     `;
 
-    // Show all responses with model names and timing
-    currentData.all_responses.forEach(r => {
-        const isSelected = selectedItem.response_ids.includes(r.id);
-        const card = document.createElement('div');
-        card.className = `reveal-card ${isSelected ? 'winner' : ''}`;
-
-        const timeInfo = r.response_time ? `<div class="time-info">${r.response_time.toFixed(2)}s</div>` : '';
-        const tokenInfo = (r.completion_tokens || r.reasoning_tokens)
-            ? `<div class="token-info">${r.completion_tokens || 0} tokens${r.reasoning_tokens ? ` (${r.reasoning_tokens} reasoning)` : ''}</div>`
-            : '';
-
-        card.innerHTML = `
-            <div class="reveal-model">${r.model_name}</div>
-            <div class="reveal-response">"${r.response_text}"</div>
-            ${timeInfo}
-            ${tokenInfo}
-            ${isSelected ? '<div class="winner-badge">Your Pick!</div>' : ''}
-        `;
-        revealContainer.appendChild(card);
-    });
-
     showSection(revealSection);
+
+    // Fetch all responses and poll for incomplete ones
+    async function loadAllResponses() {
+        try {
+            const response = await fetch(`/api/responses?suggestion_id=${currentData.suggestion_id}`);
+            const data = await response.json();
+
+            // Clear and rebuild reveal cards
+            const header = revealContainer.querySelector('.reveal-header');
+            revealContainer.innerHTML = '';
+            revealContainer.appendChild(header);
+
+            // Show all responses with model names and timing
+            data.responses.forEach(r => {
+                const isSelected = selectedItem.response_ids.includes(r.id);
+                const card = document.createElement('div');
+                card.className = `reveal-card ${isSelected ? 'winner' : ''}`;
+
+                const timeInfo = r.response_time ? `<div class="time-info">${r.response_time.toFixed(2)}s</div>` : '';
+                const tokenInfo = (r.completion_tokens || r.reasoning_tokens)
+                    ? `<div class="token-info">${r.completion_tokens || 0} tokens${r.reasoning_tokens ? ` (${r.reasoning_tokens} reasoning)` : ''}</div>`
+                    : '';
+
+                card.innerHTML = `
+                    <div class="reveal-model">${r.model_name}</div>
+                    <div class="reveal-response">"${r.response_text}"</div>
+                    ${timeInfo}
+                    ${tokenInfo}
+                    ${isSelected ? '<div class="winner-badge">Your Pick!</div>' : ''}
+                `;
+                revealContainer.appendChild(card);
+            });
+
+            // If not complete, poll again
+            if (!data.complete) {
+                setTimeout(loadAllResponses, 1000);
+            }
+        } catch (error) {
+            console.error('Error loading responses:', error);
+        }
+    }
+
+    loadAllResponses();
 }
 
 // Start new round

@@ -2,6 +2,7 @@ import os
 import json
 import sqlite3
 import time
+import threading
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from openai import OpenAI
@@ -19,21 +20,32 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY")
 )
 
+# Track ongoing competitions: {suggestion_id: {contestants: [...], completed: {...}, lock: threading.Lock()}}
+active_competitions = {}
+
 # Models to compete
 MODELS = [
     {"name": "Claude Sonnet 4.5", "model": "anthropic/claude-sonnet-4.5"},
-    {"name": "Gemini 2.5 Flash", "model": "google/gemini-2.5-flash"},
-    {"name": "Gemini 2.5 Pro", "model": "google/gemini-2.5-pro"},
+    {"name": "Claude Opus 4.1", "model": "anthropic/claude-opus-4.1"},
+    {"name": "Gemini 2.5 Flash", "model": "google/gemini-2.5-flash", "reasoning_max_tokens": 0},
     {"name": "DeepSeek v3", "model": "deepseek/deepseek-chat-v3-0324"},
-    {"name": "GPT-5", "model": "openai/gpt-5", "reasoning_effort": "low"},
-    {"name": "Grok 4 Fast", "model": "x-ai/grok-4-fast"},
+    {"name": "GPT-5 Chat", "model": "openai/gpt-5-chat", "reasoning_effort": "low"},
+    {"name": "GPT-5 Mini", "model": "openai/gpt-5-mini", "reasoning_effort": "low"},
+    {"name": "GPT-5 Nano", "model": "openai/gpt-5-nano", "reasoning_effort": "low"},
+    {"name": "Qwen3 235B", "model": "qwen/qwen3-235b-a22b-2507"},
+    {"name": "Llama 4 Maverick", "model": "meta-llama/llama-4-maverick"},
+    {"name": "Kimi K2", "model": "moonshotai/kimi-k2-0905"},
+    {"name": "Llama 4 Scout", "model": "meta-llama/llama-4-scout"},
+    {"name": "GLM-4.5-Air", "model": "z-ai/glm-4.5-air", "reasoning_disabled": True},
 ]
 
 SYSTEM_PROMPT = """
 You are participating in an improv comedy game called "I like my women."
 The user will give you a word or phrase to complete the sentence: "I like my women like I like my [their word]..."
 Your goal is to be FUNNY. Use wordplay, double meanings, unexpected twists, or absurdist humor. Keep it short and punchy.
-Try not to be an annoying moralist. This is just for fun!
+Try not to be an annoying moralist. This is just for fun! Your answer should always be funny, first and foremost.
+These answers should usually make sense for both the suggestion and women... i.e. coffee and women can both be "hot."
+You should usually try to make your answer work for both the suggestion and women. But things don't always have to make sense though, non-sequiturs are also funny.
 Don't think too hard or spend too long thinking. Oftentimes less is more, and remember, brevity is the soul of wit!
 IMPORTANT: Respond with ONLY the punchline/completion. Do NOT repeat the full sentence and do NOT use punctuation
 
@@ -116,13 +128,23 @@ def call_llm(model_config, word):
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt}
             ],
-            "temperature": 0.9,
-            "max_tokens": 500
+            "temperature": 0.0,
+            "max_tokens": 2000,
+            "extra_body": {
+                "usage": {"include": True}
+            }
         }
 
         # Add reasoning effort for OpenAI models (GPT-5) - pass it directly as top-level param
         if model_config.get("reasoning_effort"):
             params["reasoning_effort"] = model_config["reasoning_effort"]
+        # Add reasoning max_tokens for Gemini models
+        elif model_config.get("reasoning_max_tokens") is not None:
+            params['extra_body'].update({'reasoning': {'max_tokens': model_config['reasoning_max_tokens']}})
+            params['max_tokens'] = model_config['reasoning_max_tokens']
+        # Disable reasoning for GLM models
+        elif model_config.get("reasoning_disabled"):
+            params['extra_body'].update({'reasoning': {'enabled': False}})
 
         response = client.chat.completions.create(**params)
 
@@ -178,6 +200,38 @@ def suggestion_route(suggestion):
         return app.send_static_file(suggestion)
     return send_from_directory('static', 'index.html')
 
+def call_llm_and_save(model_config, word, suggestion_id, is_contestant):
+    """Call LLM and save result to DB, updating active competition status"""
+    result = call_llm(model_config, word)
+
+    db = get_db()
+    cursor = db.execute(
+        'INSERT INTO responses (suggestion_id, model_name, model_id, response_text, response_time, completion_tokens, reasoning_tokens) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        (suggestion_id, result['model_name'], result['model_id'], result['response'], result['response_time'], result['completion_tokens'], result['reasoning_tokens'])
+    )
+    response_id = cursor.lastrowid
+    db.commit()
+    db.close()
+
+    response_data = {
+        'id': response_id,
+        'suggestion_id': suggestion_id,
+        'model_name': result['model_name'],
+        'model_id': result['model_id'],
+        'response_text': result['response'],
+        'response_time': result['response_time'],
+        'completion_tokens': result['completion_tokens'],
+        'reasoning_tokens': result['reasoning_tokens']
+    }
+
+    # Update active competition tracking
+    if suggestion_id in active_competitions:
+        comp = active_competitions[suggestion_id]
+        with comp['lock']:
+            comp['completed'][model_config['name']] = response_data
+
+    return response_data
+
 @app.route('/api/compete', methods=['POST'])
 def compete():
     """Get responses from all models for a given word"""
@@ -201,15 +255,13 @@ def compete():
 
         all_responses = [dict(r) for r in responses]
 
-        # Randomly sample 4 responses
-        if len(all_responses) > 4:
-            sampled = random.sample(all_responses, 4)
-        else:
-            sampled = all_responses
+        # Randomly sample 4 contestants
+        contestant_responses = random.sample(all_responses, min(4, len(all_responses)))
+        contestant_ids = [r['id'] for r in contestant_responses]
 
         # Group duplicates
         grouped = {}
-        for r in sampled:
+        for r in contestant_responses:
             text = r['response_text']
             if text not in grouped:
                 grouped[text] = {
@@ -221,7 +273,7 @@ def compete():
             grouped[text]['response_ids'].append(r['id'])
 
         # Track appearances - record that these responses were shown
-        for r in sampled:
+        for r in contestant_responses:
             db.execute('INSERT INTO appearances (response_id) VALUES (?)', (r['id'],))
         db.commit()
 
@@ -229,76 +281,138 @@ def compete():
             'word': word,
             'suggestion_id': suggestion['id'],
             'responses': list(grouped.values()),
-            'all_responses': all_responses,
+            'contestant_ids': contestant_ids,
             'cached': True
         }
 
         db.close()
         return jsonify(result)
 
-    # New word - call all models
+    # New word - create suggestion and select 4 random contestants
     cursor = db.execute('INSERT INTO suggestions (word) VALUES (?)', (word,))
     suggestion_id = cursor.lastrowid
     db.commit()
-
-    # Call all models in parallel
-    with ThreadPoolExecutor(max_workers=len(MODELS)) as executor:
-        results = list(executor.map(lambda m: call_llm(m, word), MODELS))
-
-    # Save responses
-    all_responses = []
-    for result in results:
-        cursor = db.execute(
-            'INSERT INTO responses (suggestion_id, model_name, model_id, response_text, response_time, completion_tokens, reasoning_tokens) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            (suggestion_id, result['model_name'], result['model_id'], result['response'], result['response_time'], result['completion_tokens'], result['reasoning_tokens'])
-        )
-        response_id = cursor.lastrowid
-        all_responses.append({
-            'id': response_id,
-            'suggestion_id': suggestion_id,
-            'model_name': result['model_name'],
-            'model_id': result['model_id'],
-            'response_text': result['response'],
-            'response_time': result['response_time'],
-            'completion_tokens': result['completion_tokens'],
-            'reasoning_tokens': result['reasoning_tokens']
-        })
-
-    db.commit()
     db.close()
 
-    # Sample 4 responses
-    if len(all_responses) > 4:
-        sampled = random.sample(all_responses, 4)
-    else:
-        sampled = all_responses
+    # Randomly select 4 contestants
+    contestants = random.sample(MODELS, min(4, len(MODELS)))
+    contestant_names = [m['name'] for m in contestants]
 
-    # Group duplicates
-    grouped = {}
-    for r in sampled:
-        text = r['response_text']
-        if text not in grouped:
-            grouped[text] = {
-                'response': text,
-                'models': [],
-                'response_ids': []
-            }
-        grouped[text]['models'].append(r['model_name'])
-        grouped[text]['response_ids'].append(r['id'])
+    # Initialize active competition tracking
+    active_competitions[suggestion_id] = {
+        'contestants': contestant_names,
+        'completed': {},
+        'contestant_responses': [],
+        'lock': threading.Lock(),
+        'ready': False
+    }
 
-    # Track appearances - record that these responses were shown
-    db = get_db()
-    for r in sampled:
-        db.execute('INSERT INTO appearances (response_id) VALUES (?)', (r['id'],))
-    db.commit()
-    db.close()
+    def run_models_async():
+        """Run all models in background and update when contestants are done"""
+        with ThreadPoolExecutor(max_workers=len(MODELS)) as executor:
+            futures = []
+            for model in MODELS:
+                is_contestant = model['name'] in contestant_names
+                future = executor.submit(call_llm_and_save, model, word, suggestion_id, is_contestant)
+                futures.append((model['name'], future, is_contestant))
+
+            # Wait only for contestants to complete
+            contestant_responses = []
+            for name, future, is_contestant in futures:
+                if is_contestant:
+                    contestant_responses.append(future.result())
+
+            # Mark as ready and store contestant responses
+            comp = active_competitions[suggestion_id]
+            with comp['lock']:
+                comp['contestant_responses'] = contestant_responses
+                comp['ready'] = True
+
+                # Track appearances for contestants
+                db = get_db()
+                for r in contestant_responses:
+                    db.execute('INSERT INTO appearances (response_id) VALUES (?)', (r['id'],))
+                db.commit()
+                db.close()
+
+    # Start models in background thread
+    threading.Thread(target=run_models_async, daemon=True).start()
 
     return jsonify({
         'word': word,
         'suggestion_id': suggestion_id,
-        'responses': list(grouped.values()),
-        'all_responses': all_responses,
-        'cached': False
+        'cached': False,
+        'ready': False
+    })
+
+@app.route('/api/compete/status', methods=['GET'])
+def compete_status():
+    """Check status of ongoing competition and get responses when ready"""
+    suggestion_id = request.args.get('suggestion_id', type=int)
+
+    if not suggestion_id or suggestion_id not in active_competitions:
+        return jsonify({'error': 'Invalid or completed competition'}), 404
+
+    comp = active_competitions[suggestion_id]
+    with comp['lock']:
+        completed_count = len([name for name in comp['contestants'] if name in comp['completed']])
+        total_count = len(comp['contestants'])
+        ready = comp['ready']
+        contestant_responses = comp['contestant_responses'] if ready else []
+
+    response_data = {
+        'completed': completed_count,
+        'total': total_count,
+        'ready': ready
+    }
+
+    if ready:
+        # Group duplicates
+        grouped = {}
+        for r in contestant_responses:
+            text = r['response_text']
+            if text not in grouped:
+                grouped[text] = {
+                    'response': text,
+                    'models': [],
+                    'response_ids': [],
+                    'response_time': r['response_time'],
+                    'completion_tokens': r['completion_tokens'],
+                    'reasoning_tokens': r['reasoning_tokens']
+                }
+            else:
+                # If grouped, take the average timing
+                grouped[text]['response_time'] = (grouped[text]['response_time'] + r['response_time']) / 2
+                grouped[text]['completion_tokens'] = (grouped[text]['completion_tokens'] + r['completion_tokens']) / 2
+                grouped[text]['reasoning_tokens'] = (grouped[text]['reasoning_tokens'] + r['reasoning_tokens']) / 2
+            grouped[text]['models'].append(r['model_name'])
+            grouped[text]['response_ids'].append(r['id'])
+
+        response_data['responses'] = list(grouped.values())
+        response_data['contestant_ids'] = [r['id'] for r in contestant_responses]
+
+    return jsonify(response_data)
+
+@app.route('/api/responses', methods=['GET'])
+def get_responses():
+    """Get all responses for a suggestion, including incomplete ones"""
+    suggestion_id = request.args.get('suggestion_id', type=int)
+
+    if not suggestion_id:
+        return jsonify({'error': 'Missing suggestion_id'}), 400
+
+    db = get_db()
+    responses = db.execute(
+        'SELECT * FROM responses WHERE suggestion_id = ?',
+        (suggestion_id,)
+    ).fetchall()
+    db.close()
+
+    all_responses = [dict(r) for r in responses]
+
+    return jsonify({
+        'responses': all_responses,
+        'complete': len(all_responses) >= len(MODELS)
     })
 
 @app.route('/api/vote', methods=['POST'])
