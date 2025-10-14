@@ -39,6 +39,8 @@ MODELS = [
     {"name": "GLM-4.5-Air", "model": "z-ai/glm-4.5-air", "reasoning_disabled": True},
 ]
 
+ALL_MODEL_NAMES = [m["name"] for m in MODELS]
+
 SYSTEM_PROMPT = """
 You are participating in an improv comedy game called "I like my women."
 The user will give you a word or phrase to complete the sentence: "I like my women like I like my [their word]..."
@@ -282,7 +284,8 @@ def compete():
             'suggestion_id': suggestion['id'],
             'responses': list(grouped.values()),
             'contestant_ids': contestant_ids,
-            'cached': True
+            'cached': True,
+            'all_models': ALL_MODEL_NAMES
         }
 
         db.close()
@@ -342,7 +345,8 @@ def compete():
         'word': word,
         'suggestion_id': suggestion_id,
         'cached': False,
-        'ready': False
+        'ready': False,
+        'all_models': ALL_MODEL_NAMES
     })
 
 @app.route('/api/compete/status', methods=['GET'])
@@ -363,7 +367,9 @@ def compete_status():
     response_data = {
         'completed': completed_count,
         'total': total_count,
-        'ready': ready
+        'ready': ready,
+        'all_models': ALL_MODEL_NAMES,
+        'contestant_models': comp['contestants']
     }
 
     if ready:

@@ -211,6 +211,14 @@ h1 {
     font-size: 1.5em;
 }
 
+.reveal-subheading {
+    margin: 25px 0 15px;
+    font-size: 1.1em;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
 .reveal-card {
     background: #f8f9fa;
     padding: 20px;
@@ -261,6 +269,42 @@ h1 {
     border-radius: 20px;
     font-size: 0.9em;
     font-weight: bold;
+}
+
+#contestant-reveal,
+#other-answers {
+    display: grid;
+    gap: 15px;
+}
+
+.reveal-model-block {
+    margin-top: 10px;
+    padding-left: 5px;
+}
+
+.placeholder-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+    color: #6c757d;
+    font-size: 0.95em;
+}
+
+.placeholder-row.no-other-answers {
+    justify-content: center;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.mini-spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid #ddd;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
 }
 
 #new-round-btn {
