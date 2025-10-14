@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stats - I Like My Women</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .leaderboard {
+            margin-top: 30px;
+        }
+
+        .leaderboard-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #667eea;
+        }
+
+        .leaderboard-item.first {
+            border-left-color: #ffd700;
+            background: #fffbea;
+        }
+
+        .leaderboard-item.second {
+            border-left-color: #c0c0c0;
+            background: #f8f9fa;
+        }
+
+        .leaderboard-item.third {
+            border-left-color: #cd7f32;
+            background: #fff5e6;
+        }
+
+        .model-info {
+            flex: 1;
+        }
+
+        .model-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .model-id {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .stats-info {
+            text-align: right;
+        }
+
+        .vote-count {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .response-count {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .rank-badge {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-right: 20px;
+        }
+
+        .leaderboard-item.first .rank-badge {
+            background: #ffd700;
+            color: #333;
+        }
+
+        .leaderboard-item.second .rank-badge {
+            background: #c0c0c0;
+            color: #333;
+        }
+
+        .leaderboard-item.third .rank-badge {
+            background: #cd7f32;
+            color: white;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Leaderboard</h1>
+            <p class="subtitle">Who's the funniest LLM?</p>
+        </header>
+
+        <a href="/" class="back-link">ê Back to Game</a>
+
+        <div class="section">
+            <div id="loading" style="text-align: center;">
+                <div class="loading-spinner"></div>
+                <p>Loading stats...</p>
+            </div>
+
+            <div id="leaderboard" class="leaderboard hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+
+                const loading = document.getElementById('loading');
+                const leaderboard = document.getElementById('leaderboard');
+
+                loading.classList.add('hidden');
+                leaderboard.classList.remove('hidden');
+
+                if (stats.length === 0) {
+                    leaderboard.innerHTML = '<p style="text-align: center; color: #6c757d;">No data yet. Play some rounds first!</p>';
+                    return;
+                }
+
+                stats.forEach((model, index) => {
+                    const item = document.createElement('div');
+                    let rankClass = '';
+                    if (index === 0) rankClass = 'first';
+                    else if (index === 1) rankClass = 'second';
+                    else if (index === 2) rankClass = 'third';
+
+                    item.className = `leaderboard-item ${rankClass}`;
+                    item.innerHTML = `
+                        <div class="rank-badge">${index + 1}</div>
+                        <div class="model-info">
+                            <div class="model-name">${model.model_name}</div>
+                            <div class="model-id">${model.model_id}</div>
+                        </div>
+                        <div class="stats-info">
+                            <div class="vote-count">${model.vote_count}</div>
+                            <div class="response-count">${model.response_count} responses</div>
+                        </div>
+                    `;
+                    leaderboard.appendChild(item);
+                });
+            } catch (error) {
+                alert('Error loading stats: ' + error.message);
+            }
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Like My Women</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>I Like My Women</h1>
+            <p class="subtitle">LLM Comedy Benchmark</p>
+            <a href="/stats" class="stats-link">View Stats</a>
+        </header>
+
+        <main>
+            <div id="input-section" class="section">
+                <div class="prompt-display">
+                    <span class="prompt-text">I like my women like I like my</span>
+                    <input type="text" id="word-input" placeholder="coffee" autofocus>
+                    <span class="prompt-text">...</span>
+                </div>
+                <button id="submit-btn" class="btn btn-primary">Let's Go!</button>
+            </div>
+
+            <div id="loading-section" class="section hidden">
+                <div class="loading-spinner"></div>
+                <p>The LLMs are thinking...</p>
+            </div>
+
+            <div id="results-section" class="section hidden">
+                <h2>Pick the funniest one:</h2>
+                <div id="responses-container"></div>
+            </div>
+
+            <div id="reveal-section" class="section hidden">
+                <h2>Results</h2>
+                <div id="reveal-container"></div>
+                <button id="new-round-btn" class="btn btn-secondary">Try Another</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
