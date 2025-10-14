@@ -21,10 +21,13 @@ client = OpenAI(
 
 # Models to compete
 MODELS = [
-    {"name": "GPT-4", "model": "openai/gpt-4"},
-    {"name": "Claude Sonnet", "model": "anthropic/claude-sonnet-4"},
-    {"name": "Gemini Pro", "model": "google/gemini-pro"},
-    {"name": "Llama 3", "model": "meta-llama/llama-3-70b-instruct"},
+    {"name": "Claude Sonnet 4.5", "model": "anthropic/claude-sonnet-4.5"},
+    {"name": "Gemini 2.5 Flash", "model": "google/gemini-2.5-flash"},
+    {"name": "Gemini 2.5 Pro", "model": "google/gemini-2.5-pro"},
+    {"name": "DeepSeek v3", "model": "deepseek/deepseek-chat-v3-0324"},
+    {"name": "GLM-4.6", "model": "z-ai/glm-4.6"},
+    {"name": "GPT-5", "model": "openai/gpt-5"},
+    {"name": "Grok 4 Fast", "model": "x-ai/grok-4-fast"},
 ]
 
 SYSTEM_PROMPT = """You are participating in an improv comedy game called "I like my women."
@@ -69,6 +72,13 @@ def init_db():
                   response_id INTEGER NOT NULL,
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                   FOREIGN KEY (suggestion_id) REFERENCES suggestions(id),
+                  FOREIGN KEY (response_id) REFERENCES responses(id))''')
+
+    # Appearances table - track when responses are shown to users
+    c.execute('''CREATE TABLE IF NOT EXISTS appearances
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  response_id INTEGER NOT NULL,
+                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                   FOREIGN KEY (response_id) REFERENCES responses(id))''')
 
     conn.commit()
@@ -117,6 +127,11 @@ def index():
 def stats():
     return send_from_directory('static', 'stats.html')
 
+@app.route('/<path:suggestion>')
+def suggestion_route(suggestion):
+    """Catch-all route for suggestions like /coffee, /banana"""
+    return send_from_directory('static', 'index.html')
+
 @app.route('/api/compete', methods=['POST'])
 def compete():
     """Get responses from all models for a given word"""
@@ -158,6 +173,11 @@ def compete():
                 }
             grouped[text]['models'].append(r['model_name'])
             grouped[text]['response_ids'].append(r['id'])
+
+        # Track appearances - record that these responses were shown
+        for r in sampled:
+            db.execute('INSERT INTO appearances (response_id) VALUES (?)', (r['id'],))
+        db.commit()
 
         result = {
             'word': word,
@@ -217,6 +237,13 @@ def compete():
         grouped[text]['models'].append(r['model_name'])
         grouped[text]['response_ids'].append(r['id'])
 
+    # Track appearances - record that these responses were shown
+    db = get_db()
+    for r in sampled:
+        db.execute('INSERT INTO appearances (response_id) VALUES (?)', (r['id'],))
+    db.commit()
+    db.close()
+
     return jsonify({
         'word': word,
         'suggestion_id': suggestion_id,
@@ -254,15 +281,16 @@ def get_stats():
     """Get leaderboard stats"""
     db = get_db()
 
-    # Get vote counts per model
+    # Get vote counts and appearance counts per model
     stats = db.execute('''
         SELECT
             r.model_name,
             r.model_id,
-            COUNT(v.id) as vote_count,
-            COUNT(DISTINCT r.id) as response_count
+            COUNT(DISTINCT v.id) as vote_count,
+            COUNT(DISTINCT a.id) as appearance_count
         FROM responses r
         LEFT JOIN votes v ON r.id = v.response_id
+        LEFT JOIN appearances a ON r.id = a.response_id
         GROUP BY r.model_name, r.model_id
         ORDER BY vote_count DESC
     ''').fetchall()
@@ -273,4 +301,4 @@ def get_stats():
     return jsonify(result)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)

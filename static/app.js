@@ -19,10 +19,23 @@ function showSection(section) {
     section.classList.remove('hidden');
 }
 
+// Check URL for suggestion on page load
+window.addEventListener('DOMContentLoaded', () => {
+    const path = window.location.pathname;
+    if (path !== '/' && path !== '/stats') {
+        const suggestion = path.substring(1); // Remove leading slash
+        wordInput.value = decodeURIComponent(suggestion);
+        submitBtn.click();
+    }
+});
+
 // Submit word
 submitBtn.addEventListener('click', async () => {
     const word = wordInput.value.trim();
     if (!word) return;
+
+    // Update URL with suggestion as path
+    window.history.pushState({}, '', `/${encodeURIComponent(word)}`);
 
     showSection(loadingSection);
 
@@ -52,7 +65,10 @@ wordInput.addEventListener('keypress', (e) => {
 function displayResponses() {
     responsesContainer.innerHTML = '';
 
-    currentData.responses.forEach((item, index) => {
+    // Shuffle responses randomly
+    const shuffled = [...currentData.responses].sort(() => Math.random() - 0.5);
+
+    shuffled.forEach((item, index) => {
         const card = document.createElement('div');
         card.className = 'response-card';
         card.innerHTML = `
@@ -122,6 +138,8 @@ function reveal(selectedItem) {
 newRoundBtn.addEventListener('click', () => {
     wordInput.value = '';
     currentData = null;
+    // Clear URL params
+    window.history.pushState({}, '', '/');
     showSection(inputSection);
     wordInput.focus();
 });
