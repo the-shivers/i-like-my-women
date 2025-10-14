@@ -25,24 +25,33 @@ MODELS = [
     {"name": "Gemini 2.5 Flash", "model": "google/gemini-2.5-flash"},
     {"name": "Gemini 2.5 Pro", "model": "google/gemini-2.5-pro"},
     {"name": "DeepSeek v3", "model": "deepseek/deepseek-chat-v3-0324"},
-    {"name": "GLM-4.6", "model": "z-ai/glm-4.6"},
-    {"name": "GPT-5", "model": "openai/gpt-5"},
+    {"name": "GPT-5", "model": "openai/gpt-5", "reasoning_effort": "low"},
     {"name": "Grok 4 Fast", "model": "x-ai/grok-4-fast"},
 ]
 
-SYSTEM_PROMPT = """You are participating in an improv comedy game called "I like my women."
-
-The user will give you a word or phrase. You must complete the sentence: "I like my women like I like my [their word]..."
-
-Your goal is to be FUNNY. Use wordplay, double meanings, unexpected twists, or absurdist humor. Keep it short and punchy - one sentence max.
+SYSTEM_PROMPT = """
+You are participating in an improv comedy game called "I like my women."
+The user will give you a word or phrase to complete the sentence: "I like my women like I like my [their word]..."
+Your goal is to be FUNNY. Use wordplay, double meanings, unexpected twists, or absurdist humor. Keep it short and punchy.
+Try not to be an annoying moralist. This is just for fun!
+Don't think too hard or spend too long thinking. Oftentimes less is more, and remember, brevity is the soul of wit!
+IMPORTANT: Respond with ONLY the punchline/completion. Do NOT repeat the full sentence and do NOT use punctuation
 
 Examples:
-- "I like my women like I like my coffee... hot!"
-- "I like my women like I like my coffee... black!"
-- "I like my women like I like my coffee... with a few pumps of cream"
-- "I like my women like I like my coffee... ground up and in the freezer" (dark humor)
+User: "I like my women like I like my coffee..."
+You: "hot"
 
-Be creative, be funny, be surprising. Just respond with ONLY the completion - nothing else."""
+User: "I like my women like I like my coffee..."
+You: "black"
+
+User: "I like my women like I like my coffee..."
+You: "with a few pumps of cream"
+
+User: "I like my women like I like my coffee..."
+You: "ground up and in the freezer"
+
+Just give the punchline. Nothing else.
+"""
 
 # Database setup
 def init_db():
@@ -62,6 +71,9 @@ def init_db():
                   model_name TEXT NOT NULL,
                   model_id TEXT NOT NULL,
                   response_text TEXT NOT NULL,
+                  response_time REAL,
+                  completion_tokens INTEGER,
+                  reasoning_tokens INTEGER,
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                   FOREIGN KEY (suggestion_id) REFERENCES suggestions(id))''')
 
@@ -93,30 +105,61 @@ def get_db():
 
 def call_llm(model_config, word):
     """Call a single LLM and return its response"""
+    start_time = time.time()
+
     try:
         prompt = f'I like my women like I like my {word}...'
 
-        response = client.chat.completions.create(
-            model=model_config['model'],
-            messages=[
+        params = {
+            "model": model_config['model'],
+            "messages": [
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.9,
-            max_tokens=100
-        )
+            "temperature": 0.9,
+            "max_tokens": 500
+        }
+
+        # Add reasoning effort for OpenAI models (GPT-5) - pass it directly as top-level param
+        if model_config.get("reasoning_effort"):
+            params["reasoning_effort"] = model_config["reasoning_effort"]
+
+        response = client.chat.completions.create(**params)
+
+        end_time = time.time()
+        response_time = end_time - start_time
+
+        content = response.choices[0].message.content
+
+        # Extract token usage if available
+        usage = getattr(response, 'usage', None)
+        completion_tokens = getattr(usage, 'completion_tokens', 0) if usage else 0
+        reasoning_tokens = getattr(usage, 'reasoning_tokens', 0) if usage else 0
+
+        print(f"DEBUG {model_config['name']}: Time={response_time:.2f}s, Content='{content}', Tokens={completion_tokens}, Reasoning={reasoning_tokens}")
+
+        if content:
+            content = content.strip().strip('"').strip("'")
 
         return {
             'model_name': model_config['name'],
             'model_id': model_config['model'],
-            'response': response.choices[0].message.content.strip()
+            'response': content,
+            'response_time': response_time,
+            'completion_tokens': completion_tokens,
+            'reasoning_tokens': reasoning_tokens
         }
     except Exception as e:
+        end_time = time.time()
+        response_time = end_time - start_time
         print(f"Error calling {model_config['name']}: {e}")
         return {
             'model_name': model_config['name'],
             'model_id': model_config['model'],
-            'response': f"[Error: {str(e)}]"
+            'response': f"[Error: {str(e)[:100]}]",
+            'response_time': response_time,
+            'completion_tokens': 0,
+            'reasoning_tokens': 0
         }
 
 @app.route('/')
@@ -127,9 +170,12 @@ def index():
 def stats():
     return send_from_directory('static', 'stats.html')
 
-@app.route('/<path:suggestion>')
+@app.route('/<suggestion>')
 def suggestion_route(suggestion):
-    """Catch-all route for suggestions like /coffee, /banana"""
+    """Route for suggestions like /coffee, /banana - serves the page and triggers API call via JS"""
+    # Let Flask handle static files normally
+    if '.' in suggestion:
+        return app.send_static_file(suggestion)
     return send_from_directory('static', 'index.html')
 
 @app.route('/api/compete', methods=['POST'])
@@ -203,8 +249,8 @@ def compete():
     all_responses = []
     for result in results:
         cursor = db.execute(
-            'INSERT INTO responses (suggestion_id, model_name, model_id, response_text) VALUES (?, ?, ?, ?)',
-            (suggestion_id, result['model_name'], result['model_id'], result['response'])
+            'INSERT INTO responses (suggestion_id, model_name, model_id, response_text, response_time, completion_tokens, reasoning_tokens) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            (suggestion_id, result['model_name'], result['model_id'], result['response'], result['response_time'], result['completion_tokens'], result['reasoning_tokens'])
         )
         response_id = cursor.lastrowid
         all_responses.append({
@@ -212,7 +258,10 @@ def compete():
             'suggestion_id': suggestion_id,
             'model_name': result['model_name'],
             'model_id': result['model_id'],
-            'response_text': result['response']
+            'response_text': result['response'],
+            'response_time': result['response_time'],
+            'completion_tokens': result['completion_tokens'],
+            'reasoning_tokens': result['reasoning_tokens']
         })
 
     db.commit()

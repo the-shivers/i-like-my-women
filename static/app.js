@@ -118,14 +118,22 @@ function reveal(selectedItem) {
         </div>
     `;
 
-    // Show all responses with model names
+    // Show all responses with model names and timing
     currentData.all_responses.forEach(r => {
         const isSelected = selectedItem.response_ids.includes(r.id);
         const card = document.createElement('div');
         card.className = `reveal-card ${isSelected ? 'winner' : ''}`;
+
+        const timeInfo = r.response_time ? `<div class="time-info">${r.response_time.toFixed(2)}s</div>` : '';
+        const tokenInfo = (r.completion_tokens || r.reasoning_tokens)
+            ? `<div class="token-info">${r.completion_tokens || 0} tokens${r.reasoning_tokens ? ` (${r.reasoning_tokens} reasoning)` : ''}</div>`
+            : '';
+
         card.innerHTML = `
             <div class="reveal-model">${r.model_name}</div>
             <div class="reveal-response">"${r.response_text}"</div>
+            ${timeInfo}
+            ${tokenInfo}
             ${isSelected ? '<div class="winner-badge">Your Pick!</div>' : ''}
         `;
         revealContainer.appendChild(card);
