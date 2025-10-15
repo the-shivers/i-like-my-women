@@ -390,8 +390,14 @@ def compete():
                 grouped[text] = {
                     'response': text,
                     'models': [],
-                    'response_ids': []
+                    'response_ids': [],
+                    'response_time': r['response_time'],
+                    'completion_tokens': r['completion_tokens']
                 }
+            else:
+                # If grouped, take the average timing
+                grouped[text]['response_time'] = (grouped[text]['response_time'] + r['response_time']) / 2
+                grouped[text]['completion_tokens'] = (grouped[text]['completion_tokens'] + r['completion_tokens']) / 2
             grouped[text]['models'].append(r['model_name'])
             grouped[text]['response_ids'].append(r['id'])
 
