@@ -37,10 +37,10 @@ MODELS = [
     {"name": "Rocinante 12B", "model": "thedrummer/rocinante-12b"},  # 1.72s avg
     {"name": "Claude Sonnet 4.5", "model": "anthropic/claude-sonnet-4.5"},  # 1.83s avg
     {"name": "Kimi K2", "model": "moonshotai/kimi-k2-0905"},  # 2.19s avg
-    {"name": "Qwen 2.5 VL 32B", "model": "qwen/qwen2.5-vl-32b-instruct"},  # 2.21s avg
+    # {"name": "Qwen 2.5 VL 32B", "model": "qwen/qwen2.5-vl-32b-instruct"},  # 2.21s avg (too similar to 72B/235B, parking it)
     {"name": "Claude Opus 4.1", "model": "anthropic/claude-opus-4.1"},  # 2.35s avg
-    {"name": "DeepSeek v3", "model": "deepseek/deepseek-chat-v3-0324"},  # 2.49s avg
-    {"name": "DeepSeek Chat v3.0324", "model": "deepseek/deepseek-chat-v3-0324"},  # 3.03s avg
+    # {"name": "DeepSeek v3", "model": "deepseek/deepseek-chat-v3-0324"},  # 2.49s avg (superseded by v3.1, keeping the newer one)
+    # {"name": "DeepSeek Chat v3.0324", "model": "deepseek/deepseek-chat-v3-0324"},  # 3.03s avg (nearly identical to v3.1, set aside)
 
     # SLOW MODELS (>4s avg) - Commented out for production
     # {"name": "GLM-4.5-Air", "model": "z-ai/glm-4.5-air"},  # 5.13s avg (also uses 333 tokens avg!)
@@ -531,16 +531,46 @@ def get_stats():
 
     # Get vote counts and appearance counts per model
     stats = db.execute('''
+        WITH response_stats AS (
+            SELECT
+                model_name,
+                model_id,
+                COUNT(*) AS response_count,
+                AVG(response_time) AS avg_response_time,
+                AVG(completion_tokens) AS avg_completion_tokens
+            FROM responses
+            GROUP BY model_name, model_id
+        ),
+        vote_stats AS (
+            SELECT
+                r.model_name,
+                r.model_id,
+                COUNT(DISTINCT v.id) AS vote_count
+            FROM responses r
+            LEFT JOIN votes v ON r.id = v.response_id
+            GROUP BY r.model_name, r.model_id
+        ),
+        appearance_stats AS (
+            SELECT
+                r.model_name,
+                r.model_id,
+                COUNT(DISTINCT a.id) AS appearance_count
+            FROM responses r
+            LEFT JOIN appearances a ON r.id = a.response_id
+            GROUP BY r.model_name, r.model_id
+        )
         SELECT
-            r.model_name,
-            r.model_id,
-            COUNT(DISTINCT v.id) as vote_count,
-            COUNT(DISTINCT a.id) as appearance_count
-        FROM responses r
-        LEFT JOIN votes v ON r.id = v.response_id
-        LEFT JOIN appearances a ON r.id = a.response_id
-        GROUP BY r.model_name, r.model_id
-        ORDER BY vote_count DESC
+            rs.model_name,
+            rs.model_id,
+            COALESCE(vs.vote_count, 0) AS vote_count,
+            COALESCE(ap.appearance_count, 0) AS appearance_count,
+            rs.avg_response_time,
+            rs.avg_completion_tokens
+        FROM response_stats rs
+        LEFT JOIN vote_stats vs
+            ON rs.model_name = vs.model_name AND rs.model_id = vs.model_id
+        LEFT JOIN appearance_stats ap
+            ON rs.model_name = ap.model_name AND rs.model_id = ap.model_id
     ''').fetchall()
 
     result = [dict(s) for s in stats]

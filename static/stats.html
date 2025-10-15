@@ -4,127 +4,395 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stats - I Like My Women</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;600&family=Open+Sans:wght@400;600&family=Special+Elite&family=Sedgwick+Ave+Display&display=swap" rel="stylesheet">
     <style>
-        .leaderboard {
-            margin-top: 30px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .leaderboard-item {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
+        body {
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            font-family: 'IBM Plex Serif', serif;
+            background: black;
+            color: white;
+        }
+
+        .stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 5px solid #667eea;
+            flex-direction: column;
         }
 
-        .leaderboard-item.first {
-            border-left-color: #ffd700;
-            background: #fffbea;
+        .brick-wall {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 87.5vh;
+            background-image: url('medium-ironspot-77-velour-face-brick-modular-running-bond-322-in-architextures.jpg');
+            background-repeat: repeat;
+            background-size: 400px auto;
         }
 
-        .leaderboard-item.second {
-            border-left-color: #c0c0c0;
-            background: #f8f9fa;
+        .wood-floor {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 12.5vh;
+            background-image: url('Hardwood-flooring.png');
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-position: center;
         }
 
-        .leaderboard-item.third {
-            border-left-color: #cd7f32;
-            background: #fff5e6;
+        .spotlight-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(
+                circle 45vmax at center 65%,
+                transparent 0%,
+                transparent 35%,
+                rgba(0, 0, 0, 0.5) 55%,
+                rgba(0, 0, 0, 0.85) 75%,
+                rgba(0, 0, 0, 0.98) 90%,
+                black 100%
+            );
         }
 
-        .model-info {
+        .content {
+            position: relative;
+            z-index: 10;
+            width: 100%;
             flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 32px 20px 36px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-mask-image: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 1) 0%,
+                rgba(255, 255, 255, 1) calc(100% - 40px),
+                rgba(255, 255, 255, 0) calc(100% - 10px),
+                rgba(255, 255, 255, 0) 100%
+            );
+            -webkit-mask-repeat: no-repeat;
+            -webkit-mask-size: 100% 100%;
+            mask-image: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 1) 0%,
+                rgba(255, 255, 255, 1) calc(100% - 40px),
+                rgba(255, 255, 255, 0) calc(100% - 10px),
+                rgba(255, 255, 255, 0) 100%
+            );
+            mask-repeat: no-repeat;
+            mask-size: 100% 100%;
         }
 
-        .model-name {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
+        .content-inner {
+            width: min(760px, calc(100% - 40px));
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .model-id {
-            font-size: 0.9em;
-            color: #6c757d;
+        .back-link {
+            align-self: flex-start;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1em;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-family: 'Open Sans', sans-serif;
         }
 
-        .stats-info {
-            text-align: right;
+        .back-link::before {
+            content: '←';
+            font-size: 1.1em;
         }
 
-        .vote-count {
-            font-size: 2em;
-            font-weight: bold;
-            color: #667eea;
+        .back-link:hover {
+            color: white;
         }
 
-        .response-count {
-            font-size: 0.9em;
-            color: #6c757d;
+        .hero {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 3.8rem);
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            text-shadow:
+                0 3px 8px rgba(0, 0, 0, 0.6),
+                0 8px 24px rgba(0, 0, 0, 0.45);
+        }
+
+        .leaderboard-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .leaderboard {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .leaderboard-card {
+            position: relative;
+            background-image: url('parch2.jpg');
+            background-size: 900px auto;
+            padding: 10px 16px;
+            display: grid;
+            grid-template-columns: 44px minmax(0, 2.2fr) minmax(0, 2.1fr);
+            align-items: flex-start;
+            gap: 12px;
+            box-shadow:
+                0 1px 6px rgba(0, 0, 0, 0.22),
+                inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .leaderboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .leaderboard-card.gold {
+            border: 2px solid rgba(255, 215, 0, 0.35);
+        }
+
+        .leaderboard-card.silver {
+            border: 2px solid rgba(192, 192, 192, 0.35);
+        }
+
+        .leaderboard-card.bronze {
+            border: 2px solid rgba(205, 127, 50, 0.35);
         }
 
         .rank-badge {
             width: 40px;
             height: 40px;
-            background: #667eea;
-            color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 1.2em;
-            margin-right: 20px;
+            font-family: 'Special Elite', monospace;
+            font-size: 0.95em;
+            font-variant-numeric: tabular-nums;
+            color: #fff;
+            background: rgba(128, 63, 0, 0.8);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+            position: relative;
+            z-index: 1;
+            line-height: 1;
+            transform: translateY(1px);
         }
 
-        .leaderboard-item.first .rank-badge {
-            background: #ffd700;
-            color: #333;
+        .leaderboard-card.gold .rank-badge {
+            background: linear-gradient(135deg, #ffe082, #fbc02d);
+            color: #4b3600;
         }
 
-        .leaderboard-item.second .rank-badge {
-            background: #c0c0c0;
-            color: #333;
+        .leaderboard-card.silver .rank-badge {
+            background: linear-gradient(135deg, #eceff1, #b0bec5);
+            color: #2c3e50;
         }
 
-        .leaderboard-item.third .rank-badge {
-            background: #cd7f32;
-            color: white;
+        .leaderboard-card.bronze .rank-badge {
+            background: linear-gradient(135deg, #f6c08a, #c57c36);
+            color: #3b2310;
         }
 
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: white;
-            text-decoration: none;
+        .model-meta {
+            position: relative;
+            z-index: 1;
+        }
+
+        .model-name {
+            font-size: 1em;
+            font-weight: 600;
+            color: #2a1f18;
+        }
+
+        .model-id {
+            font-size: 0.62em;
+            font-family: 'Open Sans', sans-serif;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: rgba(42, 31, 24, 0.6);
+            margin-top: 4px;
+        }
+
+        .model-stats {
+            font-family: 'Open Sans', sans-serif;
+            position: relative;
+            z-index: 1;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .model-stats .win-rate {
+            font-size: 0.84em;
+            font-weight: 600;
+            color: #2a1f18;
+            letter-spacing: 0.02em;
+        }
+
+        .model-stats .counts,
+        .model-stats .averages {
+            font-size: 0.68em;
+            color: rgba(42, 31, 24, 0.62);
+            letter-spacing: 0.02em;
+        }
+
+        .model-stats .averages {
+            color: rgba(42, 31, 24, 0.52);
+        }
+
+        .loading-block {
+            text-align: center;
+            padding: 80px 20px;
+            font-family: 'Open Sans', sans-serif;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .loading-spinner {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 18px;
+        }
+
+        .footer {
+            position: relative;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+            z-index: 20;
+            line-height: 1.3;
+            padding: 24px 0 32px;
+            pointer-events: none;
+        }
+
+        .footer-domain {
             font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 2px;
         }
 
-        .back-link:hover {
-            text-decoration: underline;
+        .footer-nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .footer-nav a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            pointer-events: auto;
+        }
+
+        .footer-nav a:hover {
+            color: white;
+        }
+
+        .footer-nav span {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 720px) {
+            .leaderboard-card {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 16px;
+            }
+
+            .model-stats {
+                text-align: center;
+            }
+
+            .rank-badge {
+                margin: 0 auto;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Leaderboard</h1>
-            <p class="subtitle">Who's the funniest LLM?</p>
-        </header>
-
-        <a href="/" class="back-link">� Back to Game</a>
-
-        <div class="section">
-            <div id="loading" style="text-align: center;">
-                <div class="loading-spinner"></div>
-                <p>Loading stats...</p>
+    <div class="stage">
+        <div class="brick-wall"></div>
+        <div class="wood-floor"></div>
+        <div class="spotlight-overlay"></div>
+        <div class="content">
+            <div class="content-inner">
+                <a href="/" class="back-link">Back to Game</a>
+                <header class="hero">
+                    <h1>Leaderboard</h1>
+                </header>
+                <div class="leaderboard-section">
+                    <div id="loading" class="loading-block">
+                        <div class="loading-spinner"></div>
+                        <p>Loading stats...</p>
+                    </div>
+                    <div id="leaderboard" class="leaderboard hidden"></div>
+                </div>
             </div>
-
-            <div id="leaderboard" class="leaderboard hidden"></div>
+        </div>
+        <div class="footer">
+            <div class="footer-domain">ilikemywomen.ai</div>
+            <div class="footer-nav">
+                <a href="/">game</a>
+                <span>|</span>
+                <a href="/about">about</a>
+                <span>|</span>
+                <a href="https://twitter.com/shivers" target="_blank">@shivers</a>
+            </div>
         </div>
     </div>
 
@@ -140,31 +408,73 @@
                 loading.classList.add('hidden');
                 leaderboard.classList.remove('hidden');
 
-                if (stats.length === 0) {
-                    leaderboard.innerHTML = '<p style="text-align: center; color: #6c757d;">No data yet. Play some rounds first!</p>';
+                const excludedNames = new Set([
+                    'DeepSeek v3',
+                    'DeepSeek Chat v3.0324',
+                    'Qwen 2.5 VL 32B'
+                ]);
+
+                const considered = stats.filter(model => !excludedNames.has(model.model_name));
+
+                if (considered.length === 0) {
+                    const empty = document.createElement('p');
+                    empty.style.textAlign = 'center';
+                    empty.style.color = 'rgba(255, 255, 255, 0.6)';
+                    empty.textContent = 'No data yet. Play some rounds first!';
+                    leaderboard.appendChild(empty);
                     return;
                 }
 
-                stats.forEach((model, index) => {
-                    const item = document.createElement('div');
-                    let rankClass = '';
-                    if (index === 0) rankClass = 'first';
-                    else if (index === 1) rankClass = 'second';
-                    else if (index === 2) rankClass = 'third';
+                const tierClasses = ['gold', 'silver', 'bronze'];
 
-                    item.className = `leaderboard-item ${rankClass}`;
-                    item.innerHTML = `
+                const enriched = considered.map((model) => {
+                    const appearances = Math.max(model.appearance_count || 0, 0);
+                    const votes = Math.max(model.vote_count || 0, 0);
+                    const winRate = appearances ? votes / appearances : 0;
+                    const avgTime = model.avg_response_time != null ? Number(model.avg_response_time) : null;
+                    const avgTokens = model.avg_completion_tokens != null ? Number(model.avg_completion_tokens) : null;
+                    return {
+                        ...model,
+                        winRate,
+                        rateDisplay: (winRate * 100).toFixed(1),
+                        avgTime,
+                        avgTokens
+                    };
+                }).sort((a, b) => {
+                    if (b.winRate !== a.winRate) return b.winRate - a.winRate;
+                    if (b.vote_count !== a.vote_count) return b.vote_count - a.vote_count;
+                    return b.appearance_count - a.appearance_count;
+                });
+
+                const filtered = enriched.filter(model => model.appearance_count > 0);
+
+                if (filtered.length === 0) {
+                    const empty = document.createElement('p');
+                    empty.style.textAlign = 'center';
+                    empty.style.color = 'rgba(255, 255, 255, 0.6)';
+                    empty.textContent = 'No finished matches yet. Play some rounds first!';
+                    leaderboard.appendChild(empty);
+                    return;
+                }
+
+                filtered.forEach((model, index) => {
+                    const card = document.createElement('div');
+                    const accent = tierClasses[index] || '';
+                    card.className = ['leaderboard-card', accent].filter(Boolean).join(' ');
+                    const avgTimeText = model.avgTime != null ? `${model.avgTime.toFixed(2)}s` : '—';
+                    const avgTokensText = model.avgTokens != null ? `${Math.round(model.avgTokens)}` : '—';
+                    card.innerHTML = `
                         <div class="rank-badge">${index + 1}</div>
-                        <div class="model-info">
+                        <div class="model-meta">
                             <div class="model-name">${model.model_name}</div>
                             <div class="model-id">${model.model_id}</div>
                         </div>
-                        <div class="stats-info">
-                            <div class="vote-count">${model.vote_count}</div>
-                            <div class="response-count">${model.appearance_count} appearances</div>
+                        <div class="model-stats">
+                            <div class="win-rate">${model.rateDisplay}% win rate — wins ${model.vote_count} / appearances ${model.appearance_count}</div>
+                            <div class="averages">avg time ${avgTimeText} • avg tokens ${avgTokensText}</div>
                         </div>
                     `;
-                    leaderboard.appendChild(item);
+                    leaderboard.appendChild(card);
                 });
             } catch (error) {
                 alert('Error loading stats: ' + error.message);

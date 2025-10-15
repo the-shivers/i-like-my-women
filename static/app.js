@@ -16,7 +16,41 @@ const otherAnswers = document.getElementById('other-answers');
 const otherAnswersContainer = document.getElementById('other-answers-container');
 
 // Random words list (matches backend)
-const randomWords = ['coffee', 'pizza', 'cars', 'wine', 'storms', 'books', 'cats', 'tacos'];
+const randomWords = [
+    "coffee", "pizza", "tacos", "wine", "beer", "whiskey", "tequila", "vodka", "champagne",
+    "sushi", "burgers", "hot dogs", "ice cream", "donuts", "cookies", "cake", "pie", "steak",
+    "pasta", "ramen", "sandwiches", "salad", "soup", "curry", "bbq", "bacon", "eggs",
+    "pancakes", "waffles", "cereal", "toast", "bagels", "croissants", "tea", "kombucha",
+    "cats", "dogs", "horses", "lions", "tigers", "bears", "elephants", "dolphins", "sharks",
+    "eagles", "owls", "penguins", "flamingos", "peacocks", "snakes", "lizards", "turtles",
+    "rabbits", "hamsters", "guinea pigs", "ferrets", "monkeys", "gorillas", "pandas", "koalas",
+    "wolves", "foxes", "deer", "moose", "hippos", "rhinos", "giraffes", "zebras",
+    "cars", "motorcycles", "bicycles", "skateboards", "guitars", "pianos", "drums", "violins",
+    "books", "phones", "laptops", "tablets", "cameras", "watches", "sunglasses", "hats",
+    "shoes", "socks", "jackets", "backpacks", "umbrellas", "hammers", "screwdrivers", "saws",
+    "knives", "scissors", "pens", "pencils", "paintbrushes", "candles", "lamps", "mirrors",
+    "storms", "hurricanes", "tornadoes", "earthquakes", "volcanoes", "tsunamis", "avalanches",
+    "sunshine", "rain", "snow", "fog", "wind", "lightning", "thunder", "rainbows",
+    "mountains", "valleys", "forests", "deserts", "oceans", "rivers", "lakes", "waterfalls",
+    "stars", "planets", "moons", "comets", "asteroids", "galaxies", "black holes",
+    "snare drum", "bass drum", "cymbals", "tambourines", "harmonicas", "trumpets", "saxophones",
+    "synthesizers", "turntables", "microphones", "speakers", "headphones", "vinyl records",
+    "basketball", "football", "baseball", "soccer", "tennis", "golf", "hockey", "volleyball",
+    "boxing", "wrestling", "karate", "yoga", "pilates", "running", "swimming", "surfing",
+    "skiing", "snowboarding", "skateboarding", "rock climbing", "fishing", "camping", "hiking",
+    "robots", "drones", "satellites", "rockets", "spaceships", "ai", "algorithms", "databases",
+    "servers", "routers", "modems", "cables", "batteries", "chargers", "processors", "hard drives",
+    "refrigerators", "ovens", "microwaves", "blenders", "toasters", "coffee makers", "vacuums",
+    "washing machines", "dryers", "dishwashers", "couches", "beds", "chairs", "tables", "desks",
+    "pillows", "blankets", "towels", "soap", "shampoo", "toothbrushes", "razors",
+    "trucks", "vans", "buses", "trains", "planes", "helicopters", "boats", "yachts", "submarines",
+    "tanks", "tractors", "scooters", "segways", "hoverboards",
+    "fireworks", "balloons", "confetti", "glitter", "magnets", "puzzles", "dice", "playing cards",
+    "rubik's cubes", "yo-yos", "frisbees", "boomerangs", "kites", "bouncy balls", "slinkies",
+    "lava lamps", "disco balls", "kazoos", "whoopee cushions", "fidget spinners",
+    "chaos", "drama", "revenge", "karma", "destiny", "fate", "luck", "secrets", "mysteries",
+    "adventures", "quests", "legends", "myths", "dreams", "nightmares", "paradoxes"
+];
 
 // Set random word on load (unless URL has a suggestion)
 const path = window.location.pathname;
@@ -75,12 +109,11 @@ function resetGame() {
     answersContainer.classList.add('hidden');
     otherAnswersContainer.innerHTML = '';
     otherAnswers.classList.add('hidden');
+    loadingContainer.classList.add('hidden');
 
     // Hide action buttons container
     actionButtons.classList.add('hidden');
-
-    // Reset button visibility for next time
-    showOthersBtn.classList.remove('hidden');
+    showOthersBtn.classList.add('hidden');
 
     // Reset state
     selectedCard = null;
@@ -195,7 +228,7 @@ async function showAnswers() {
     otherAnswersContainer.innerHTML = '';
     otherAnswers.classList.add('hidden');
     actionButtons.classList.add('hidden');
-    showOthersBtn.classList.remove('hidden');
+    showOthersBtn.classList.add('hidden');
     loadingContainer.classList.remove('hidden');
     selectedCard = null;
 
@@ -273,6 +306,7 @@ async function selectCard(card, cardData) {
 
     // Show action buttons
     actionButtons.classList.remove('hidden');
+    showOthersBtn.classList.remove('hidden');
 
     // Record vote
     try {

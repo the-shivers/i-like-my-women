@@ -26,6 +26,8 @@
             width: 100%;
             height: 100%;
             background: black;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Brick wall - takes up 7/8 of viewport */
@@ -77,16 +79,35 @@
             position: relative;
             z-index: 10;
             width: 100%;
-            height: 100%;
+            flex: 1;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
             padding-top: 20px;
-            padding-bottom: 100px; /* Space for footer */
+            padding-bottom: 40px; /* breathing room above footer */
             color: white;
             overflow-y: auto;
             overflow-x: hidden;
+            -webkit-mask-image: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 1) 0%,
+                rgba(255, 255, 255, 1) calc(100% - 40px),
+                rgba(255, 255, 255, 0) calc(100% - 10px),
+                rgba(255, 255, 255, 0) 100%
+            );
+            -webkit-mask-repeat: no-repeat;
+            -webkit-mask-size: 100% 100%;
+            mask-image: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 1) 0%,
+                rgba(255, 255, 255, 1) calc(100% - 40px),
+                rgba(255, 255, 255, 0) calc(100% - 10px),
+                rgba(255, 255, 255, 0) 100%
+            );
+            mask-repeat: no-repeat;
+            mask-size: 100% 100%;
         }
 
         .headline {
@@ -224,15 +245,18 @@
         }
 
         .footer {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            right: 0;
+            position: relative;
             text-align: center;
             color: rgba(255, 255, 255, 0.7);
             font-size: 0.9em;
             z-index: 20;
             line-height: 1.3;
+            padding: 24px 0 32px;
+            pointer-events: none;
+        }
+
+        .footer > * {
+            pointer-events: auto;
         }
 
         .footer-domain {
@@ -382,7 +406,7 @@
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
         /* Loading container */
@@ -482,40 +506,86 @@
         /* Action buttons after selection */
         .action-buttons {
             display: flex;
-            gap: 20px;
+            gap: 16px;
             margin-top: 30px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .action-btn {
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            color: white;
-            font-family: 'IBM Plex Serif', serif;
-            font-size: 1em;
-            padding: 12px 30px;
+            position: relative;
+            background-image: url('parch2.jpg');
+            background-size: 600px auto;
+            border: 1px solid rgba(0, 0, 0, 0.25);
+            color: #2a1f18;
+            font-family: 'Special Elite', monospace;
+            font-size: 0.95em;
+            padding: 12px 26px;
             cursor: pointer;
             transition: all 0.3s;
-            border-radius: 5px;
+            box-shadow:
+                0 3px 6px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.35);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            --tilt: -0.6deg;
+            transform: rotate(var(--tilt));
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+            opacity: 0.35;
+            pointer-events: none;
         }
 
         .action-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: white;
+            transform: rotate(var(--tilt)) translateY(-2px);
+            box-shadow:
+                0 6px 12px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .action-btn:active {
+            transform: rotate(var(--tilt));
+            box-shadow:
+                0 3px 6px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .action-buttons .action-btn:nth-child(even) {
+            --tilt: 0.9deg;
         }
 
         /* Other answers section */
         .other-answers {
             width: 100%;
             max-width: 700px;
-            margin-top: 30px;
+            margin-top: 24px;
+            margin-bottom: 4px;
+            padding: 0;
+            position: relative;
         }
 
         .other-answers-title {
             font-size: 1.5em;
             text-align: center;
-            margin-bottom: 20px;
-            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 6px;
+            color: #ffffff;
+            font-family: 'IBM Plex Serif', serif;
+            letter-spacing: 0.05em;
+            text-shadow:
+                0 2px 4px rgba(0, 0, 0, 0.6),
+                0 4px 14px rgba(0, 0, 0, 0.45);
+        }
+
+        .other-answers .answers-container {
+            margin-top: 12px;
         }
     </style>
 </head>
@@ -566,6 +636,7 @@
             <!-- Other answers section -->
             <div class="other-answers hidden" id="other-answers">
                 <div class="other-answers-title">Other Answers</div>
+                </br>
                 <div class="answers-container" id="other-answers-container">
                 </div>
             </div>
