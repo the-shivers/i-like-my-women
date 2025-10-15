@@ -17,7 +17,8 @@
       "Bash(git push:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(FLASK_DEBUG=True python3:*)"
     ],
     "deny": [],
     "ask": []

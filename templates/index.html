@@ -59,6 +59,8 @@
             background-repeat: no-repeat;
             background-size: 100% 100%;
             background-position: center;
+            z-index: 1;
+            pointer-events: none;
         }
 
         /* Spotlight overlay */
@@ -69,6 +71,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
+            z-index: 5;
             background: radial-gradient(
                 circle 45vmax at center 65%,
                 transparent 0%,
@@ -92,10 +95,11 @@
             align-items: center;
             justify-content: flex-start;
             padding-top: 20px;
-            padding-bottom: 40px; /* breathing room above footer */
+            padding-bottom: 40px;
             color: white;
             overflow-y: auto;
             overflow-x: hidden;
+            pointer-events: none;
             -webkit-mask-image: linear-gradient(
                 to bottom,
                 rgba(255, 255, 255, 1) 0%,
@@ -123,6 +127,7 @@
             line-height: 1.4;
             max-width: 900px;
             padding: 0 40px;
+            pointer-events: auto;
         }
 
         .input-wrapper {
@@ -299,6 +304,7 @@
             max-width: 700px;
             width: 100%;
             margin-top: 80px;
+            pointer-events: auto;
         }
 
         /* Individual answer cards */
@@ -423,6 +429,7 @@
             width: 300px;
             height: 300px;
             z-index: 100;
+            pointer-events: none;
         }
 
         /* Graffiti text behind spinner */
@@ -557,6 +564,7 @@
             margin-top: 30px;
             justify-content: center;
             flex-wrap: wrap;
+            pointer-events: auto;
         }
 
         .action-btn {
@@ -617,6 +625,7 @@
             margin-bottom: 4px;
             padding: 0;
             position: relative;
+            pointer-events: auto;
         }
 
         .other-answers-title {
@@ -633,6 +642,69 @@
 
         .other-answers .answers-container {
             margin-top: 12px;
+        }
+
+        /* Graffiti penis icons */
+        .graffiti-icon {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.5;
+            mix-blend-mode: overlay;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-image: url('parch2.jpg');
+            background-size: 800px auto;
+            padding: 40px;
+            border: 2px solid rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-content h2 {
+            font-family: 'Special Elite', monospace;
+            font-size: 2em;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+
+        .modal-content p {
+            font-family: 'IBM Plex Serif', serif;
+            font-size: 1.1em;
+            color: #2a1a1a;
+            line-height: 1.6;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 2em;
+            font-weight: bold;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: #666;
         }
     </style>
 </head>
@@ -692,13 +764,22 @@
 
         <!-- Footer -->
         <div class="footer">
-            <div class="footer-domain">ilikemywomen.ai</div>
+            <div class="footer-domain">ilikemywomen.com</div>
             <div class="footer-nav">
                 <a href="/stats">stats</a>
                 <span>|</span>
-                <a href="/about">about</a>
+                <a href="#" id="about-link">about</a>
                 <span>|</span>
-                <a href="https://twitter.com/shivers" target="_blank">@shivers</a>
+                <a href="https://twitter.com/thinkingshivers" target="_blank">@thinkingshivers</a>
+            </div>
+        </div>
+
+        <!-- About popup modal -->
+        <div id="about-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>About</h2>
+                <p>Content coming soon...</p>
             </div>
         </div>
     </div>

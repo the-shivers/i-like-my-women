@@ -15,6 +15,81 @@ const showOthersBtn = document.getElementById('show-others-btn');
 const resetBtn = document.getElementById('reset-btn');
 const otherAnswers = document.getElementById('other-answers');
 const otherAnswersContainer = document.getElementById('other-answers-container');
+const brickWall = document.querySelector('.brick-wall');
+const stage = document.querySelector('.stage');
+const aboutLink = document.getElementById('about-link');
+const aboutModal = document.getElementById('about-modal');
+const closeModal = document.querySelector('.close-modal');
+
+// Graffiti images and colors
+const graffitiImages = ['p1.png', 'p2.png', 'p3.png'];
+const graffitiColors = [
+    'rgba(0, 255, 255, 1)',      // cyan
+    'rgba(255, 0, 255, 1)',      // magenta
+    'rgba(255, 215, 0, 1)'       // yellow (HA-HA color)
+];
+
+// Function to clear all graffiti
+function clearGraffiti() {
+    const existingGraffiti = document.querySelectorAll('.graffiti-icon');
+    existingGraffiti.forEach(icon => icon.remove());
+}
+
+// Brick wall click handler - add graffiti
+brickWall.addEventListener('click', (e) => {
+    // Get click position relative to the stage
+    const rect = stage.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Create graffiti icon
+    const icon = document.createElement('img');
+    icon.className = 'graffiti-icon';
+
+    // Random image
+    const randomImage = graffitiImages[Math.floor(Math.random() * graffitiImages.length)];
+    icon.src = randomImage;
+
+    // Random size (between 80px and 200px)
+    const size = 80 + Math.random() * 120;
+    icon.style.width = size + 'px';
+    icon.style.height = 'auto';
+
+    // Random rotation (0 to 360 degrees)
+    const rotation = Math.random() * 360;
+
+    // Random flip (horizontal and/or vertical)
+    const flipX = Math.random() > 0.5 ? -1 : 1;
+    const flipY = Math.random() > 0.5 ? -1 : 1;
+
+    // Random color filter
+    const color = graffitiColors[Math.floor(Math.random() * graffitiColors.length)];
+
+    // Position centered on click (accounting for size)
+    icon.style.left = (x - size / 2) + 'px';
+    icon.style.top = (y - size / 2) + 'px';
+
+    // Apply transform (rotation and flip) and color
+    icon.style.transform = `rotate(${rotation}deg) scale(${flipX}, ${flipY})`;
+
+    // For black images, invert to white then colorize
+    if (color.includes('0, 255, 255')) {
+        // Cyan
+        icon.style.filter = 'invert(1) sepia(1) saturate(10000%) hue-rotate(140deg) brightness(1)';
+    } else if (color.includes('255, 0, 255')) {
+        // Magenta
+        icon.style.filter = 'invert(1) sepia(1) saturate(10000%) hue-rotate(280deg) brightness(1)';
+    } else if (color.includes('255, 215, 0')) {
+        // Yellow
+        icon.style.filter = 'invert(1) sepia(1) saturate(10000%) hue-rotate(20deg) brightness(1.1)';
+    } else {
+        // Neon green
+        icon.style.filter = 'invert(1) sepia(1) saturate(10000%) hue-rotate(80deg) brightness(1.1)';
+    }
+
+    // Add to stage
+    stage.appendChild(icon);
+});
 
 // Random words list (matches backend)
 const randomWords = [
@@ -110,6 +185,9 @@ function resetGame() {
     // Hide action buttons container
     actionButtons.classList.add('hidden');
     showOthersBtn.classList.add('hidden');
+
+    // Clear graffiti
+    clearGraffiti();
 
     // Reset state
     selectedCard = null;
@@ -228,6 +306,10 @@ async function showAnswers() {
     otherAnswers.classList.add('hidden');
     actionButtons.classList.add('hidden');
     showOthersBtn.classList.add('hidden');
+
+    // Clear graffiti
+    clearGraffiti();
+
     loadingContainer.classList.remove('hidden');
     loadingProgress.textContent = '0/4';
     selectedCard = null;
@@ -396,5 +478,22 @@ submitBtn.addEventListener('click', showAnswers);
 input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         showAnswers();
+    }
+});
+
+// About modal handlers
+aboutLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    aboutModal.classList.remove('hidden');
+});
+
+closeModal.addEventListener('click', () => {
+    aboutModal.classList.add('hidden');
+});
+
+// Close modal when clicking outside
+aboutModal.addEventListener('click', (e) => {
+    if (e.target === aboutModal) {
+        aboutModal.classList.add('hidden');
     }
 });
