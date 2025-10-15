@@ -49,7 +49,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 87.5vh;
+            height: 87.5dvh;
             background-image: url('medium-ironspot-77-velour-face-brick-modular-running-bond-322-in-architextures.jpg');
             background-repeat: repeat;
             background-size: 400px auto;
@@ -61,7 +61,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 12.5vh;
+            height: 12.5dvh;
             background-image: url('Hardwood-flooring.png');
             background-repeat: no-repeat;
             background-size: 100% 100%;
@@ -218,51 +218,71 @@
 
         .input-controls {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             position: absolute;
             top: 100%;
             left: 0;
-            margin-top: 6px;
+            margin-top: 8px;
             justify-content: flex-start;
             align-items: center;
             white-space: nowrap;
         }
 
-        .random-btn {
-            background: none;
+        .random-btn,
+        .submit-btn {
+            position: relative;
+            background: rgba(255, 255, 255, 0.5);
             border: none;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.7em;
+            border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s;
-            padding: 0;
-            line-height: 1;
+            overflow: hidden;
             display: flex;
             align-items: center;
-            transform: translateY(-1px);
+            justify-content: center;
         }
 
-        .random-btn:hover {
-            color: white;
+        .random-btn {
+            font-size: 0.9em;
+            padding: 8px 14px;
+            min-width: 44px;
+            height: 34px;
+            line-height: 1;
+        }
+
+        .random-btn span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateY(-3px);
         }
 
         .submit-btn {
-            flex: 1;
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.45em;
-            padding: 0;
-            cursor: pointer;
-            transition: all 0.3s;
+            font-size: 0.55em;
+            padding: 8px 18px;
+            min-width: 70px;
+            height: 34px;
             font-family: 'Open Sans', sans-serif;
-            font-weight: 400;
-            letter-spacing: 0.03em;
-            text-align: left;
+            font-weight: 600;
         }
 
+        .random-btn span,
+        .submit-btn span {
+            color: black;
+            mix-blend-mode: multiply;
+            position: relative;
+            z-index: 1;
+        }
+
+        .random-btn:hover,
         .submit-btn:hover {
-            color: white;
+            background: rgba(255, 255, 255, 0.65);
+            transform: translateY(-1px);
+        }
+
+        .random-btn:active,
+        .submit-btn:active {
+            transform: translateY(0);
         }
 
         .footer {
@@ -853,8 +873,8 @@
                         <input type="text" value="{{ initial_word }}" id="word-input">
                     </span><span style="position: relative; z-index: 100;">...</span>
                     <div class="input-controls">
-                        <button class="random-btn" id="random-btn" title="Random word">↻</button>
-                        <button class="submit-btn" id="submit-btn">Submit</button>
+                        <button class="random-btn" id="random-btn" title="Random word"><span>↻</span></button>
+                        <button class="submit-btn" id="submit-btn"><span>Submit</span></button>
                     </div>
                 </span>
             </div>
