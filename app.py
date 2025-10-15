@@ -204,8 +204,10 @@ def init_db():
 init_db()
 
 def get_db():
-    conn = sqlite3.connect('comedy.db')
+    conn = sqlite3.connect('comedy.db', timeout=10.0)
     conn.row_factory = sqlite3.Row
+    # Enable WAL mode for better concurrency
+    conn.execute('PRAGMA journal_mode=WAL')
     return conn
 
 def call_llm(model_config, word):
