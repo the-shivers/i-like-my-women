@@ -26,8 +26,12 @@
         body {
             overflow: hidden;
             height: 100vh;
+            height: 100dvh;
             width: 100vw;
             font-family: 'IBM Plex Serif', serif;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
 
         .stage {
@@ -101,6 +105,7 @@
             color: white;
             overflow-y: auto;
             overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
             pointer-events: none;
             -webkit-mask-image: linear-gradient(
                 to bottom,
