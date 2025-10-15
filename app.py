@@ -39,18 +39,18 @@ active_competitions = {}
 MODELS = [
     {"name": "Gemini 2.5 Flash", "model": "google/gemini-2.5-flash", "reasoning_max_tokens": 0},  # 0.69s avg
     {"name": "Llama 4 Scout", "model": "meta-llama/llama-4-scout"},  # 0.75s avg
-    {"name": "Llama 4 Maverick", "model": "meta-llama/llama-4-maverick"},  # 0.78s avg
+    # {"name": "Llama 4 Maverick", "model": "meta-llama/llama-4-maverick"},  # 0.78s avg
     {"name": "GPT-4.1", "model": "openai/gpt-4.1"},  # 1.07s avg
     {"name": "Qwen3 235B", "model": "qwen/qwen3-235b-a22b-2507"},  # 1.13s avg
     {"name": "GPT-4o", "model": "openai/gpt-4o", "reasoning_effort": "low"},  # 1.24s avg
     {"name": "DeepSeek Chat v3.1", "model": "deepseek/deepseek-chat-v3.1"},  # 1.48s avg
-    {"name": "Qwen 2.5 72B", "model": "qwen/qwen-2.5-72b-instruct"},  # 1.50s avg
+    # {"name": "Qwen 2.5 72B", "model": "qwen/qwen-2.5-72b-instruct"},  # 1.50s avg
     {"name": "GPT-5 Chat", "model": "openai/gpt-5-chat", "reasoning_effort": "low"},  # 1.53s avg
-    {"name": "Rocinante 12B", "model": "thedrummer/rocinante-12b"},  # 1.72s avg
+    # {"name": "Rocinante 12B", "model": "thedrummer/rocinante-12b"},  # 1.72s avg
     {"name": "Claude Sonnet 4.5", "model": "anthropic/claude-sonnet-4.5"},  # 1.83s avg
     {"name": "Kimi K2", "model": "moonshotai/kimi-k2-0905"},  # 2.19s avg
     # {"name": "Qwen 2.5 VL 32B", "model": "qwen/qwen2.5-vl-32b-instruct"},  # 2.21s avg (too similar to 72B/235B, parking it)
-    {"name": "Claude Opus 4.1", "model": "anthropic/claude-opus-4.1"},  # 2.35s avg
+    # {"name": "Claude Opus 4.1", "model": "anthropic/claude-opus-4.1"},  # 2.35s avg (too expensive)
     # {"name": "DeepSeek v3", "model": "deepseek/deepseek-chat-v3-0324"},  # 2.49s avg (superseded by v3.1, keeping the newer one)
     # {"name": "DeepSeek Chat v3.0324", "model": "deepseek/deepseek-chat-v3-0324"},  # 3.03s avg (nearly identical to v3.1, set aside)
 
@@ -254,15 +254,14 @@ def call_llm(model_config, word):
         reasoning_tokens = getattr(usage, 'reasoning_tokens', 0) if usage else 0
         prompt_tokens = getattr(usage, 'prompt_tokens', 0) if usage else 0
 
-        # OpenRouter returns cost in the response headers or usage object
+        # OpenRouter returns cost in usage.cost
+        # For BYOK (bring your own key) models, cost is 0 but upstream_inference_cost has the actual cost
         cost_usd = 0.0
-        if hasattr(response, '_headers') and response._headers:
-            # Try to get cost from headers
-            cost_header = response._headers.get('x-ratelimit-cost', '0')
-            try:
-                cost_usd = float(cost_header)
-            except:
-                pass
+        if usage and hasattr(usage, 'cost'):
+            cost_usd = usage.cost
+            # If cost is 0 and we have cost_details, use upstream_inference_cost
+            if cost_usd == 0 and hasattr(usage, 'cost_details') and usage.cost_details:
+                cost_usd = usage.cost_details.get('upstream_inference_cost', 0.0)
 
         print(f"DEBUG {model_config['name']}: Time={response_time:.2f}s, Content='{content}', Tokens={completion_tokens}, Reasoning={reasoning_tokens}, Cost=${cost_usd:.6f}")
 
@@ -303,6 +302,12 @@ def index():
 @app.route('/stats')
 def stats():
     return send_from_directory('static', 'stats.html')
+
+@app.route('/loading')
+def loading():
+    """Test page to view the loading spinner"""
+    initial_word = random.choice(RANDOM_WORDS)
+    return render_template('index.html', initial_word=initial_word, show_loading=True)
 
 @app.route('/random')
 def random_word():
@@ -355,7 +360,6 @@ def call_llm_and_save(model_config, word, suggestion_id, is_contestant):
     return response_data
 
 @app.route('/api/compete', methods=['POST'])
-@limiter.limit("10 per minute")
 def compete():
     """Get responses from all models for a given word"""
     data = request.json
@@ -556,7 +560,6 @@ def get_responses():
     })
 
 @app.route('/api/vote', methods=['POST'])
-@limiter.limit("30 per minute")
 def vote():
     """Record a vote for a response"""
     data = request.json

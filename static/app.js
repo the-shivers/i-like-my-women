@@ -9,6 +9,7 @@ const submitBtn = document.getElementById('submit-btn');
 const randomBtn = document.getElementById('random-btn');
 const answersContainer = document.getElementById('answers-container');
 const loadingContainer = document.getElementById('loading-container');
+const loadingProgress = document.getElementById('loading-progress');
 const actionButtons = document.getElementById('action-buttons');
 const showOthersBtn = document.getElementById('show-others-btn');
 const resetBtn = document.getElementById('reset-btn');
@@ -81,7 +82,7 @@ document.fonts.ready.then(() => {
     updateWiggleDisplay();
 
     // Auto-focus and put cursor at end (only if not submitting from URL)
-    if (path === '/' || path === '') {
+    if (path === '/' || path === '' || path === '/loading') {
         input.focus();
         input.setSelectionRange(input.value.length, input.value.length);
     } else {
@@ -113,6 +114,9 @@ function resetGame() {
     // Reset state
     selectedCard = null;
     currentData = null;
+
+    // Navigate back to home page
+    window.history.pushState({}, '', '/');
 
     // Set new random word
     input.value = randomWords[Math.floor(Math.random() * randomWords.length)];
@@ -225,6 +229,7 @@ async function showAnswers() {
     actionButtons.classList.add('hidden');
     showOthersBtn.classList.add('hidden');
     loadingContainer.classList.remove('hidden');
+    loadingProgress.textContent = '0/4';
     selectedCard = null;
 
     try {
@@ -249,6 +254,9 @@ async function showAnswers() {
             try {
                 const statusResponse = await fetch(`/api/compete/status?suggestion_id=${currentData.suggestion_id}`);
                 const status = await statusResponse.json();
+
+                // Update progress counter
+                loadingProgress.textContent = `${status.completed}/${status.total}`;
 
                 // When ready, stop polling and display
                 if (status.ready) {
