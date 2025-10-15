@@ -106,7 +106,7 @@
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
-            pointer-events: none;
+            pointer-events: auto;
             -webkit-mask-image: linear-gradient(
                 to bottom,
                 rgba(255, 255, 255, 1) 0%,
@@ -127,6 +127,11 @@
             mask-size: 100% 100%;
         }
 
+        /* Prevent content from blocking brick wall clicks */
+        .content > *:not(.headline):not(.answers-container):not(.action-buttons):not(.other-answers):not(.loading-container) {
+            pointer-events: none;
+        }
+
         .headline {
             font-size: 2.5em;
             font-weight: 400;
@@ -134,7 +139,6 @@
             line-height: 1.4;
             max-width: 900px;
             padding: 0 40px;
-            pointer-events: auto;
         }
 
         .input-wrapper {
@@ -313,7 +317,6 @@
             margin-top: 80px;
             margin-left: auto;
             margin-right: auto;
-            pointer-events: auto;
         }
 
         /* Individual answer cards */
@@ -576,7 +579,6 @@
             margin-top: 30px;
             justify-content: center;
             flex-wrap: wrap;
-            pointer-events: auto;
         }
 
         .action-btn {
@@ -639,7 +641,6 @@
             margin-right: auto;
             padding: 0;
             position: relative;
-            pointer-events: auto;
         }
 
         .other-answers-title {
