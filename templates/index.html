@@ -167,7 +167,7 @@
 
         .headline input {
             position: relative;
-            color: white; /* Always visible, no more transparent bullshit */
+            color: transparent; /* Hidden - wiggle display is pre-rendered server-side */
         }
 
         .headline input::selection {
@@ -610,8 +610,8 @@
         <div class="content">
             <div class="headline">
                 I like my women like I like my <span style="position: relative; display: inline-block; white-space: nowrap;">
-                    <span class="input-wrapper">
-                        <span id="wiggle-display"></span>
+                    <span class="input-wrapper" style="width: auto;">
+                        <span id="wiggle-display">{% for char in initial_word %}<span>{{ char }}</span>{% endfor %}</span>
                         <input type="text" value="{{ initial_word }}" id="word-input">
                     </span><span style="position: relative; z-index: 100;">...</span>
                     <div class="input-controls">
