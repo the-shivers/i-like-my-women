@@ -52,14 +52,8 @@ const randomWords = [
     "adventures", "quests", "legends", "myths", "dreams", "nightmares", "paradoxes"
 ];
 
-// Set random word on load (unless URL has a suggestion)
+// Value is now set server-side, so we don't need to set it in JS
 const path = window.location.pathname;
-if (path !== '/' && path !== '/stats' && path !== '/about') {
-    const suggestion = path.substring(1); // Remove leading slash
-    input.value = decodeURIComponent(suggestion);
-} else {
-    input.value = randomWords[Math.floor(Math.random() * randomWords.length)];
-}
 
 // Update wiggle display with individual letter spans
 function updateWiggleDisplay() {

@@ -3,7 +3,7 @@ import sqlite3
 import time
 import threading
 import uuid
-from flask import Flask, request, jsonify, send_from_directory, session
+from flask import Flask, request, jsonify, send_from_directory, session, render_template
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from openai import OpenAI
@@ -296,7 +296,9 @@ def call_llm(model_config, word):
 
 @app.route('/')
 def index():
-    return send_from_directory('static', 'index.html')
+    # Pick a random word for the homepage
+    initial_word = random.choice(RANDOM_WORDS)
+    return render_template('index.html', initial_word=initial_word)
 
 @app.route('/stats')
 def stats():
@@ -311,11 +313,12 @@ def random_word():
 
 @app.route('/<suggestion>')
 def suggestion_route(suggestion):
-    """Route for suggestions like /coffee, /banana - serves the page and triggers API call via JS"""
+    """Route for suggestions like /coffee, /banana - serves the page with word pre-filled"""
     # Let Flask handle static files normally
     if '.' in suggestion:
         return app.send_static_file(suggestion)
-    return send_from_directory('static', 'index.html')
+    # Render template with the suggestion word
+    return render_template('index.html', initial_word=suggestion)
 
 def call_llm_and_save(model_config, word, suggestion_id, is_contestant):
     """Call LLM and save result to DB, updating active competition status"""
