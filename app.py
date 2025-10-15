@@ -18,11 +18,11 @@ app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', os.urandom(24).hex())
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = 2592000  # 30 days
 
-# Rate limiting
+# Rate limiting - DISABLED for now
 limiter = Limiter(
     get_remote_address,
     app=app,
-    default_limits=["200 per day", "50 per hour"],
+    default_limits=[],  # No limits for now
     storage_uri="memory://"
 )
 
