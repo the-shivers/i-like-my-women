@@ -84,9 +84,9 @@
                 transparent 0%,
                 transparent 35%,
                 rgba(0, 0, 0, 0.5) 55%,
-                rgba(0, 0, 0, 0.85) 75%,
-                rgba(0, 0, 0, 0.98) 90%,
-                black 100%
+                rgba(0, 0, 0, 0.8) 75%,
+                rgba(0, 0, 0, 0.92) 90%,
+                rgba(0, 0, 0, 0.97) 100%
             );
         }
 
@@ -221,9 +221,10 @@
             gap: 10px;
             position: absolute;
             top: 100%;
-            left: 0;
+            left: 50%;
+            transform: translateX(-50%);
             margin-top: 8px;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
             white-space: nowrap;
         }
@@ -243,7 +244,7 @@
         }
 
         .random-btn {
-            font-size: 0.9em;
+            font-size: 0.75em;
             padding: 8px 14px;
             min-width: 44px;
             height: 34px;
@@ -258,7 +259,7 @@
         }
 
         .submit-btn {
-            font-size: 0.55em;
+            font-size: 0.48em;
             padding: 8px 18px;
             min-width: 70px;
             height: 34px;
@@ -751,7 +752,7 @@
 
             .answers-container {
                 gap: 16px;
-                margin-top: 50px;
+                margin-top: 70px;
                 max-width: calc(100% - 80px);
             }
 
@@ -802,7 +803,7 @@
 
             .answers-container {
                 gap: 10px;
-                margin-top: 50px;
+                margin-top: 70px;
                 max-width: calc(100% - 40px);
             }
 
@@ -846,9 +847,8 @@
                 font-size: 1.2em;
             }
 
-            .footer {
-                padding: 16px 0 20px;
-                font-size: 0.8em;
+            .random-btn span {
+                transform: translateY(-1px);
             }
         }
     </style>

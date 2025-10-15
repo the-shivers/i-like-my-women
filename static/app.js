@@ -246,8 +246,8 @@ function generateAnswerCards(responses) {
             seenResponses.add(cardData.response);
         }
 
-        // Random rotation between -1.5 and 1.5 degrees
-        const rotation = (Math.random() * 3 - 1.5).toFixed(1);
+        // Random rotation between -1 and 1 degrees
+        const rotation = (Math.random() * 2 - 1).toFixed(1);
 
         // Random horizontal shift between -15px and 15px
         const translateX = Math.floor(Math.random() * 30 - 15);
@@ -427,8 +427,8 @@ showOthersBtn.addEventListener('click', async () => {
             const card = document.createElement('div');
             card.className = 'answer-card revealed';
 
-            // Random rotation between -1.5 and 1.5 degrees
-            const rotation = (Math.random() * 3 - 1.5).toFixed(1);
+            // Random rotation between -1 and 1 degrees
+            const rotation = (Math.random() * 2 - 1).toFixed(1);
             const translateX = Math.floor(Math.random() * 30 - 15);
             const bgX = Math.floor(Math.random() * 100);
             const bgY = Math.floor(Math.random() * 100);
