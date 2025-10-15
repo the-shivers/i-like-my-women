@@ -454,10 +454,12 @@ def compete():
                 comp['contestant_responses'] = contestant_responses
                 comp['ready'] = True
 
-                # Track appearances for contestants
+                # Track appearances for contestants - generate matchup ID
+                matchup_id = str(uuid.uuid4())
                 db = get_db()
                 for r in contestant_responses:
-                    db.execute('INSERT INTO appearances (response_id) VALUES (?)', (r['id'],))
+                    db.execute('INSERT INTO appearances (response_id, suggestion_id, matchup_id) VALUES (?, ?, ?)',
+                              (r['id'], suggestion_id, matchup_id))
                 db.commit()
                 db.close()
 
