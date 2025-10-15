@@ -65,14 +65,15 @@ function updateWiggleDisplay() {
     ).join('');
 
     // Resize wrapper to fit content (enforce minimum width)
-    const tempSpan = document.createElement('span');
-    tempSpan.style.font = window.getComputedStyle(wiggleDisplay).font;
-    tempSpan.style.visibility = 'hidden';
-    tempSpan.style.position = 'absolute';
-    tempSpan.textContent = displayText;
-    document.body.appendChild(tempSpan);
-    inputWrapper.style.width = Math.max(30, tempSpan.offsetWidth + 5) + 'px';
-    document.body.removeChild(tempSpan);
+    // DISABLED - wrapper sizes naturally to wiggle-display now
+    // const tempSpan = document.createElement('span');
+    // tempSpan.style.font = window.getComputedStyle(wiggleDisplay).font;
+    // tempSpan.style.visibility = 'hidden';
+    // tempSpan.style.position = 'absolute';
+    // tempSpan.textContent = displayText;
+    // document.body.appendChild(tempSpan);
+    // inputWrapper.style.width = Math.max(30, tempSpan.offsetWidth + 5) + 'px';
+    // document.body.removeChild(tempSpan);
 }
 
 // Wait for font to load before sizing

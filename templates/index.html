@@ -128,8 +128,7 @@
         .input-wrapper {
             display: inline-block;
             position: relative;
-            min-width: 30px;
-            max-width: fit-content;
+            width: fit-content;
             vertical-align: baseline;
             border-bottom: 2px solid rgba(255, 255, 255, 0.5);
             padding-bottom: 2px;
@@ -147,27 +146,27 @@
             outline: none;
             caret-color: white;
             color: white;
-            width: 100%;
+            width: 0;
+            min-width: 100%;
             line-height: inherit;
             vertical-align: baseline;
         }
 
-        /* Show wiggle letters on top of input */
+        /* Show wiggle letters - NOT absolute, in the flow */
         #wiggle-display {
             font-family: 'IBM Plex Serif', serif;
             font-size: 1em;
             font-weight: 400;
             color: white;
-            pointer-events: none;
-            position: absolute;
-            left: 0px;
-            top: 0px;
             line-height: inherit;
         }
 
         .headline input {
-            position: relative;
-            color: transparent; /* Hidden - wiggle display is pre-rendered server-side */
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0; /* Hidden but clickable for typing */
+            pointer-events: auto;
         }
 
         .headline input::selection {
@@ -610,7 +609,7 @@
         <div class="content">
             <div class="headline">
                 I like my women like I like my <span style="position: relative; display: inline-block; white-space: nowrap;">
-                    <span class="input-wrapper" style="width: auto;">
+                    <span class="input-wrapper">
                         <span id="wiggle-display">{% for char in initial_word %}<span>{{ char }}</span>{% endfor %}</span>
                         <input type="text" value="{{ initial_word }}" id="word-input">
                     </span><span style="position: relative; z-index: 100;">...</span>
