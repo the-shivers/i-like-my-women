@@ -204,7 +204,7 @@
             position: relative;
             z-index: 1;
             line-height: 1;
-            transform: translateY(1px);
+            padding-top: 4px;
         }
 
         .leaderboard-card.gold .rank-badge {
@@ -291,15 +291,15 @@
         .footer {
             position: relative;
             text-align: center;
+            color: rgba(255, 255, 255, 0.7);
             font-size: 0.9em;
             z-index: 20;
             line-height: 1.3;
-            padding: 8px 0;
+            padding: 24px 0 32px;
             pointer-events: none;
         }
 
-        .footer * {
-            color: white;
+        .footer > * {
             pointer-events: auto;
         }
 
@@ -317,11 +317,17 @@
         }
 
         .footer-nav a {
+            color: rgba(255, 255, 255, 0.6);
             text-decoration: none;
+            transition: color 0.3s;
         }
 
         .footer-nav a:hover {
-            text-decoration: underline;
+            color: white;
+        }
+
+        .footer-nav span {
+            color: rgba(255, 255, 255, 0.3);
         }
 
         .hidden {
@@ -336,16 +342,41 @@
         @media (max-width: 720px) {
             .leaderboard-card {
                 grid-template-columns: 1fr;
-                text-align: center;
-                gap: 16px;
-            }
-
-            .model-stats {
-                text-align: center;
+                padding: 12px 14px;
+                gap: 6px;
             }
 
             .rank-badge {
-                margin: 0 auto;
+                display: none;
+            }
+
+            .model-meta {
+                text-align: left;
+            }
+
+            .model-name {
+                font-size: 1.05em;
+            }
+
+            .model-name::before {
+                content: attr(data-rank) ". ";
+                font-weight: 600;
+            }
+
+            .model-id {
+                display: none;
+            }
+
+            .model-stats {
+                text-align: left;
+            }
+
+            .model-stats .win-rate {
+                font-size: 0.78em;
+            }
+
+            .model-stats .averages {
+                font-size: 0.62em;
             }
         }
     </style>
@@ -370,17 +401,17 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Footer -->
-    <div class="footer">
-        <div class="footer-domain">ilikemywomen.com</div>
-        <div class="footer-nav">
-            <a href="/stats">stats</a>
-            <span>|</span>
-            <a href="#" id="about-link">about</a>
-            <span>|</span>
-            <a href="https://twitter.com/thinkingshivers" target="_blank">@thinkingshivers</a>
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-domain">ilikemywomen.com</div>
+            <div class="footer-nav">
+                <a href="/stats">stats</a>
+                <span>|</span>
+                <a href="#" id="about-link">about</a>
+                <span>|</span>
+                <a href="https://twitter.com/thinkingshivers" target="_blank">@thinkingshivers</a>
+            </div>
         </div>
     </div>
 
@@ -460,7 +491,7 @@
                     card.innerHTML = `
                         <div class="rank-badge">${index + 1}</div>
                         <div class="model-meta">
-                            <div class="model-name">${model.model_name}</div>
+                            <div class="model-name" data-rank="${index + 1}">${model.model_name}</div>
                             <div class="model-id">${model.model_id}</div>
                         </div>
                         <div class="model-stats">

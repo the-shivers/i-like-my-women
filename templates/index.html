@@ -73,7 +73,7 @@
             pointer-events: none;
             z-index: 5;
             background: radial-gradient(
-                circle 45vmax at center 65%,
+                ellipse 45vmax 58vmax at center 55%,
                 transparent 0%,
                 transparent 35%,
                 rgba(0, 0, 0, 0.5) 55%,
@@ -94,8 +94,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding-top: 20px;
-            padding-bottom: 40px;
+            padding: 20px 20px 40px;
             color: white;
             overflow-y: auto;
             overflow-x: hidden;
@@ -304,6 +303,8 @@
             max-width: 700px;
             width: 100%;
             margin-top: 80px;
+            margin-left: auto;
+            margin-right: auto;
             pointer-events: auto;
         }
 
@@ -315,7 +316,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow:
-                0 4px 8px rgba(0, 0, 0, 0.3),
+                0 0 16px rgba(0, 0, 0, 0.85),
+                0 0 8px rgba(0, 0, 0, 0.9),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
             position: relative;
             display: grid;
@@ -331,13 +333,15 @@
         .answer-card:hover {
             transform: rotate(0deg) translateX(0) scale(1.02) !important;
             box-shadow:
-                0 8px 16px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(0, 0, 0, 0.9),
+                0 0 10px rgba(0, 0, 0, 0.95),
                 inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         .answer-card.selected {
             box-shadow:
-                0 8px 16px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(0, 0, 0, 0.9),
+                0 0 10px rgba(0, 0, 0, 0.95),
                 inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
@@ -345,10 +349,10 @@
         .answer-card.selected::after {
             content: '';
             position: absolute;
-            top: -25px;
-            left: -35px;
-            width: 80px;
-            height: 80px;
+            top: -22px;
+            left: -30px;
+            width: 70px;
+            height: 70px;
             background-image: url('ribbon.webp');
             background-size: contain;
             background-repeat: no-repeat;
@@ -376,7 +380,7 @@
             grid-column: 2;
             grid-row: 1;
             font-family: 'IBM Plex Serif', serif;
-            font-size: 0.75em;
+            font-size: 0.85em;
             color: #444;
             font-weight: 600;
             text-align: right;
@@ -390,7 +394,7 @@
             grid-column: 2;
             grid-row: 2;
             font-family: 'IBM Plex Serif', serif;
-            font-size: 0.7em;
+            font-size: 0.85em;
             color: #666;
             text-align: right;
             white-space: nowrap;
@@ -623,6 +627,8 @@
             max-width: 700px;
             margin-top: 24px;
             margin-bottom: 4px;
+            margin-left: auto;
+            margin-right: auto;
             padding: 0;
             position: relative;
             pointer-events: auto;
@@ -705,6 +711,116 @@
 
         .close-modal:hover {
             color: #666;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .headline {
+                font-size: 1.8em;
+                padding: 0 20px;
+            }
+
+            .answers-container {
+                gap: 16px;
+                margin-top: 50px;
+                max-width: calc(100% - 80px);
+            }
+
+            .answer-card {
+                padding: 14px;
+                min-height: 60px;
+            }
+
+            .answer-card.selected::after {
+                width: 50px;
+                height: 50px;
+                top: -15px;
+                left: -20px;
+            }
+
+            .answer-text {
+                font-size: 1.1em;
+            }
+
+            .model-name {
+                font-size: 0.75em;
+            }
+
+            .model-stats {
+                font-size: 0.75em;
+            }
+
+            .action-buttons {
+                margin-top: 20px;
+            }
+
+            .action-btn {
+                font-size: 0.85em;
+                padding: 10px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .headline {
+                font-size: 1.4em;
+                padding: 0 16px;
+            }
+
+            .content {
+                padding-top: 16px;
+                padding-bottom: 24px;
+            }
+
+            .answers-container {
+                gap: 10px;
+                margin-top: 50px;
+                max-width: calc(100% - 40px);
+            }
+
+            .answer-card {
+                padding: 9px 10px;
+                min-height: 50px;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 28%);
+                gap: 0 8px;
+            }
+
+            .answer-card.selected::after {
+                width: 38px;
+                height: 38px;
+                top: -12px;
+                left: -15px;
+            }
+
+            .answer-text {
+                font-size: 0.88em;
+                word-break: break-word;
+            }
+
+            .model-name {
+                font-size: 0.65em;
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            .model-stats {
+                font-size: 0.65em;
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            .action-btn {
+                font-size: 0.8em;
+                padding: 9px 18px;
+            }
+
+            .other-answers-title {
+                font-size: 1.2em;
+            }
+
+            .footer {
+                padding: 16px 0 20px;
+                font-size: 0.8em;
+            }
         }
     </style>
 </head>
