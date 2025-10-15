@@ -83,7 +83,10 @@
             align-items: center;
             justify-content: flex-start;
             padding-top: 20px;
+            padding-bottom: 100px; /* Space for footer */
             color: white;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .headline {
@@ -303,6 +306,23 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
+        /* Winner ribbon */
+        .answer-card.selected::after {
+            content: '';
+            position: absolute;
+            top: -25px;
+            left: -35px;
+            width: 80px;
+            height: 80px;
+            background-image: url('ribbon.webp');
+            background-size: contain;
+            background-repeat: no-repeat;
+            transform: rotate(15deg);
+            filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.25));
+            z-index: 10;
+            pointer-events: none;
+        }
+
         /* Answer text - spans both rows of left column */
         .answer-text {
             grid-column: 1;
@@ -458,6 +478,45 @@
         .answers-container:not(.hidden) .answer-card.slide-right {
             animation: slideInFromRight 0.3s ease-out;
         }
+
+        /* Action buttons after selection */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            font-family: 'IBM Plex Serif', serif;
+            font-size: 1em;
+            padding: 12px 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 5px;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: white;
+        }
+
+        /* Other answers section */
+        .other-answers {
+            width: 100%;
+            max-width: 700px;
+            margin-top: 30px;
+        }
+
+        .other-answers-title {
+            font-size: 1.5em;
+            text-align: center;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
     </style>
 </head>
 <body>
@@ -496,6 +555,19 @@
 
             <!-- Answer cards (hidden by default, populated by JS) -->
             <div class="answers-container hidden" id="answers-container">
+            </div>
+
+            <!-- Action buttons (shown after selection) -->
+            <div class="action-buttons hidden" id="action-buttons">
+                <button class="action-btn" id="show-others-btn">Show Other Answers</button>
+                <button class="action-btn" id="reset-btn">Reset</button>
+            </div>
+
+            <!-- Other answers section -->
+            <div class="other-answers hidden" id="other-answers">
+                <div class="other-answers-title">Other Answers</div>
+                <div class="answers-container" id="other-answers-container">
+                </div>
             </div>
         </div>
 

@@ -9,6 +9,11 @@ const submitBtn = document.getElementById('submit-btn');
 const randomBtn = document.getElementById('random-btn');
 const answersContainer = document.getElementById('answers-container');
 const loadingContainer = document.getElementById('loading-container');
+const actionButtons = document.getElementById('action-buttons');
+const showOthersBtn = document.getElementById('show-others-btn');
+const resetBtn = document.getElementById('reset-btn');
+const otherAnswers = document.getElementById('other-answers');
+const otherAnswersContainer = document.getElementById('other-answers-container');
 
 // Random words list (matches backend)
 const randomWords = ['coffee', 'pizza', 'cars', 'wine', 'storms', 'books', 'cats', 'tacos'];
@@ -63,22 +68,73 @@ wiggleDisplay.addEventListener('click', () => {
     input.focus();
 });
 
-// Random button functionality
-randomBtn.addEventListener('click', () => {
+// Reset functionality
+function resetGame() {
+    // Clear cards
+    answersContainer.innerHTML = '';
+    answersContainer.classList.add('hidden');
+    otherAnswersContainer.innerHTML = '';
+    otherAnswers.classList.add('hidden');
+
+    // Hide action buttons container
+    actionButtons.classList.add('hidden');
+
+    // Reset button visibility for next time
+    showOthersBtn.classList.remove('hidden');
+
+    // Reset state
+    selectedCard = null;
+    currentData = null;
+
+    // Set new random word
     input.value = randomWords[Math.floor(Math.random() * randomWords.length)];
     updateWiggleDisplay();
+
+    // Focus input
     input.focus();
-});
+    input.setSelectionRange(input.value.length, input.value.length);
+}
+
+// Random button functionality
+randomBtn.addEventListener('click', resetGame);
+
+// Reset button functionality
+resetBtn.addEventListener('click', resetGame);
 
 // Generate answer cards with random styling
 function generateAnswerCards(responses) {
     answersContainer.innerHTML = '';
 
-    responses.forEach((responseData, index) => {
+    // Flatten grouped responses into individual cards (one per model)
+    const allCards = [];
+    responses.forEach(responseData => {
+        responseData.models.forEach((modelName, idx) => {
+            allCards.push({
+                response: responseData.response,
+                model: modelName,
+                response_id: responseData.response_ids[idx],
+                response_time: responseData.response_time,
+                completion_tokens: responseData.completion_tokens
+            });
+        });
+    });
+
+    // Track which response texts we've seen to hide duplicates
+    const seenResponses = new Set();
+
+    allCards.forEach((cardData, index) => {
         const card = document.createElement('div');
         card.className = 'answer-card';
-        card.dataset.responseIds = JSON.stringify(responseData.response_ids);
-        card.dataset.models = JSON.stringify(responseData.models);
+        card.dataset.responseId = cardData.response_id;
+        card.dataset.response = cardData.response;
+
+        // Check if this is a duplicate response - hide it during voting
+        const isDuplicate = seenResponses.has(cardData.response);
+        if (isDuplicate) {
+            card.classList.add('hidden');
+        } else {
+            seenResponses.add(cardData.response);
+        }
 
         // Random rotation between -1.5 and 1.5 degrees
         const rotation = (Math.random() * 3 - 1.5).toFixed(1);
@@ -101,25 +157,25 @@ function generateAnswerCards(responses) {
         // Add text (left column, spans both rows)
         const text = document.createElement('div');
         text.className = 'answer-text';
-        text.textContent = responseData.response;
+        text.textContent = cardData.response;
         card.appendChild(text);
 
         // Add model name (top right) - will be revealed on click
         const modelName = document.createElement('div');
         modelName.className = 'model-name';
-        modelName.textContent = responseData.models.join(', '); // If multiple models gave same answer
+        modelName.textContent = cardData.model;
         card.appendChild(modelName);
 
         // Add model stats (bottom right) - will be revealed on click
         const modelStats = document.createElement('div');
         modelStats.className = 'model-stats';
-        const timeStr = responseData.response_time ? `${responseData.response_time.toFixed(2)}s` : '...';
-        const tokenStr = responseData.completion_tokens ? `${Math.round(responseData.completion_tokens)} tokens` : '...';
+        const timeStr = cardData.response_time ? `${cardData.response_time.toFixed(2)}s` : '...';
+        const tokenStr = cardData.completion_tokens ? `${Math.round(cardData.completion_tokens)} tokens` : '...';
         modelStats.textContent = `${timeStr} • ${tokenStr}`;
         card.appendChild(modelStats);
 
         // Click handler - reveal model info and record vote
-        card.addEventListener('click', () => selectCard(card, responseData));
+        card.addEventListener('click', () => selectCard(card, cardData));
 
         answersContainer.appendChild(card);
     });
@@ -136,6 +192,10 @@ async function showAnswers() {
     // Clear previous results and show loading
     answersContainer.innerHTML = '';
     answersContainer.classList.add('hidden');
+    otherAnswersContainer.innerHTML = '';
+    otherAnswers.classList.add('hidden');
+    actionButtons.classList.add('hidden');
+    showOthersBtn.classList.remove('hidden');
     loadingContainer.classList.remove('hidden');
     selectedCard = null;
 
@@ -185,20 +245,34 @@ async function showAnswers() {
 }
 
 // Select a card - reveal info and record vote
-async function selectCard(card, responseData) {
+async function selectCard(card, cardData) {
     // If already selected a card, don't allow changing
     if (selectedCard) return;
 
     selectedCard = card;
+    const selectedResponseText = cardData.response;
 
-    // Mark as selected and revealed
-    card.classList.add('selected');
-    card.classList.add('revealed');
+    // Reveal ALL cards in the main container and their metadata
+    const mainCards = answersContainer.querySelectorAll('.answer-card');
+    mainCards.forEach(c => {
+        // Un-hide any duplicate cards
+        c.classList.remove('hidden');
 
-    // Disable all cards
-    document.querySelectorAll('.answer-card').forEach(c => {
+        // Reveal model info for all cards
+        c.classList.add('revealed');
+
+        // Disable clicking
         c.style.pointerEvents = 'none';
+
+        // If this card has the same answer as the selected one, mark it selected (for ribbon)
+        const cardResponse = c.dataset.response;
+        if (cardResponse === selectedResponseText) {
+            c.classList.add('selected');
+        }
     });
+
+    // Show action buttons
+    actionButtons.classList.remove('hidden');
 
     // Record vote
     try {
@@ -207,13 +281,77 @@ async function selectCard(card, responseData) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 suggestion_id: currentData.suggestion_id,
-                response_ids: responseData.response_ids
+                response_ids: [cardData.response_id]
             })
         });
     } catch (error) {
         console.error('Error recording vote:', error);
     }
 }
+
+// Show other answers button
+showOthersBtn.addEventListener('click', async () => {
+    if (!currentData || !currentData.suggestion_id) return;
+
+    // Fetch all responses for this suggestion
+    try {
+        const response = await fetch(`/api/responses?suggestion_id=${currentData.suggestion_id}`);
+        const data = await response.json();
+
+        // Filter out contestant responses (already shown)
+        const contestantIds = new Set(currentData.contestant_ids || []);
+        const otherResponses = data.responses.filter(r => !contestantIds.has(r.id));
+
+        // Generate cards for other responses
+        otherAnswersContainer.innerHTML = '';
+        otherResponses.forEach((responseData, index) => {
+            const card = document.createElement('div');
+            card.className = 'answer-card revealed';
+
+            // Random rotation between -1.5 and 1.5 degrees
+            const rotation = (Math.random() * 3 - 1.5).toFixed(1);
+            const translateX = Math.floor(Math.random() * 30 - 15);
+            const bgX = Math.floor(Math.random() * 100);
+            const bgY = Math.floor(Math.random() * 100);
+            const slideDir = index % 2 === 0 ? 'slide-left' : 'slide-right';
+            card.classList.add(slideDir);
+
+            card.style.transform = `rotate(${rotation}deg) translateX(${translateX}px)`;
+            card.style.backgroundPosition = `${bgX}% ${bgY}%`;
+            card.style.pointerEvents = 'none';
+
+            // Add text
+            const text = document.createElement('div');
+            text.className = 'answer-text';
+            text.textContent = responseData.response_text;
+            card.appendChild(text);
+
+            // Add model name
+            const modelName = document.createElement('div');
+            modelName.className = 'model-name';
+            modelName.textContent = responseData.model_name;
+            card.appendChild(modelName);
+
+            // Add model stats
+            const modelStats = document.createElement('div');
+            modelStats.className = 'model-stats';
+            const timeStr = responseData.response_time ? `${responseData.response_time.toFixed(2)}s` : '...';
+            const tokenStr = responseData.completion_tokens ? `${Math.round(responseData.completion_tokens)} tokens` : '...';
+            modelStats.textContent = `${timeStr} • ${tokenStr}`;
+            card.appendChild(modelStats);
+
+            otherAnswersContainer.appendChild(card);
+        });
+
+        // Show the other answers section
+        otherAnswers.classList.remove('hidden');
+
+        // Hide the "Show Other Answers" button
+        showOthersBtn.classList.add('hidden');
+    } catch (error) {
+        console.error('Error loading other answers:', error);
+    }
+});
 
 submitBtn.addEventListener('click', showAnswers);
 
