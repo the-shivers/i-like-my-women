@@ -23,23 +23,95 @@ client = OpenAI(
 # Track ongoing competitions: {suggestion_id: {contestants: [...], completed: {...}, lock: threading.Lock()}}
 active_competitions = {}
 
-# Models to compete
+# Models to compete - Avg response times from benchmark (models >4s are commented out)
 MODELS = [
-    {"name": "Claude Sonnet 4.5", "model": "anthropic/claude-sonnet-4.5"},
-    {"name": "Claude Opus 4.1", "model": "anthropic/claude-opus-4.1"},
-    {"name": "Gemini 2.5 Flash", "model": "google/gemini-2.5-flash", "reasoning_max_tokens": 0},
-    {"name": "DeepSeek v3", "model": "deepseek/deepseek-chat-v3-0324"},
-    {"name": "GPT-5 Chat", "model": "openai/gpt-5-chat", "reasoning_effort": "low"},
-    {"name": "GPT-5 Mini", "model": "openai/gpt-5-mini", "reasoning_effort": "low"},
-    {"name": "GPT-5 Nano", "model": "openai/gpt-5-nano", "reasoning_effort": "low"},
-    {"name": "Qwen3 235B", "model": "qwen/qwen3-235b-a22b-2507"},
-    {"name": "Llama 4 Maverick", "model": "meta-llama/llama-4-maverick"},
-    {"name": "Kimi K2", "model": "moonshotai/kimi-k2-0905"},
-    {"name": "Llama 4 Scout", "model": "meta-llama/llama-4-scout"},
-    {"name": "GLM-4.5-Air", "model": "z-ai/glm-4.5-air", "reasoning_disabled": True},
+    {"name": "Gemini 2.5 Flash", "model": "google/gemini-2.5-flash", "reasoning_max_tokens": 0},  # 0.69s avg
+    {"name": "Llama 4 Scout", "model": "meta-llama/llama-4-scout"},  # 0.75s avg
+    {"name": "Llama 4 Maverick", "model": "meta-llama/llama-4-maverick"},  # 0.78s avg
+    {"name": "GPT-4.1", "model": "openai/gpt-4.1"},  # 1.07s avg
+    {"name": "Qwen3 235B", "model": "qwen/qwen3-235b-a22b-2507"},  # 1.13s avg
+    {"name": "GPT-4o", "model": "openai/gpt-4o", "reasoning_effort": "low"},  # 1.24s avg
+    {"name": "DeepSeek Chat v3.1", "model": "deepseek/deepseek-chat-v3.1"},  # 1.48s avg
+    {"name": "Qwen 2.5 72B", "model": "qwen/qwen-2.5-72b-instruct"},  # 1.50s avg
+    {"name": "GPT-5 Chat", "model": "openai/gpt-5-chat", "reasoning_effort": "low"},  # 1.53s avg
+    {"name": "Rocinante 12B", "model": "thedrummer/rocinante-12b"},  # 1.72s avg
+    {"name": "Claude Sonnet 4.5", "model": "anthropic/claude-sonnet-4.5"},  # 1.83s avg
+    {"name": "Kimi K2", "model": "moonshotai/kimi-k2-0905"},  # 2.19s avg
+    {"name": "Qwen 2.5 VL 32B", "model": "qwen/qwen2.5-vl-32b-instruct"},  # 2.21s avg
+    {"name": "Claude Opus 4.1", "model": "anthropic/claude-opus-4.1"},  # 2.35s avg
+    {"name": "DeepSeek v3", "model": "deepseek/deepseek-chat-v3-0324"},  # 2.49s avg
+    {"name": "DeepSeek Chat v3.0324", "model": "deepseek/deepseek-chat-v3-0324"},  # 3.03s avg
+
+    # SLOW MODELS (>4s avg) - Commented out for production
+    # {"name": "GLM-4.5-Air", "model": "z-ai/glm-4.5-air"},  # 5.13s avg (also uses 333 tokens avg!)
+    # {"name": "GPT-5 Mini", "model": "openai/gpt-5-mini", "reasoning_effort": "low"},  # 6.10s avg
+    # {"name": "Grok Code Fast 1", "model": "x-ai/grok-code-fast-1"},  # 8.31s avg (915 tokens!)
+    # {"name": "Grok 4 Fast", "model": "x-ai/grok-4-fast"},  # 8.86s avg (382 tokens)
+    # {"name": "DeepSeek R1T2 Chimera", "model": "tngtech/deepseek-r1t2-chimera"},  # 12.69s avg
+    # {"name": "DeepSeek R1 Qwen3 8B", "model": "deepseek/deepseek-r1-0528-qwen3-8b"},  # 15.43s avg
+    # {"name": "GPT-5 Nano", "model": "openai/gpt-5-nano", "reasoning_effort": "low"},  # 16.13s avg
+    # {"name": "DeepSeek R1", "model": "deepseek/deepseek-r1-0528"},  # 42.04s avg (way too slow!)
 ]
 
 ALL_MODEL_NAMES = [m["name"] for m in MODELS]
+
+# Random word suggestions - curated list of 200+ funny/interesting nouns
+RANDOM_WORDS = [
+    # Food & Drinks
+    "coffee", "pizza", "tacos", "wine", "beer", "whiskey", "tequila", "vodka", "champagne",
+    "sushi", "burgers", "hot dogs", "ice cream", "donuts", "cookies", "cake", "pie", "steak",
+    "pasta", "ramen", "sandwiches", "salad", "soup", "curry", "bbq", "bacon", "eggs",
+    "pancakes", "waffles", "cereal", "toast", "bagels", "croissants", "tea", "kombucha",
+
+    # Animals
+    "cats", "dogs", "horses", "lions", "tigers", "bears", "elephants", "dolphins", "sharks",
+    "eagles", "owls", "penguins", "flamingos", "peacocks", "snakes", "lizards", "turtles",
+    "rabbits", "hamsters", "guinea pigs", "ferrets", "monkeys", "gorillas", "pandas", "koalas",
+    "wolves", "foxes", "deer", "moose", "hippos", "rhinos", "giraffes", "zebras",
+
+    # Objects
+    "cars", "motorcycles", "bicycles", "skateboards", "guitars", "pianos", "drums", "violins",
+    "books", "phones", "laptops", "tablets", "cameras", "watches", "sunglasses", "hats",
+    "shoes", "socks", "jackets", "backpacks", "umbrellas", "hammers", "screwdrivers", "saws",
+    "knives", "scissors", "pens", "pencils", "paintbrushes", "candles", "lamps", "mirrors",
+
+    # Nature & Weather
+    "storms", "hurricanes", "tornadoes", "earthquakes", "volcanoes", "tsunamis", "avalanches",
+    "sunshine", "rain", "snow", "fog", "wind", "lightning", "thunder", "rainbows",
+    "mountains", "valleys", "forests", "deserts", "oceans", "rivers", "lakes", "waterfalls",
+    "stars", "planets", "moons", "comets", "asteroids", "galaxies", "black holes",
+
+    # Music & Instruments
+    "snare drum", "bass drum", "cymbals", "tambourines", "harmonicas", "trumpets", "saxophones",
+    "synthesizers", "turntables", "microphones", "speakers", "headphones", "vinyl records",
+
+    # Sports & Activities
+    "basketball", "football", "baseball", "soccer", "tennis", "golf", "hockey", "volleyball",
+    "boxing", "wrestling", "karate", "yoga", "pilates", "running", "swimming", "surfing",
+    "skiing", "snowboarding", "skateboarding", "rock climbing", "fishing", "camping", "hiking",
+
+    # Technology
+    "robots", "drones", "satellites", "rockets", "spaceships", "ai", "algorithms", "databases",
+    "servers", "routers", "modems", "cables", "batteries", "chargers", "processors", "hard drives",
+
+    # Household Items
+    "refrigerators", "ovens", "microwaves", "blenders", "toasters", "coffee makers", "vacuums",
+    "washing machines", "dryers", "dishwashers", "couches", "beds", "chairs", "tables", "desks",
+    "pillows", "blankets", "towels", "soap", "shampoo", "toothbrushes", "razors",
+
+    # Vehicles
+    "trucks", "vans", "buses", "trains", "planes", "helicopters", "boats", "yachts", "submarines",
+    "tanks", "tractors", "scooters", "segways", "hoverboards",
+
+    # Random Fun Stuff
+    "fireworks", "balloons", "confetti", "glitter", "magnets", "puzzles", "dice", "playing cards",
+    "rubik's cubes", "yo-yos", "frisbees", "boomerangs", "kites", "bouncy balls", "slinkies",
+    "lava lamps", "disco balls", "kazoos", "whoopee cushions", "fidget spinners",
+
+    # Abstract/Funny
+    "chaos", "drama", "revenge", "karma", "destiny", "fate", "luck", "secrets", "mysteries",
+    "adventures", "quests", "legends", "myths", "dreams", "nightmares", "paradoxes"
+]
 
 SYSTEM_PROMPT = """
 You are participating in an improv comedy game called "I like my women."
@@ -144,9 +216,9 @@ def call_llm(model_config, word):
         elif model_config.get("reasoning_max_tokens") is not None:
             params['extra_body'].update({'reasoning': {'max_tokens': model_config['reasoning_max_tokens']}})
             params['max_tokens'] = model_config['reasoning_max_tokens']
-        # Disable reasoning for GLM models
-        elif model_config.get("reasoning_disabled"):
-            params['extra_body'].update({'reasoning': {'enabled': False}})
+        # Disable reasoning for GLM models - COMMENTED OUT, letting it use reasoning
+        # elif model_config.get("reasoning_disabled"):
+        #     params['extra_body'].update({'reasoning': {'enabled': False}})
 
         response = client.chat.completions.create(**params)
 
@@ -193,6 +265,13 @@ def index():
 @app.route('/stats')
 def stats():
     return send_from_directory('static', 'stats.html')
+
+@app.route('/random')
+def random_word():
+    """Redirect to a random word from the list"""
+    from flask import redirect
+    word = random.choice(RANDOM_WORDS)
+    return redirect(f'/{word}')
 
 @app.route('/<suggestion>')
 def suggestion_route(suggestion):

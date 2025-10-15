@@ -34,8 +34,17 @@ submitBtn.addEventListener('click', async () => {
     const word = wordInput.value.trim();
     if (!word) return;
 
+    // Clear old data first
+    currentData = null;
+
     // Update URL with suggestion as path
     window.history.pushState({}, '', `/${encodeURIComponent(word)}`);
+
+    // Reset loading text
+    const loadingText = document.querySelector('#loading-section p');
+    if (loadingText) {
+        loadingText.textContent = 'The LLMs are thinking...';
+    }
 
     showSection(loadingSection);
 
@@ -101,24 +110,44 @@ wordInput.addEventListener('keypress', (e) => {
 function displayResponses() {
     responsesContainer.innerHTML = '';
 
-    // Shuffle responses randomly
-    const shuffled = [...currentData.responses].sort(() => Math.random() - 0.5);
-    currentData.displayOrder = shuffled.map(item => ({
-        response: item.response,
-        response_ids: [...item.response_ids],
-        models: [...item.models]
-    }));
+    // Create a card for EACH contestant model
+    const allContestantCards = [];
+    currentData.responses.forEach(item => {
+        item.models.forEach((modelName, idx) => {
+            allContestantCards.push({
+                response: item.response,
+                modelName: modelName,
+                response_id: item.response_ids[idx]
+            });
+        });
+    });
 
-    shuffled.forEach((item, index) => {
+    // Shuffle all contestant cards randomly
+    const shuffled = [...allContestantCards].sort(() => Math.random() - 0.5);
+    currentData.displayOrder = shuffled;
+
+    // Track seen responses to hide duplicates during voting
+    const seenResponses = new Set();
+
+    shuffled.forEach((item, actualIndex) => {
         const card = document.createElement('div');
         card.className = 'response-card';
+        card.dataset.responseId = item.response_id;
+        card.dataset.modelName = item.modelName;
+        card.dataset.response = item.response; // Store response text for duplicate detection
+        card.dataset.actualIndex = actualIndex;
 
-        const timeInfo = item.response_time ? `<div class="time-info-small">${item.response_time.toFixed(2)}s</div>` : '';
+        // Check if this is a duplicate response
+        const isDuplicate = seenResponses.has(item.response);
+        if (isDuplicate) {
+            card.classList.add('duplicate-hidden');
+        } else {
+            seenResponses.add(item.response);
+        }
 
         card.innerHTML = `
-            <div class="response-number">${index + 1}</div>
             <div class="response-text">"${item.response}"</div>
-            ${timeInfo}
+            <div class="model-info model-info-placeholder"></div>
         `;
         card.addEventListener('click', () => vote(item, card));
         responsesContainer.appendChild(card);
@@ -144,53 +173,56 @@ async function vote(item, cardElement) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 suggestion_id: currentData.suggestion_id,
-                response_ids: item.response_ids
+                response_ids: [item.response_id]
             })
         });
 
-        // Show reveal after short delay
-        setTimeout(() => reveal(item), 500);
+        // Show reveal in-place immediately
+        revealInPlace(item.response_id);
     } catch (error) {
         alert('Error recording vote: ' + error.message);
     }
 }
 
-// Reveal which models gave which answers
-function reveal(selectedItem) {
-    const header = document.createElement('div');
-    header.className = 'reveal-header';
-    header.innerHTML = `<h3>I like my women like I like my ${currentData.word}...</h3>`;
+// Reveal models in-place - just add model info to each card
+function revealInPlace(selectedResponseId) {
+    // Change section title
+    const resultsTitle = document.querySelector('#results-section h2');
+    if (resultsTitle) {
+        resultsTitle.textContent = 'Results';
+    }
 
-    const contestantSection = document.createElement('div');
-    contestantSection.id = 'contestant-reveal';
+    // Add "Try Another" button if not already there
+    if (!document.querySelector('#try-another-inline-btn')) {
+        const btnContainer = document.createElement('div');
+        btnContainer.style.marginTop = '20px';
+        btnContainer.style.textAlign = 'center';
+        const tryAnotherBtn = document.createElement('button');
+        tryAnotherBtn.id = 'try-another-inline-btn';
+        tryAnotherBtn.className = 'btn btn-secondary';
+        tryAnotherBtn.textContent = 'Try Another';
+        tryAnotherBtn.addEventListener('click', () => {
+            wordInput.value = '';
+            currentData = null;
+            window.history.pushState({}, '', '/');
+            showSection(inputSection);
+            wordInput.focus();
+        });
+        btnContainer.appendChild(tryAnotherBtn);
+        resultsSection.appendChild(btnContainer);
+    }
 
-    const otherHeading = document.createElement('h4');
-    otherHeading.className = 'reveal-subheading';
-    otherHeading.textContent = 'Other answers';
-
-    const otherSection = document.createElement('div');
-    otherSection.id = 'other-answers';
-
-    revealContainer.innerHTML = '';
-    revealContainer.appendChild(header);
-    revealContainer.appendChild(contestantSection);
-    revealContainer.appendChild(otherHeading);
-    revealContainer.appendChild(otherSection);
-
-    showSection(revealSection);
-
-    // Fetch all responses and poll for incomplete ones
+    // Fetch all responses
     async function loadAllResponses() {
         try {
             const response = await fetch(`/api/responses?suggestion_id=${currentData.suggestion_id}`);
             const data = await response.json();
-            const responsesByModel = new Map();
+            const responsesById = new Map();
             data.responses.forEach(r => {
-                responsesByModel.set(r.model_name, r);
+                responsesById.set(r.id, r);
             });
 
-            renderContestants(responsesByModel);
-            renderOtherAnswers(responsesByModel);
+            updateCards(responsesById);
 
             // If not complete, poll again
             if (!data.complete) {
@@ -201,138 +233,68 @@ function reveal(selectedItem) {
         }
     }
 
-    function renderContestants(responsesByModel) {
-        contestantSection.innerHTML = '';
-        const order = currentData.displayOrder && currentData.displayOrder.length
-            ? currentData.displayOrder
-            : currentData.responses;
+    function updateCards(responsesById) {
+        const cards = responsesContainer.querySelectorAll('.response-card');
 
-        order.forEach(item => {
-            const isSelected = selectedItem.response_ids.some(id => item.response_ids.includes(id));
-            const card = document.createElement('div');
-            card.className = `reveal-card ${isSelected ? 'winner' : ''}`;
+        // Find the selected response text to highlight all duplicates
+        let selectedResponseText = null;
+        cards.forEach((card) => {
+            const responseId = parseInt(card.dataset.responseId);
+            if (responseId === selectedResponseId) {
+                selectedResponseText = card.dataset.response;
+            }
+        });
 
-            const responseText = document.createElement('div');
-            responseText.className = 'reveal-response';
-            responseText.textContent = `"${item.response}"`;
-            card.appendChild(responseText);
+        cards.forEach((card) => {
+            const responseId = parseInt(card.dataset.responseId);
+            const modelName = card.dataset.modelName;
+            const responseText = card.dataset.response;
+            const modelResponse = responsesById.get(responseId);
 
-            item.models.forEach(modelName => {
-                const modelBlock = document.createElement('div');
-                modelBlock.className = 'reveal-model-block';
-                const modelResponse = responsesByModel.get(modelName);
+            // Show all cards (including previously hidden duplicates)
+            card.classList.remove('duplicate-hidden');
+
+            // Check if this should be highlighted (either selected or duplicate of selected)
+            const shouldHighlight = selectedResponseText && responseText === selectedResponseText;
+
+            // Update model info (only once, when it's a placeholder)
+            const existingInfo = card.querySelector('.model-info');
+            if (existingInfo && existingInfo.classList.contains('model-info-placeholder')) {
+                existingInfo.classList.remove('model-info-placeholder');
+                existingInfo.innerHTML = '';
 
                 if (modelResponse) {
-                    const modelNameDiv = document.createElement('div');
-                    modelNameDiv.className = 'reveal-model';
-                    modelNameDiv.textContent = modelName;
-                    modelBlock.appendChild(modelNameDiv);
+                    const modelNameSpan = document.createElement('span');
+                    modelNameSpan.className = 'model-name-inline';
+                    modelNameSpan.textContent = modelName;
+                    existingInfo.appendChild(modelNameSpan);
 
                     if (typeof modelResponse.response_time === 'number') {
-                        const timeInfo = document.createElement('div');
-                        timeInfo.className = 'time-info';
-                        timeInfo.textContent = `${modelResponse.response_time.toFixed(2)}s`;
-                        modelBlock.appendChild(timeInfo);
+                        const timeSpan = document.createElement('span');
+                        timeSpan.className = 'time-info-inline';
+                        timeSpan.textContent = `${modelResponse.response_time.toFixed(2)}s`;
+                        existingInfo.appendChild(timeSpan);
                     }
 
-                    if (modelResponse.completion_tokens || modelResponse.reasoning_tokens) {
-                        const tokensInfo = document.createElement('div');
-                        tokensInfo.className = 'token-info';
-                        tokensInfo.textContent = `${modelResponse.completion_tokens || 0} tokens${modelResponse.reasoning_tokens ? ` (${modelResponse.reasoning_tokens} reasoning)` : ''}`;
-                        modelBlock.appendChild(tokensInfo);
+                    if (modelResponse.completion_tokens) {
+                        const tokenSpan = document.createElement('span');
+                        tokenSpan.className = 'token-info-inline';
+                        tokenSpan.textContent = `${modelResponse.completion_tokens} tok`;
+                        existingInfo.appendChild(tokenSpan);
                     }
                 } else {
-                    modelBlock.innerHTML = `
-                        <div class="reveal-model">${modelName}</div>
-                        <div class="placeholder-row">
-                            <div class="mini-spinner"></div>
-                            <span>Waiting for response...</span>
-                        </div>
-                    `;
+                    existingInfo.innerHTML = `<span class="model-name-inline">${modelName}</span><span class="loading-inline">Loading...</span>`;
                 }
-
-                card.appendChild(modelBlock);
-            });
-
-            if (isSelected) {
-                const badge = document.createElement('div');
-                badge.className = 'winner-badge';
-                badge.textContent = 'Your Pick!';
-                card.appendChild(badge);
             }
 
-            contestantSection.appendChild(card);
+            // Highlight all cards with matching response text
+            if (shouldHighlight) {
+                card.classList.add('winner');
+            }
         });
     }
 
-    function renderOtherAnswers(responsesByModel) {
-        otherSection.innerHTML = '';
-
-        const contestantModels = new Set();
-        const order = currentData.displayOrder && currentData.displayOrder.length
-            ? currentData.displayOrder
-            : currentData.responses;
-        order.forEach(item => item.models.forEach(model => contestantModels.add(model)));
-
-        const allModels = (currentData.all_models && currentData.all_models.length)
-            ? currentData.all_models
-            : Array.from(responsesByModel.keys());
-
-        const otherModels = allModels.filter(model => !contestantModels.has(model));
-
-        if (!otherModels.length) {
-            const none = document.createElement('div');
-            none.className = 'placeholder-row no-other-answers';
-            none.textContent = 'No other answers for this suggestion yet.';
-            otherSection.appendChild(none);
-            return;
-        }
-
-        otherModels.forEach(modelName => {
-            const card = document.createElement('div');
-            card.className = 'reveal-card';
-
-            const modelResponse = responsesByModel.get(modelName);
-            const modelDiv = document.createElement('div');
-            modelDiv.className = 'reveal-model';
-            modelDiv.textContent = modelName;
-            card.appendChild(modelDiv);
-
-            if (modelResponse) {
-                const responseText = document.createElement('div');
-                responseText.className = 'reveal-response';
-                responseText.textContent = `"${modelResponse.response_text}"`;
-                card.appendChild(responseText);
-
-                if (typeof modelResponse.response_time === 'number') {
-                    const timeInfo = document.createElement('div');
-                    timeInfo.className = 'time-info';
-                    timeInfo.textContent = `${modelResponse.response_time.toFixed(2)}s`;
-                    card.appendChild(timeInfo);
-                }
-
-                if (modelResponse.completion_tokens || modelResponse.reasoning_tokens) {
-                    const tokensInfo = document.createElement('div');
-                    tokensInfo.className = 'token-info';
-                    tokensInfo.textContent = `${modelResponse.completion_tokens || 0} tokens${modelResponse.reasoning_tokens ? ` (${modelResponse.reasoning_tokens} reasoning)` : ''}`;
-                    card.appendChild(tokensInfo);
-                }
-            } else {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'placeholder-row';
-                placeholder.innerHTML = `
-                    <div class="mini-spinner"></div>
-                    <span>Waiting for response...</span>
-                `;
-                card.appendChild(placeholder);
-            }
-
-            otherSection.appendChild(card);
-        });
-    }
-
-    renderContestants(new Map());
-    renderOtherAnswers(new Map());
+    // Start loading immediately (don't call updateCards with empty Map)
     loadAllResponses();
 }
 

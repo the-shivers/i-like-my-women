@@ -1,0 +1,2402 @@
+[
+  {
+    "model_name": "Claude Sonnet 4.5",
+    "model_id": "anthropic/claude-sonnet-4.5",
+    "success_rate": 100.0,
+    "avg_response_time": 1.8273325204849242,
+    "min_response_time": 1.2218742370605469,
+    "max_response_time": 2.29171085357666,
+    "std_response_time": 0.33996284901831125,
+    "avg_completion_tokens": 8.6,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "without other people's dicks in it",
+      "extra saucy",
+      "fast and expensive to maintain"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "without other people's dicks in it",
+        "response_time": 1.7811400890350342,
+        "completion_tokens": 11,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "extra saucy",
+        "response_time": 1.6068642139434814,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fast and expensive to maintain",
+        "response_time": 1.7393708229064941,
+        "completion_tokens": 8,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "purring when I pet them",
+        "response_time": 2.2479898929595947,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged in a cellar for 12 years",
+        "response_time": 1.611302137374878,
+        "completion_tokens": 13,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "in the water and ready to charge",
+        "response_time": 1.90004301071167,
+        "completion_tokens": 10,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight and getting hit regularly",
+        "response_time": 1.665666103363037,
+        "completion_tokens": 8,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "wild and wet",
+        "response_time": 1.2218742370605469,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "well read",
+        "response_time": 2.29171085357666,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a flake in it",
+        "response_time": 2.2073638439178467,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "Claude Opus 4.1",
+    "model_id": "anthropic/claude-opus-4.1",
+    "success_rate": 100.0,
+    "avg_response_time": 2.3481367588043214,
+    "min_response_time": 1.6634798049926758,
+    "max_response_time": 3.7371392250061035,
+    "std_response_time": 0.7479594828724185,
+    "avg_completion_tokens": 8.3,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "strong and keeping me up all night",
+      "delivered in 30 minutes or less",
+      "fast and curvy"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "strong and keeping me up all night",
+        "response_time": 3.397947072982788,
+        "completion_tokens": 10,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "delivered in 30 minutes or less",
+        "response_time": 2.9302101135253906,
+        "completion_tokens": 11,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fast and curvy",
+        "response_time": 1.6634798049926758,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "independent and slightly evil",
+        "response_time": 2.2216131687164307,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged 18 years minimum",
+        "response_time": 1.7519559860229492,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "hungry hungry",
+        "response_time": 2.304517984390259,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight and beaten regularly",
+        "response_time": 1.8166968822479248,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "wet and wild",
+        "response_time": 1.8514840602874756,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "well-read and leather-bound",
+        "response_time": 1.8063232898712158,
+        "completion_tokens": 10,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "cold and willing to give me brain freeze",
+        "response_time": 3.7371392250061035,
+        "completion_tokens": 11,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "Gemini 2.5 Flash",
+    "model_id": "google/gemini-2.5-flash",
+    "success_rate": 100.0,
+    "avg_response_time": 0.6879791259765625,
+    "min_response_time": 0.5504550933837891,
+    "max_response_time": 0.9662728309631348,
+    "std_response_time": 0.14588623859030794,
+    "avg_completion_tokens": 4.3,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "hot and strong",
+      "hot and ready",
+      "fast and furious"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "hot and strong",
+        "response_time": 0.9662728309631348,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "hot and ready",
+        "response_time": 0.5626130104064941,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fast and furious",
+        "response_time": 0.5504550933837891,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "independent and occasionally bringing me dead things",
+        "response_time": 0.6858036518096924,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged to perfection",
+        "response_time": 0.6244440078735352,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "big and in the water",
+        "response_time": 0.6869440078735352,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight and snappy",
+        "response_time": 0.5554029941558838,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "unpredictable and leaving a mess",
+        "response_time": 0.7987096309661865,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "well-read",
+        "response_time": 0.5780980587005615,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "sweet and full of nuts",
+        "response_time": 0.8710479736328125,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "DeepSeek v3",
+    "model_id": "deepseek/deepseek-chat-v3-0324",
+    "success_rate": 100.0,
+    "avg_response_time": 2.4905498743057253,
+    "min_response_time": 0.8194658756256104,
+    "max_response_time": 5.7311248779296875,
+    "std_response_time": 1.6393196818034226,
+    "avg_completion_tokens": 5.1,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "ground up and in the freezer",
+      "extra cheese",
+      "fast and expensive"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "ground up and in the freezer",
+        "response_time": 3.8699820041656494,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "extra cheese",
+        "response_time": 0.9802391529083252,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fast and expensive",
+        "response_time": 4.15264105796814,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "ignoring me but still expecting food",
+        "response_time": 0.8194658756256104,
+        "completion_tokens": 8,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged to perfection",
+        "response_time": 1.097287893295288,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "big and in the water",
+        "response_time": 1.704361915588379,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight and ready to pop",
+        "response_time": 2.4112749099731445,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "wild and unpredictable",
+        "response_time": 2.785813093185425,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "",
+        "response_time": 5.7311248779296875,
+        "completion_tokens": 1,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "melting in my hands not in my heart",
+        "response_time": 1.3533079624176025,
+        "completion_tokens": 10,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "GPT-5 Chat",
+    "model_id": "openai/gpt-5-chat",
+    "success_rate": 100.0,
+    "avg_response_time": 1.5342406034469604,
+    "min_response_time": 1.0600502490997314,
+    "max_response_time": 2.6955158710479736,
+    "std_response_time": 0.4592395996493902,
+    "avg_completion_tokens": 6.8,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "strong enough to keep me up all night",
+      "hot and delivered late",
+      "fast and a little too expensive"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "strong enough to keep me up all night",
+        "response_time": 2.6955158710479736,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "hot and delivered late",
+        "response_time": 1.5935399532318115,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fast and a little too expensive",
+        "response_time": 1.2607529163360596,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "curious and always knocking things off my table",
+        "response_time": 1.5546579360961914,
+        "completion_tokens": 10,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged to perfection",
+        "response_time": 1.372403860092163,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "submerged and dangerously territorial",
+        "response_time": 1.3951890468597412,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight and ready to be hit",
+        "response_time": 1.7311680316925049,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "a little wild and leaving the power out",
+        "response_time": 1.5467581748962402,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "hard to put down",
+        "response_time": 1.1323699951171875,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "melting in my hands",
+        "response_time": 1.0600502490997314,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "GPT-5 Mini",
+    "model_id": "openai/gpt-5-mini",
+    "success_rate": 100.0,
+    "avg_response_time": 6.0977624416351315,
+    "min_response_time": 3.0657060146331787,
+    "max_response_time": 8.634513854980469,
+    "std_response_time": 2.009229094376105,
+    "avg_completion_tokens": 132,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "brewed dark and complicated",
+      "extra cheesy",
+      "with a clear title"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "brewed dark and complicated",
+        "response_time": 7.587446928024292,
+        "completion_tokens": 203,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "extra cheesy",
+        "response_time": 7.931934118270874,
+        "completion_tokens": 72,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a clear title",
+        "response_time": 6.904801845550537,
+        "completion_tokens": 138,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aloof until food appears",
+        "response_time": 3.0657060146331787,
+        "completion_tokens": 139,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged to perfection",
+        "response_time": 3.4435877799987793,
+        "completion_tokens": 73,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "massive and dangerously territorial",
+        "response_time": 7.700581789016724,
+        "completion_tokens": 203,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight and snappy",
+        "response_time": 8.634513854980469,
+        "completion_tokens": 74,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "unpredictable and electrifying",
+        "response_time": 6.485143184661865,
+        "completion_tokens": 140,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "impossible to put down",
+        "response_time": 4.230579137802124,
+        "completion_tokens": 203,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "cold but worth melting for",
+        "response_time": 4.993329763412476,
+        "completion_tokens": 75,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "GPT-5 Nano",
+    "model_id": "openai/gpt-5-nano",
+    "success_rate": 100.0,
+    "avg_response_time": 16.13043737411499,
+    "min_response_time": 4.016825914382935,
+    "max_response_time": 60.07009196281433,
+    "std_response_time": 18.60652887295422,
+    "avg_completion_tokens": 199.9,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "bold",
+      "hot",
+      "fast"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "bold",
+        "response_time": 7.892380952835083,
+        "completion_tokens": 199,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "hot",
+        "response_time": 7.284050941467285,
+        "completion_tokens": 199,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fast",
+        "response_time": 5.261994123458862,
+        "completion_tokens": 199,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "independent",
+        "response_time": 21.09860610961914,
+        "completion_tokens": 200,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged to perfection",
+        "response_time": 37.297348976135254,
+        "completion_tokens": 201,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "large and dangerous",
+        "response_time": 7.032407999038696,
+        "completion_tokens": 265,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "snappy",
+        "response_time": 5.803497791290283,
+        "completion_tokens": 136,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "dramatic",
+        "response_time": 60.07009196281433,
+        "completion_tokens": 136,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "well read",
+        "response_time": 4.016825914382935,
+        "completion_tokens": 200,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "vanilla",
+        "response_time": 5.547168970108032,
+        "completion_tokens": 264,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "Qwen3 235B",
+    "model_id": "qwen/qwen3-235b-a22b-2507",
+    "success_rate": 100.0,
+    "avg_response_time": 1.1345278024673462,
+    "min_response_time": 0.48204708099365234,
+    "max_response_time": 2.0941338539123535,
+    "std_response_time": 0.5947347432281945,
+    "avg_completion_tokens": 7.4,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "creamy with a shot of espresso",
+      "saucy and well dressed",
+      "fast and always wanting me to check their oil"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "creamy with a shot of espresso",
+        "response_time": 1.858151912689209,
+        "completion_tokens": 8,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "saucy and well dressed",
+        "response_time": 0.6114850044250488,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fast and always wanting me to check their oil",
+        "response_time": 1.6106038093566895,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "full of hair and always ignoring me",
+        "response_time": 1.4521431922912598,
+        "completion_tokens": 8,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged and full of sediment",
+        "response_time": 0.585615873336792,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "heavy and hard to fit in the bathtub",
+        "response_time": 0.5153679847717285,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight and snappy",
+        "response_time": 1.164107084274292,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "electric and full of drama",
+        "response_time": 0.48204708099365234,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "well-read and always open to a good plot twist",
+        "response_time": 0.9716222286224365,
+        "completion_tokens": 11,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "cold and full of nuts",
+        "response_time": 2.0941338539123535,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "Llama 4 Maverick",
+    "model_id": "meta-llama/llama-4-maverick",
+    "success_rate": 100.0,
+    "avg_response_time": 0.7815628290176392,
+    "min_response_time": 0.2762598991394043,
+    "max_response_time": 2.0571630001068115,
+    "std_response_time": 0.5372359200212006,
+    "avg_completion_tokens": 5.2,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "bitter at first",
+      "hot and cheesy",
+      "fast and a little out of control"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "bitter at first",
+        "response_time": 0.8195960521697998,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "hot and cheesy",
+        "response_time": 0.4672110080718994,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fast and a little out of control",
+        "response_time": 0.4282948970794678,
+        "completion_tokens": 8,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "moody and slightly unhinged",
+        "response_time": 2.0571630001068115,
+        "completion_tokens": 8,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged to perfection",
+        "response_time": 1.3072359561920166,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "rare",
+        "response_time": 0.5733230113983154,
+        "completion_tokens": 2,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tightly tuned",
+        "response_time": 0.6024267673492432,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "unpredictable and intense",
+        "response_time": 0.8649318218231201,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "well read",
+        "response_time": 0.2762598991394043,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a cone that doesn't drip",
+        "response_time": 0.4191858768463135,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "Kimi K2",
+    "model_id": "moonshotai/kimi-k2-0905",
+    "success_rate": 100.0,
+    "avg_response_time": 2.1936686992645265,
+    "min_response_time": 0.7959082126617432,
+    "max_response_time": 6.355288743972778,
+    "std_response_time": 1.5839448866963473,
+    "avg_completion_tokens": 7.2,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "strong enough to wake the neighbors",
+      "extra cheesy",
+      "with good mileage and low maintenance"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "strong enough to wake the neighbors",
+        "response_time": 2.4890317916870117,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "extra cheesy",
+        "response_time": 1.33119797706604,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with good mileage and low maintenance",
+        "response_time": 1.1901960372924805,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "independent and only affectionate when they want something",
+        "response_time": 2.4925849437713623,
+        "completion_tokens": 11,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged to perfection and full-bodied",
+        "response_time": 1.6544430255889893,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "thick-skinned and always in water",
+        "response_time": 2.4623281955718994,
+        "completion_tokens": 8,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight and ready to bang",
+        "response_time": 0.7959082126617432,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "wet and unpredictable",
+        "response_time": 1.9506733417510986,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "well-read and slightly worn around the edges",
+        "response_time": 6.355288743972778,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "cold but sweet once you get past the hard shell",
+        "response_time": 1.2150347232818604,
+        "completion_tokens": 11,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "Llama 4 Scout",
+    "model_id": "meta-llama/llama-4-scout",
+    "success_rate": 100.0,
+    "avg_response_time": 0.7525280237197876,
+    "min_response_time": 0.4504580497741699,
+    "max_response_time": 1.289031982421875,
+    "std_response_time": 0.2950976195855005,
+    "avg_completion_tokens": 6.1,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "with a shot of desperation",
+      "with extra cheese and a side of regret",
+      "tuneless"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "with a shot of desperation",
+        "response_time": 1.289031982421875,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with extra cheese and a side of regret",
+        "response_time": 1.25346040725708,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tuneless",
+        "response_time": 0.4504580497741699,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "furry and occasionally plotting against me",
+        "response_time": 0.8342487812042236,
+        "completion_tokens": 8,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged to perfection",
+        "response_time": 0.6057982444763184,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "slightly overweight and about to charge at me",
+        "response_time": 0.6436619758605957,
+        "completion_tokens": 10,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "cracked",
+        "response_time": 0.7219958305358887,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "intense and unpredictable",
+        "response_time": 0.4779939651489258,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "well worn",
+        "response_time": 0.5769360065460205,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with sprinkles and a side of regret",
+        "response_time": 0.6716949939727783,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "GLM-4.5-Air",
+    "model_id": "z-ai/glm-4.5-air",
+    "success_rate": 100.0,
+    "avg_response_time": 5.127303266525269,
+    "min_response_time": 0.6865086555480957,
+    "max_response_time": 10.234785079956055,
+    "std_response_time": 3.4555658202408512,
+    "avg_completion_tokens": 332.8,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "hot",
+      "extra cheese on top",
+      "with a good transmission"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "hot",
+        "response_time": 4.087191104888916,
+        "completion_tokens": 351,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "extra cheese on top",
+        "response_time": 0.8273842334747314,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a good transmission",
+        "response_time": 0.6865086555480957,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "independent but still want my attention when I'm eating",
+        "response_time": 0.7072029113769531,
+        "completion_tokens": 11,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a little kick",
+        "response_time": 10.234785079956055,
+        "completion_tokens": 737,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a big mouth",
+        "response_time": 5.205222129821777,
+        "completion_tokens": 348,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a good rimshot",
+        "response_time": 8.123525142669678,
+        "completion_tokens": 522,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "electrifying",
+        "response_time": 6.136622190475464,
+        "completion_tokens": 422,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "well-read",
+        "response_time": 7.652911186218262,
+        "completion_tokens": 423,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with nuts",
+        "response_time": 7.611680030822754,
+        "completion_tokens": 506,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "GPT-4.1",
+    "model_id": "openai/gpt-4.1",
+    "success_rate": 100.0,
+    "avg_response_time": 1.0713544130325316,
+    "min_response_time": 0.8224148750305176,
+    "max_response_time": 1.4749009609222412,
+    "std_response_time": 0.21056676848171152,
+    "avg_completion_tokens": 6.4,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "strong enough to keep me up all night",
+      "extra cheesy",
+      "with heated seats"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "strong enough to keep me up all night",
+        "response_time": 1.4749009609222412,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "extra cheesy",
+        "response_time": 1.131516933441162,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with heated seats",
+        "response_time": 1.0488550662994385,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "independent and always landing on their feet",
+        "response_time": 1.1106698513031006,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged to perfection",
+        "response_time": 1.193359136581421,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "thick and dangerous in water",
+        "response_time": 0.9286069869995117,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight and ready to be hit",
+        "response_time": 1.2815568447113037,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "a little bit wild and knocking out my power",
+        "response_time": 0.8455595970153809,
+        "completion_tokens": 10,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "hard to put down",
+        "response_time": 0.8761038780212402,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "melting in my hands",
+        "response_time": 0.8224148750305176,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "Grok Code Fast 1",
+    "model_id": "x-ai/grok-code-fast-1",
+    "success_rate": 100.0,
+    "avg_response_time": 8.314215397834777,
+    "min_response_time": 2.636963129043579,
+    "max_response_time": 15.040028095245361,
+    "std_response_time": 3.9199288916068085,
+    "avg_completion_tokens": 914.5,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "instant",
+      "hot and cheesy",
+      "curvy"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "instant",
+        "response_time": 9.664307832717896,
+        "completion_tokens": 999,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "hot and cheesy",
+        "response_time": 2.636963129043579,
+        "completion_tokens": 276,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "curvy",
+        "response_time": 6.413302898406982,
+        "completion_tokens": 696,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "purring",
+        "response_time": 7.249223947525024,
+        "completion_tokens": 756,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "intoxicating",
+        "response_time": 12.857099056243896,
+        "completion_tokens": 1433,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "behind bars",
+        "response_time": 15.040028095245361,
+        "completion_tokens": 1924,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a lot of rim shots",
+        "response_time": 10.09228515625,
+        "completion_tokens": 1372,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "wild and unpredictable",
+        "response_time": 4.618868827819824,
+        "completion_tokens": 485,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "hard to put down",
+        "response_time": 4.5756940841674805,
+        "completion_tokens": 364,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "in a cone",
+        "response_time": 9.994380950927734,
+        "completion_tokens": 840,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "Grok 4 Fast",
+    "model_id": "x-ai/grok-4-fast",
+    "success_rate": 100.0,
+    "avg_response_time": 8.863280248641967,
+    "min_response_time": 3.2482192516326904,
+    "max_response_time": 14.98160171508789,
+    "std_response_time": 4.312668287400646,
+    "avg_completion_tokens": 381.6,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "black and bitter",
+      "cheesy",
+      "fast"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "black and bitter",
+        "response_time": 3.647855758666992,
+        "completion_tokens": 322,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "cheesy",
+        "response_time": 3.2482192516326904,
+        "completion_tokens": 242,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fast",
+        "response_time": 13.508792877197266,
+        "completion_tokens": 354,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "purring",
+        "response_time": 12.694262981414795,
+        "completion_tokens": 416,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged",
+        "response_time": 7.293982028961182,
+        "completion_tokens": 329,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "hungry",
+        "response_time": 14.98160171508789,
+        "completion_tokens": 474,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight",
+        "response_time": 12.841354846954346,
+        "completion_tokens": 461,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "wet and wild",
+        "response_time": 6.4181318283081055,
+        "completion_tokens": 356,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a happy ending",
+        "response_time": 5.6289050579071045,
+        "completion_tokens": 358,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "cold and creamy",
+        "response_time": 8.369696140289307,
+        "completion_tokens": 504,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "GPT-4o",
+    "model_id": "openai/gpt-4o",
+    "success_rate": 100.0,
+    "avg_response_time": 1.237582278251648,
+    "min_response_time": 0.42409682273864746,
+    "max_response_time": 3.160229206085205,
+    "std_response_time": 0.8313431930280167,
+    "avg_completion_tokens": 4.9,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "strong and keeping me up all night",
+      "extra cheesy",
+      "fast and with a great body"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "strong and keeping me up all night",
+        "response_time": 1.9798448085784912,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "extra cheesy",
+        "response_time": 1.03739333152771,
+        "completion_tokens": 2,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fast and with a great body",
+        "response_time": 1.578627109527588,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "independent and a little bit mysterious",
+        "response_time": 1.0122852325439453,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged to perfection",
+        "response_time": 0.4597971439361572,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "big and always hungry for adventure",
+        "response_time": 0.8870301246643066,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a good beat",
+        "response_time": 0.6250159740447998,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a lot of thunder and lightning",
+        "response_time": 3.160229206085205,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "well-read",
+        "response_time": 0.42409682273864746,
+        "completion_tokens": 2,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a cherry on top",
+        "response_time": 1.211503028869629,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "Qwen 2.5 VL 32B",
+    "model_id": "qwen/qwen2.5-vl-32b-instruct",
+    "success_rate": 100.0,
+    "avg_response_time": 2.2079344749450684,
+    "min_response_time": 0.6628780364990234,
+    "max_response_time": 3.7928712368011475,
+    "std_response_time": 0.991183600312269,
+    "avg_completion_tokens": 4.9,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "hot and ready to go",
+      "with extra toppings",
+      "fast"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "hot and ready to go",
+        "response_time": 2.5838050842285156,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with extra toppings",
+        "response_time": 3.7928712368011475,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fast",
+        "response_time": 1.517768144607544,
+        "completion_tokens": 2,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fluffy and purring",
+        "response_time": 1.8291289806365967,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "dry",
+        "response_time": 3.6844890117645264,
+        "completion_tokens": 2,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "big and unpredictable",
+        "response_time": 2.571441173553467,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight and ready to pop",
+        "response_time": 1.6815142631530762,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "intense but with a clear path to shelter",
+        "response_time": 0.6628780364990234,
+        "completion_tokens": 10,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "smart and well-read",
+        "response_time": 2.3102359771728516,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "cold and creamy",
+        "response_time": 1.4452128410339355,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "DeepSeek R1 Qwen3 8B",
+    "model_id": "deepseek/deepseek-r1-0528-qwen3-8b",
+    "success_rate": 100.0,
+    "avg_response_time": 15.434138703346253,
+    "min_response_time": 4.2311530113220215,
+    "max_response_time": 40.155471086502075,
+    "std_response_time": 11.664106524296662,
+    "avg_completion_tokens": 844.2,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "strong",
+      "cheesy",
+      "fully loaded"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "strong",
+        "response_time": 11.1110258102417,
+        "completion_tokens": 775,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "cheesy",
+        "response_time": 16.93771195411682,
+        "completion_tokens": 1300,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fully loaded",
+        "response_time": 7.839202880859375,
+        "completion_tokens": 594,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fluffy",
+        "response_time": 40.155471086502075,
+        "completion_tokens": 376,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "",
+        "response_time": 27.99412488937378,
+        "completion_tokens": 2000,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "",
+        "response_time": 23.36731719970703,
+        "completion_tokens": 2000,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "explosive",
+        "response_time": 4.2311530113220215,
+        "completion_tokens": 250,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "passionate",
+        "response_time": 7.389937162399292,
+        "completion_tokens": 340,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "well-thumbed",
+        "response_time": 6.467113018035889,
+        "completion_tokens": 509,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "cold",
+        "response_time": 8.848330020904541,
+        "completion_tokens": 298,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "Qwen 2.5 72B",
+    "model_id": "qwen/qwen-2.5-72b-instruct",
+    "success_rate": 100.0,
+    "avg_response_time": 1.4954435348510742,
+    "min_response_time": 0.7021617889404297,
+    "max_response_time": 2.715394973754883,
+    "std_response_time": 0.7052382857972055,
+    "avg_completion_tokens": 5.9,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "with a side of pastry",
+      "with extra toppings and a side of mozzarella sticks",
+      "fast and reliable"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "with a side of pastry",
+        "response_time": 0.8046958446502686,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with extra toppings and a side of mozzarella sticks",
+        "response_time": 1.065399169921875,
+        "completion_tokens": 10,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fast and reliable",
+        "response_time": 2.58617901802063,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "independent and always landing on their feet",
+        "response_time": 1.8728020191192627,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged to perfection",
+        "response_time": 1.4410617351531982,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "big and in the bathtub",
+        "response_time": 2.715394973754883,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight and ready to snap",
+        "response_time": 0.7021617889404297,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a chance of thunder",
+        "response_time": 1.4390530586242676,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "open to new adventures",
+        "response_time": 1.4269447326660156,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "cold and with sprinkles",
+        "response_time": 0.9007430076599121,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "Rocinante 12B",
+    "model_id": "thedrummer/rocinante-12b",
+    "success_rate": 100.0,
+    "avg_response_time": 1.7184087753295898,
+    "min_response_time": 0.563107967376709,
+    "max_response_time": 2.556752920150757,
+    "std_response_time": 0.7060683706065989,
+    "avg_completion_tokens": 8.5,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "hot",
+      "extra cheese!",
+      "fast and furious"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "hot",
+        "response_time": 0.8605837821960449,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "extra cheese!",
+        "response_time": 2.556752920150757,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "fast and furious",
+        "response_time": 2.088404893875122,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "independent",
+        "response_time": 2.223604917526245,
+        "completion_tokens": 8,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "red",
+        "response_time": 2.029046058654785,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "slimy",
+        "response_time": 2.102786064147949,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight",
+        "response_time": 0.7618639469146729,
+        "completion_tokens": 8,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "torrential",
+        "response_time": 2.0470361709594727,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "easy to read",
+        "response_time": 1.9509010314941406,
+        "completion_tokens": 10,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "sundaes",
+        "response_time": 0.563107967376709,
+        "completion_tokens": 9,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "DeepSeek Chat v3.0324",
+    "model_id": "deepseek/deepseek-chat-v3-0324",
+    "success_rate": 100.0,
+    "avg_response_time": 3.0342312335968016,
+    "min_response_time": 0.6815638542175293,
+    "max_response_time": 7.533965110778809,
+    "std_response_time": 2.5157618239469026,
+    "avg_completion_tokens": 5.6,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "hot and bitter",
+      "extra cheese and delivered in 30 minutes or less",
+      "stick shift"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "hot and bitter",
+        "response_time": 0.9276371002197266,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "extra cheese and delivered in 30 minutes or less",
+        "response_time": 3.786839008331299,
+        "completion_tokens": 11,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "stick shift",
+        "response_time": 7.533965110778809,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "independent and ignoring me",
+        "response_time": 0.6815638542175293,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged to perfection",
+        "response_time": 0.7308447360992432,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "big and hard to fit in my bathtub",
+        "response_time": 4.984827041625977,
+        "completion_tokens": 11,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight and ready to pop",
+        "response_time": 6.412783861160278,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "wild and wet",
+        "response_time": 2.3495099544525146,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "hardback",
+        "response_time": 1.8342409133911133,
+        "completion_tokens": 2,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "melting in my hands",
+        "response_time": 1.1001007556915283,
+        "completion_tokens": 6,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "DeepSeek R1T2 Chimera",
+    "model_id": "tngtech/deepseek-r1t2-chimera",
+    "success_rate": 100.0,
+    "avg_response_time": 12.689675784111023,
+    "min_response_time": 4.918749809265137,
+    "max_response_time": 36.40635800361633,
+    "std_response_time": 9.176739679572547,
+    "avg_completion_tokens": 387.6,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "spilled all over my lap",
+      "with pineapple",
+      "hot-wired"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "spilled all over my lap",
+        "response_time": 10.294986963272095,
+        "completion_tokens": 567,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with pineapple",
+        "response_time": 6.929711818695068,
+        "completion_tokens": 240,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "hot-wired",
+        "response_time": 7.103238821029663,
+        "completion_tokens": 367,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "ignoring me",
+        "response_time": 17.396942853927612,
+        "completion_tokens": 638,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "full-bodied",
+        "response_time": 36.40635800361633,
+        "completion_tokens": 259,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "thick-skinned",
+        "response_time": 12.850120067596436,
+        "completion_tokens": 289,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight",
+        "response_time": 8.400949001312256,
+        "completion_tokens": 387,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "wet",
+        "response_time": 4.918749809265137,
+        "completion_tokens": 197,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "borrowed from a friend",
+        "response_time": 8.098395824432373,
+        "completion_tokens": 412,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with nuts",
+        "response_time": 14.497304677963257,
+        "completion_tokens": 520,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "DeepSeek Chat v3.1",
+    "model_id": "deepseek/deepseek-chat-v3.1",
+    "success_rate": 100.0,
+    "avg_response_time": 1.4837766408920288,
+    "min_response_time": 1.1129069328308105,
+    "max_response_time": 2.1872520446777344,
+    "std_response_time": 0.3639151733778539,
+    "avg_completion_tokens": 4.4,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "hot",
+      "with extra sausage",
+      "with limited mileage"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "hot",
+        "response_time": 1.1669752597808838,
+        "completion_tokens": 1,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with extra sausage",
+        "response_time": 1.240062952041626,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with limited mileage",
+        "response_time": 1.6911468505859375,
+        "completion_tokens": 3,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with a little bit of crazy",
+        "response_time": 1.1813011169433594,
+        "completion_tokens": 7,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aged 25 years",
+        "response_time": 1.950268030166626,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "wet and surprisingly dangerous",
+        "response_time": 2.1872520446777344,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "tight and with a good rimshot",
+        "response_time": 1.587568998336792,
+        "completion_tokens": 8,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "calm before",
+        "response_time": 1.3041291236877441,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "full of suspense",
+        "response_time": 1.1129069328308105,
+        "completion_tokens": 4,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with nuts on top",
+        "response_time": 1.4161550998687744,
+        "completion_tokens": 5,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  },
+  {
+    "model_name": "DeepSeek R1",
+    "model_id": "deepseek/deepseek-r1-0528",
+    "success_rate": 100.0,
+    "avg_response_time": 42.03917896747589,
+    "min_response_time": 8.248563289642334,
+    "max_response_time": 101.75880122184753,
+    "std_response_time": 39.24953141321495,
+    "avg_completion_tokens": 899.6,
+    "avg_reasoning_tokens": 0,
+    "total_tests": 10,
+    "successful_tests": 10,
+    "sample_responses": [
+      "hot\nblack\nwith a few pumps of cream\nground up and in the freezer\ndecaf",
+      "",
+      "low mileage"
+    ],
+    "all_results": [
+      {
+        "success": true,
+        "response": "hot\nblack\nwith a few pumps of cream\nground up and in the freezer\ndecaf",
+        "response_time": 92.24369192123413,
+        "completion_tokens": 1463,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "",
+        "response_time": 101.75880122184753,
+        "completion_tokens": 2000,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "low mileage",
+        "response_time": 9.728451251983643,
+        "completion_tokens": 215,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "ignoring me",
+        "response_time": 8.248563289642334,
+        "completion_tokens": 322,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "dry",
+        "response_time": 12.60663890838623,
+        "completion_tokens": 239,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "aggressive",
+        "response_time": 23.342089891433716,
+        "completion_tokens": 218,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "",
+        "response_time": 98.61370706558228,
+        "completion_tokens": 2000,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "category 5",
+        "response_time": 37.6416962146759,
+        "completion_tokens": 1433,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "paperback",
+        "response_time": 15.827327013015747,
+        "completion_tokens": 268,
+        "reasoning_tokens": 0,
+        "error": null
+      },
+      {
+        "success": true,
+        "response": "with nuts",
+        "response_time": 20.380822896957397,
+        "completion_tokens": 838,
+        "reasoning_tokens": 0,
+        "error": null
+      }
+    ]
+  }
+]

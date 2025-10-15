@@ -154,7 +154,7 @@ h1 {
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s;
-    border: 3px solid transparent;
+    border: 3px solid #e9ecef;
     position: relative;
 }
 
@@ -168,24 +168,9 @@ h1 {
     background: #e7e9fd;
 }
 
-.response-number {
-    position: absolute;
-    top: 10px;
-    left: 15px;
-    width: 30px;
-    height: 30px;
-    background: #667eea;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-}
-
 .response-text {
     font-size: 1.3em;
-    padding-left: 45px;
+    padding: 5px 15px;
     color: #333;
     font-style: italic;
 }
@@ -310,4 +295,52 @@ h1 {
 #new-round-btn {
     display: block;
     margin: 30px auto 0;
+}
+
+/* Model info inline */
+.model-info {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+    padding: 0 15px 5px 15px;
+    font-size: 0.9em;
+    color: #6c757d;
+    align-items: center;
+    height: 20px; /* Fixed height to prevent any shifting */
+    line-height: 20px;
+}
+
+.model-info-placeholder {
+    /* Empty placeholder - keeps exact same height */
+    visibility: hidden;
+}
+
+.model-info-placeholder::before {
+    /* Add invisible content to maintain height */
+    content: '\00a0'; /* non-breaking space */
+}
+
+.model-name-inline {
+    font-weight: bold;
+    color: #667eea;
+}
+
+.time-info-inline,
+.token-info-inline {
+    color: #6c757d;
+}
+
+.loading-inline {
+    color: #adb5bd;
+    font-style: italic;
+}
+
+.response-card.winner {
+    border-color: #28a745;
+    background: #d4edda;
+}
+
+/* Hide duplicate cards during voting */
+.response-card.duplicate-hidden {
+    display: none;
 }
