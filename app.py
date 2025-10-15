@@ -1,10 +1,11 @@
 import os
-import json
 import sqlite3
 import time
 import threading
-from datetime import datetime
-from flask import Flask, render_template, request, jsonify, send_from_directory
+import uuid
+from flask import Flask, request, jsonify, send_from_directory, session
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from openai import OpenAI
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
@@ -13,6 +14,17 @@ import random
 load_dotenv()
 
 app = Flask(__name__, static_folder='static', static_url_path='')
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', os.urandom(24).hex())
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['PERMANENT_SESSION_LIFETIME'] = 2592000  # 30 days
+
+# Rate limiting
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
 
 # OpenRouter setup
 client = OpenAI(
@@ -160,24 +172,31 @@ def init_db():
                   response_time REAL,
                   completion_tokens INTEGER,
                   reasoning_tokens INTEGER,
+                  prompt_tokens INTEGER,
+                  cost_usd REAL,
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                   FOREIGN KEY (suggestion_id) REFERENCES suggestions(id))''')
 
-    # Votes table
+    # Votes table - now tracks voter identity
     c.execute('''CREATE TABLE IF NOT EXISTS votes
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
                   suggestion_id INTEGER NOT NULL,
                   response_id INTEGER NOT NULL,
+                  voter_ip TEXT,
+                  voter_session TEXT,
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                   FOREIGN KEY (suggestion_id) REFERENCES suggestions(id),
                   FOREIGN KEY (response_id) REFERENCES responses(id))''')
 
-    # Appearances table - track when responses are shown to users
+    # Appearances table - track when responses are shown to users (matchups)
     c.execute('''CREATE TABLE IF NOT EXISTS appearances
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
                   response_id INTEGER NOT NULL,
+                  suggestion_id INTEGER NOT NULL,
+                  matchup_id TEXT NOT NULL,
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                  FOREIGN KEY (response_id) REFERENCES responses(id))''')
+                  FOREIGN KEY (response_id) REFERENCES responses(id),
+                  FOREIGN KEY (suggestion_id) REFERENCES suggestions(id))''')
 
     conn.commit()
     conn.close()
@@ -227,12 +246,23 @@ def call_llm(model_config, word):
 
         content = response.choices[0].message.content
 
-        # Extract token usage if available
+        # Extract token usage and cost if available
         usage = getattr(response, 'usage', None)
         completion_tokens = getattr(usage, 'completion_tokens', 0) if usage else 0
         reasoning_tokens = getattr(usage, 'reasoning_tokens', 0) if usage else 0
+        prompt_tokens = getattr(usage, 'prompt_tokens', 0) if usage else 0
 
-        print(f"DEBUG {model_config['name']}: Time={response_time:.2f}s, Content='{content}', Tokens={completion_tokens}, Reasoning={reasoning_tokens}")
+        # OpenRouter returns cost in the response headers or usage object
+        cost_usd = 0.0
+        if hasattr(response, '_headers') and response._headers:
+            # Try to get cost from headers
+            cost_header = response._headers.get('x-ratelimit-cost', '0')
+            try:
+                cost_usd = float(cost_header)
+            except:
+                pass
+
+        print(f"DEBUG {model_config['name']}: Time={response_time:.2f}s, Content='{content}', Tokens={completion_tokens}, Reasoning={reasoning_tokens}, Cost=${cost_usd:.6f}")
 
         if content:
             content = content.strip().strip('"').strip("'")
@@ -243,7 +273,9 @@ def call_llm(model_config, word):
             'response': content,
             'response_time': response_time,
             'completion_tokens': completion_tokens,
-            'reasoning_tokens': reasoning_tokens
+            'reasoning_tokens': reasoning_tokens,
+            'prompt_tokens': prompt_tokens,
+            'cost_usd': cost_usd
         }
     except Exception as e:
         end_time = time.time()
@@ -255,7 +287,9 @@ def call_llm(model_config, word):
             'response': f"[Error: {str(e)[:100]}]",
             'response_time': response_time,
             'completion_tokens': 0,
-            'reasoning_tokens': 0
+            'reasoning_tokens': 0,
+            'prompt_tokens': 0,
+            'cost_usd': 0.0
         }
 
 @app.route('/')
@@ -287,8 +321,8 @@ def call_llm_and_save(model_config, word, suggestion_id, is_contestant):
 
     db = get_db()
     cursor = db.execute(
-        'INSERT INTO responses (suggestion_id, model_name, model_id, response_text, response_time, completion_tokens, reasoning_tokens) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        (suggestion_id, result['model_name'], result['model_id'], result['response'], result['response_time'], result['completion_tokens'], result['reasoning_tokens'])
+        'INSERT INTO responses (suggestion_id, model_name, model_id, response_text, response_time, completion_tokens, reasoning_tokens, prompt_tokens, cost_usd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        (suggestion_id, result['model_name'], result['model_id'], result['response'], result['response_time'], result['completion_tokens'], result['reasoning_tokens'], result['prompt_tokens'], result['cost_usd'])
     )
     response_id = cursor.lastrowid
     db.commit()
@@ -302,7 +336,9 @@ def call_llm_and_save(model_config, word, suggestion_id, is_contestant):
         'response_text': result['response'],
         'response_time': result['response_time'],
         'completion_tokens': result['completion_tokens'],
-        'reasoning_tokens': result['reasoning_tokens']
+        'reasoning_tokens': result['reasoning_tokens'],
+        'prompt_tokens': result['prompt_tokens'],
+        'cost_usd': result['cost_usd']
     }
 
     # Update active competition tracking
@@ -314,6 +350,7 @@ def call_llm_and_save(model_config, word, suggestion_id, is_contestant):
     return response_data
 
 @app.route('/api/compete', methods=['POST'])
+@limiter.limit("10 per minute")
 def compete():
     """Get responses from all models for a given word"""
     data = request.json
@@ -340,6 +377,9 @@ def compete():
         contestant_responses = random.sample(all_responses, min(4, len(all_responses)))
         contestant_ids = [r['id'] for r in contestant_responses]
 
+        # Generate unique matchup ID for this showing
+        matchup_id = str(uuid.uuid4())
+
         # Group duplicates
         grouped = {}
         for r in contestant_responses:
@@ -353,14 +393,16 @@ def compete():
             grouped[text]['models'].append(r['model_name'])
             grouped[text]['response_ids'].append(r['id'])
 
-        # Track appearances - record that these responses were shown
+        # Track appearances - record that these responses were shown with matchup ID
         for r in contestant_responses:
-            db.execute('INSERT INTO appearances (response_id) VALUES (?)', (r['id'],))
+            db.execute('INSERT INTO appearances (response_id, suggestion_id, matchup_id) VALUES (?, ?, ?)',
+                      (r['id'], suggestion['id'], matchup_id))
         db.commit()
 
         result = {
             'word': word,
             'suggestion_id': suggestion['id'],
+            'matchup_id': matchup_id,
             'responses': list(grouped.values()),
             'contestant_ids': contestant_ids,
             'cached': True,
@@ -501,6 +543,7 @@ def get_responses():
     })
 
 @app.route('/api/vote', methods=['POST'])
+@limiter.limit("30 per minute")
 def vote():
     """Record a vote for a response"""
     data = request.json
@@ -510,13 +553,24 @@ def vote():
     if not suggestion_id or not response_ids:
         return jsonify({'error': 'Missing data'}), 400
 
+    # Get voter identity
+    voter_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    if ',' in voter_ip:
+        voter_ip = voter_ip.split(',')[0].strip()
+
+    # Generate or retrieve session ID
+    if 'voter_id' not in session:
+        session['voter_id'] = str(uuid.uuid4())
+        session.permanent = True
+    voter_session = session['voter_id']
+
     db = get_db()
 
     # Record vote for each response (if grouped duplicates)
     for response_id in response_ids:
         db.execute(
-            'INSERT INTO votes (suggestion_id, response_id) VALUES (?, ?)',
-            (suggestion_id, response_id)
+            'INSERT INTO votes (suggestion_id, response_id, voter_ip, voter_session) VALUES (?, ?, ?, ?)',
+            (suggestion_id, response_id, voter_ip, voter_session)
         )
 
     db.commit()
@@ -578,5 +632,52 @@ def get_stats():
 
     return jsonify(result)
 
+@app.route('/api/costs', methods=['GET'])
+def get_costs():
+    """Get cost statistics"""
+    db = get_db()
+
+    # Total cost
+    total_cost = db.execute('SELECT SUM(cost_usd) as total FROM responses').fetchone()
+
+    # Cost by model
+    cost_by_model = db.execute('''
+        SELECT
+            model_name,
+            COUNT(*) as request_count,
+            SUM(cost_usd) as total_cost,
+            AVG(cost_usd) as avg_cost,
+            SUM(prompt_tokens) as total_prompt_tokens,
+            SUM(completion_tokens) as total_completion_tokens
+        FROM responses
+        GROUP BY model_name
+        ORDER BY total_cost DESC
+    ''').fetchall()
+
+    # Cost over time (by day)
+    cost_by_day = db.execute('''
+        SELECT
+            DATE(created_at) as date,
+            COUNT(*) as request_count,
+            SUM(cost_usd) as total_cost
+        FROM responses
+        GROUP BY DATE(created_at)
+        ORDER BY date DESC
+        LIMIT 30
+    ''').fetchall()
+
+    db.close()
+
+    return jsonify({
+        'total_cost_usd': total_cost['total'] or 0.0,
+        'remaining_budget': 100.0 - (total_cost['total'] or 0.0),
+        'cost_by_model': [dict(row) for row in cost_by_model],
+        'cost_by_day': [dict(row) for row in cost_by_day]
+    })
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    # Use environment variable for debug mode, default to False for production
+    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    port = int(os.getenv('PORT', 5001))
+    host = os.getenv('HOST', '0.0.0.0')
+    app.run(debug=debug_mode, port=port, host=host)

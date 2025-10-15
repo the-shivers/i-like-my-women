@@ -16,6 +16,9 @@ ENV/
 *.sqlite
 *.sqlite3
 
+# Flask session files
+flask_session/
+
 # IDE
 .vscode/
 .idea/
