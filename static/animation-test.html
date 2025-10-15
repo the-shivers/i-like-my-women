@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Test</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            width: 100vw;
+            font-family: 'IBM Plex Serif', serif;
+            background: #111;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            opacity: 0.5;
+        }
+
+        .animation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 60px;
+            padding: 40px;
+        }
+
+        .animation-demo {
+            text-align: center;
+        }
+
+        .demo-label {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        .demo-text {
+            font-size: 3em;
+            color: white;
+            display: inline-block;
+        }
+
+        /* Animation 1: Size Wave */
+        .size-wave {
+            animation: sizeWave 2s ease-in-out infinite;
+        }
+
+        @keyframes sizeWave {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .size-wave span {
+            display: inline-block;
+            animation: sizeWaveLetter 2s ease-in-out infinite;
+        }
+
+        .size-wave span:nth-child(1) { animation-delay: 0s; }
+        .size-wave span:nth-child(2) { animation-delay: 0.1s; }
+        .size-wave span:nth-child(3) { animation-delay: 0.2s; }
+        .size-wave span:nth-child(4) { animation-delay: 0.3s; }
+        .size-wave span:nth-child(5) { animation-delay: 0.4s; }
+        .size-wave span:nth-child(6) { animation-delay: 0.5s; }
+
+        @keyframes sizeWaveLetter {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+        }
+
+        /* Animation 2: Vertical Wave */
+        .vertical-wave span {
+            display: inline-block;
+            animation: verticalWave 1.5s ease-in-out infinite;
+        }
+
+        .vertical-wave span:nth-child(1) { animation-delay: 0s; }
+        .vertical-wave span:nth-child(2) { animation-delay: 0.1s; }
+        .vertical-wave span:nth-child(3) { animation-delay: 0.2s; }
+        .vertical-wave span:nth-child(4) { animation-delay: 0.3s; }
+        .vertical-wave span:nth-child(5) { animation-delay: 0.4s; }
+        .vertical-wave span:nth-child(6) { animation-delay: 0.5s; }
+
+        @keyframes verticalWave {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Animation 3: Rotation Wave */
+        .rotation-wave span {
+            display: inline-block;
+            animation: rotationWave 2s ease-in-out infinite;
+        }
+
+        .rotation-wave span:nth-child(1) { animation-delay: 0s; }
+        .rotation-wave span:nth-child(2) { animation-delay: 0.15s; }
+        .rotation-wave span:nth-child(3) { animation-delay: 0.3s; }
+        .rotation-wave span:nth-child(4) { animation-delay: 0.45s; }
+        .rotation-wave span:nth-child(5) { animation-delay: 0.6s; }
+        .rotation-wave span:nth-child(6) { animation-delay: 0.75s; }
+
+        @keyframes rotationWave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            75% { transform: rotate(-15deg); }
+        }
+
+        /* Animation 4: Wiggle */
+        .wiggle span {
+            display: inline-block;
+            animation: wiggle 0.5s ease-in-out infinite;
+        }
+
+        .wiggle span:nth-child(1) { animation-delay: 0s; }
+        .wiggle span:nth-child(2) { animation-delay: 0.1s; }
+        .wiggle span:nth-child(3) { animation-delay: 0.2s; }
+        .wiggle span:nth-child(4) { animation-delay: 0.3s; }
+        .wiggle span:nth-child(5) { animation-delay: 0.4s; }
+        .wiggle span:nth-child(6) { animation-delay: 0.5s; }
+
+        @keyframes wiggle {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-2px, 2px) rotate(-3deg); }
+            50% { transform: translate(2px, -2px) rotate(3deg); }
+            75% { transform: translate(-2px, -2px) rotate(-2deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Pick Your Animation Style</h1>
+
+    <div class="animation-grid">
+        <div class="animation-demo">
+            <div class="demo-label">1. Size Wave</div>
+            <div class="demo-text size-wave">
+                <span>c</span><span>o</span><span>f</span><span>f</span><span>e</span><span>e</span>
+            </div>
+        </div>
+
+        <div class="animation-demo">
+            <div class="demo-label">2. Vertical Wave</div>
+            <div class="demo-text vertical-wave">
+                <span>c</span><span>o</span><span>f</span><span>f</span><span>e</span><span>e</span>
+            </div>
+        </div>
+
+        <div class="animation-demo">
+            <div class="demo-label">3. Rotation Wave</div>
+            <div class="demo-text rotation-wave">
+                <span>c</span><span>o</span><span>f</span><span>f</span><span>e</span><span>e</span>
+            </div>
+        </div>
+
+        <div class="animation-demo">
+            <div class="demo-label">5. Wiggle</div>
+            <div class="demo-text wiggle">
+                <span>c</span><span>o</span><span>f</span><span>f</span><span>e</span><span>e</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

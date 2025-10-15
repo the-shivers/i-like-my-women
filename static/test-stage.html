@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I Like My Women</title>
+    <title>Stage Test</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;600&family=Open+Sans:wght@400;600&family=Special+Elite&family=Sedgwick+Ave+Display&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;600&family=Open+Sans:wght@400;600&family=Special+Elite&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -34,10 +34,10 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 87.5vh;
+            height: 87.5vh; /* 7/8 of viewport */
             background-image: url('medium-ironspot-77-velour-face-brick-modular-running-bond-322-in-architextures.jpg');
             background-repeat: repeat;
-            background-size: 400px auto;
+            background-size: 400px auto; /* Tile the brick pattern */
         }
 
         /* Wood floor - takes up 1/8 of viewport */
@@ -46,14 +46,14 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 12.5vh;
+            height: 12.5vh; /* 1/8 of viewport */
             background-image: url('Hardwood-flooring.png');
             background-repeat: no-repeat;
-            background-size: 100% 100%;
+            background-size: 100% 100%; /* Squish to fit */
             background-position: center;
         }
 
-        /* Spotlight overlay */
+        /* Spotlight overlay - creates the fade to black effect */
         .spotlight-overlay {
             position: absolute;
             top: 0;
@@ -72,7 +72,7 @@
             );
         }
 
-        /* Content area */
+        /* Content area - where UI elements will go */
         .content {
             position: relative;
             z-index: 10;
@@ -365,71 +365,6 @@
             display: none;
         }
 
-        /* Loading container */
-        .loading-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 100;
-        }
-
-        /* Graffiti text behind spinner */
-        .loading-graffiti {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-family: 'Sedgwick Ave Display', cursive;
-            font-size: 8em;
-            color: rgba(255, 215, 0, 0.3);
-            text-align: center;
-            line-height: 0.9;
-            z-index: 99;
-            animation: graffitiShake 0.6s ease-in-out infinite;
-            mix-blend-mode: overlay;
-            text-shadow:
-                2px 2px 4px rgba(255, 215, 0, 0.4),
-                -1px -1px 2px rgba(255, 215, 0, 0.2);
-        }
-
-        .loading-graffiti .line2 {
-            display: block;
-            margin-left: 30px;
-        }
-
-        @keyframes graffitiShake {
-            0%, 32.99% {
-                transform: translate(-50%, -50%) translateX(0) translateY(0) rotate(0deg);
-            }
-            33%, 65.99% {
-                transform: translate(-50%, -50%) translateX(-3px) translateY(0) rotate(-0.5deg);
-            }
-            66%, 99.99% {
-                transform: translate(-50%, -50%) translateX(2px) translateY(-3px) rotate(0.5deg);
-            }
-            100% {
-                transform: translate(-50%, -50%) translateX(0) translateY(0) rotate(0deg);
-            }
-        }
-
-        /* Loading spinner */
-        .loading-spinner {
-            position: relative;
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(255, 255, 255, 0.2);
-            border-top: 4px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            z-index: 101;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         /* Card entrance animations */
         @keyframes slideInFromLeft {
             from {
@@ -486,14 +421,6 @@
                 </span>
             </div>
 
-            <!-- Loading container (hidden by default) -->
-            <div class="loading-container hidden" id="loading-container">
-                <div class="loading-graffiti">
-                    HA-<span class="line2">HA</span>
-                </div>
-                <div class="loading-spinner"></div>
-            </div>
-
             <!-- Answer cards (hidden by default, populated by JS) -->
             <div class="answers-container hidden" id="answers-container">
             </div>
@@ -512,6 +439,163 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        // Random words to start with
+        const randomWords = ['coffee', 'pizza', 'cars', 'wine', 'storms', 'books', 'cats', 'tacos'];
+
+        // Set random word on load
+        const input = document.getElementById('word-input');
+        const wiggleDisplay = document.getElementById('wiggle-display');
+        const inputWrapper = document.querySelector('.input-wrapper');
+
+        input.value = randomWords[Math.floor(Math.random() * randomWords.length)];
+
+        // Update wiggle display with individual letter spans
+        function updateWiggleDisplay() {
+            const text = input.value || '';
+
+            // Show actual text or nothing if empty
+            const displayText = text || ' ';
+
+            wiggleDisplay.innerHTML = displayText.split('').map(char =>
+                `<span>${char === ' ' ? '&nbsp;' : char}</span>`
+            ).join('');
+
+            // Resize wrapper to fit content (enforce minimum width)
+            const tempSpan = document.createElement('span');
+            tempSpan.style.font = window.getComputedStyle(wiggleDisplay).font;
+            tempSpan.style.visibility = 'hidden';
+            tempSpan.style.position = 'absolute';
+            tempSpan.textContent = displayText;
+            document.body.appendChild(tempSpan);
+            inputWrapper.style.width = Math.max(30, tempSpan.offsetWidth + 5) + 'px';
+            document.body.removeChild(tempSpan);
+        }
+
+        // Wait for font to load before sizing
+        document.fonts.ready.then(() => {
+            updateWiggleDisplay();
+
+            // Auto-focus and put cursor at end (after resize)
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+        });
+
+        input.addEventListener('input', updateWiggleDisplay);
+
+        // Allow clicking on wiggle display to focus input
+        wiggleDisplay.addEventListener('click', () => {
+            input.focus();
+        });
+
+        // Random button functionality
+        document.getElementById('random-btn').addEventListener('click', () => {
+            input.value = randomWords[Math.floor(Math.random() * randomWords.length)];
+            updateWiggleDisplay();
+            input.focus();
+        });
+
+        // Demo answers with model info
+        const demoAnswers = [
+            {
+                text: "Ground up and in the freezer",
+                model: "Claude 3.5 Sonnet",
+                time: "1.2s",
+                tokens: "42"
+            },
+            {
+                text: "Hot, strong, and keeping me up all night",
+                model: "GPT-4",
+                time: "0.8s",
+                tokens: "38"
+            },
+            {
+                text: "Without someone else's cream in it",
+                model: "Claude 3 Opus",
+                time: "1.5s",
+                tokens: "35"
+            },
+            {
+                text: "I don't drink coffee",
+                model: "GPT-3.5 Turbo",
+                time: "0.5s",
+                tokens: "18"
+            }
+        ];
+
+        // Generate answer cards with random styling
+        function generateAnswerCards(answers) {
+            const container = document.getElementById('answers-container');
+            container.innerHTML = '';
+
+            answers.forEach((answer, index) => {
+                const card = document.createElement('div');
+                card.className = 'answer-card';
+
+                // Random rotation between -1.5 and 1.5 degrees
+                const rotation = (Math.random() * 3 - 1.5).toFixed(1);
+
+                // Random horizontal shift between -15px and 15px
+                const translateX = Math.floor(Math.random() * 30 - 15);
+
+                // Random background position
+                const bgX = Math.floor(Math.random() * 100);
+                const bgY = Math.floor(Math.random() * 100);
+
+                // Alternate slide direction
+                const slideDir = index % 2 === 0 ? 'slide-left' : 'slide-right';
+                card.classList.add(slideDir);
+
+                // Apply random styling
+                card.style.transform = `rotate(${rotation}deg) translateX(${translateX}px)`;
+                card.style.backgroundPosition = `${bgX}% ${bgY}%`;
+
+                // Add text (left column, spans both rows)
+                const text = document.createElement('div');
+                text.className = 'answer-text';
+                text.textContent = answer.text;
+                card.appendChild(text);
+
+                // Add model name (top right)
+                const modelName = document.createElement('div');
+                modelName.className = 'model-name';
+                modelName.textContent = answer.model;
+                card.appendChild(modelName);
+
+                // Add model stats (bottom right)
+                const modelStats = document.createElement('div');
+                modelStats.className = 'model-stats';
+                modelStats.textContent = `${answer.time} • ${answer.tokens} tokens`;
+                card.appendChild(modelStats);
+
+                // Click handler - reveal model info
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.answer-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    card.classList.add('revealed');
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        // Submit button - show answers
+        function showAnswers() {
+            const container = document.querySelector('.answers-container');
+            if (container.classList.contains('hidden')) {
+                generateAnswerCards(demoAnswers);
+                container.classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('submit-btn').addEventListener('click', showAnswers);
+
+        // Enter key submits
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                showAnswers();
+            }
+        });
+    </script>
 </body>
 </html>
