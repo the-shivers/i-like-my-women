@@ -18,9 +18,6 @@ const otherAnswers = document.getElementById('other-answers');
 const otherAnswersContainer = document.getElementById('other-answers-container');
 const brickWall = document.querySelector('.brick-wall');
 const stage = document.querySelector('.stage');
-const aboutLink = document.getElementById('about-link');
-const aboutModal = document.getElementById('about-modal');
-const closeModal = document.querySelector('.close-modal');
 
 // Graffiti images (pre-colored cyan) and hue shifts
 const graffitiImages = ['p1cyan.png', 'p2cyan.png', 'p3cyan.png'];
@@ -568,22 +565,5 @@ submitBtn.addEventListener('click', showAnswers);
 input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         showAnswers();
-    }
-});
-
-// About modal handlers
-aboutLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    aboutModal.classList.remove('hidden');
-});
-
-closeModal.addEventListener('click', () => {
-    aboutModal.classList.add('hidden');
-});
-
-// Close modal when clicking outside
-aboutModal.addEventListener('click', (e) => {
-    if (e.target === aboutModal) {
-        aboutModal.classList.add('hidden');
     }
 });
