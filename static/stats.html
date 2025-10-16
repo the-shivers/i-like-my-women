@@ -480,15 +480,7 @@
                 loading.classList.add('hidden');
                 leaderboard.classList.remove('hidden');
 
-                const excludedNames = new Set([
-                    'DeepSeek v3',
-                    'DeepSeek Chat v3.0324',
-                    'Qwen 2.5 VL 32B'
-                ]);
-
-                const considered = stats.filter(model => !excludedNames.has(model.model_name));
-
-                if (considered.length === 0) {
+                if (stats.length === 0) {
                     const empty = document.createElement('p');
                     empty.style.textAlign = 'center';
                     empty.style.color = 'rgba(255, 255, 255, 0.6)';
@@ -499,7 +491,7 @@
 
                 const tierClasses = ['gold', 'silver', 'bronze'];
 
-                const enriched = considered.map((model) => {
+                const enriched = stats.map((model) => {
                     const appearances = Math.max(model.appearance_count || 0, 0);
                     const votes = Math.max(model.vote_count || 0, 0);
                     const winRate = appearances ? votes / appearances : 0;
