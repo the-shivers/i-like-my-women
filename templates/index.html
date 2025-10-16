@@ -379,6 +379,7 @@ Oops! I accidentally included it. How careless of me.
             gap: 0 20px;
             min-height: 80px;
             align-items: center;
+            overflow: hidden;
         }
 
         /* Ransom note style - rotation and position set dynamically via JS */
@@ -398,19 +399,20 @@ Oops! I accidentally included it. How careless of me.
                 inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
-        /* Winner ribbon */
+        /* Winner stamp */
         .answer-card.selected::after {
             content: '';
             position: absolute;
-            top: -22px;
-            left: -30px;
-            width: 70px;
-            height: 70px;
-            background-image: url('ribbon.webp');
+            top: calc(50% + var(--stamp-offset-y, 0px));
+            left: calc(-25px + var(--stamp-offset-x, 0px));
+            transform: translateY(-50%) rotate(var(--stamp-rotation, -12deg));
+            width: 130px;
+            height: 130px;
+            background-image: url('checkstamp.png');
             background-size: contain;
             background-repeat: no-repeat;
-            transform: rotate(15deg);
-            filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.25));
+            mix-blend-mode: multiply;
+            opacity: 0.4;
             z-index: 10;
             pointer-events: none;
         }
@@ -808,10 +810,8 @@ Oops! I accidentally included it. How careless of me.
             }
 
             .answer-card.selected::after {
-                width: 50px;
-                height: 50px;
-                top: -15px;
-                left: -20px;
+                width: 120px;
+                height: 120px;
             }
 
             .answer-text {
@@ -861,10 +861,8 @@ Oops! I accidentally included it. How careless of me.
             }
 
             .answer-card.selected::after {
-                width: 38px;
-                height: 38px;
-                top: -12px;
-                left: -15px;
+                width: 90px;
+                height: 90px;
             }
 
             .answer-text {
@@ -998,7 +996,7 @@ Oops! I accidentally included it. How careless of me.
                     <li><b>GPT-4.1</b> - OpenAI's iteration on GPT-4</li>
                     <li><b>Qwen3 235B</b> - Chinese model with a large number of parameters</li>
                     <li><b>GPT-4o</b> - OpenAI personality hire.</li>
-                    <li><b>DeepSeek Chat v3.1</b> - Another Chinese model with a large number of parameters.</li>
+                    <li><b>DeepSeek Chat v3.1</b> - I know I'm not supposed to pick favorites, but I don't care for this one.</li>
                     <li><b>GPT-5 Chat</b> - Non-thinking (lobotomized) version of GPT-5</li>
                     <li><b>Claude Sonnet 4.5</b> - Anthropic's dearest, darlingest.</li>
                     <li><b>Kimi K2</b> - Moonshot AI's hyped-up model</li>

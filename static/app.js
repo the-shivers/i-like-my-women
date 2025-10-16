@@ -396,10 +396,18 @@ async function selectCard(card, cardData) {
         // Disable clicking
         c.style.pointerEvents = 'none';
 
-        // If this card has the same answer as the selected one, mark it selected (for ribbon)
+        // If this card has the same answer as the selected one, mark it selected (for stamp)
         const cardResponse = c.dataset.response;
         if (cardResponse === selectedResponseText) {
             c.classList.add('selected');
+
+            // Add random stamp positioning
+            const randomRotation = -18 + Math.random() * 12; // -18deg to -6deg
+            const randomOffsetX = -5 + Math.random() * 10; // -5px to 5px
+            const randomOffsetY = -8 + Math.random() * 16; // -8px to 8px
+            c.style.setProperty('--stamp-rotation', `${randomRotation.toFixed(1)}deg`);
+            c.style.setProperty('--stamp-offset-x', `${randomOffsetX.toFixed(1)}px`);
+            c.style.setProperty('--stamp-offset-y', `${randomOffsetY.toFixed(1)}px`);
         }
     });
 
