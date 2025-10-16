@@ -429,7 +429,8 @@ async function selectCard(card, cardData) {
             body: JSON.stringify({
                 suggestion_id: currentData.suggestion_id,
                 response_ids: [cardData.response_id],
-                matchup_id: currentData.matchup_id
+                matchup_id: currentData.matchup_id,
+                contestant_ids: currentData.contestant_ids
             })
         });
     } catch (error) {

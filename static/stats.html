@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stats - I Like My Women</title>
+    <title>Improv Comedy Leaderboard - I Like My Women</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>😂</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;600&family=Open+Sans:wght@400;600&family=Special+Elite&family=Sedgwick+Ave+Display&display=swap" rel="stylesheet">
@@ -196,7 +197,7 @@
             padding: 10px 16px;
             display: grid;
             grid-template-columns: 44px minmax(0, 2.2fr) minmax(0, 2.1fr);
-            align-items: flex-start;
+            align-items: center;
             gap: 12px;
             box-shadow:
                 0 1px 6px rgba(0, 0, 0, 0.22),
@@ -256,18 +257,10 @@
         }
 
         .model-name {
-            font-size: 1em;
-            font-weight: 600;
+            font-size: 1.3em;
+            font-weight: 400;
             color: #2a1f18;
-        }
-
-        .model-id {
-            font-size: 0.62em;
-            font-family: 'Open Sans', sans-serif;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: rgba(42, 31, 24, 0.6);
-            margin-top: 4px;
+            cursor: help;
         }
 
         .model-stats {
@@ -281,7 +274,7 @@
         }
 
         .model-stats .win-rate {
-            font-size: 0.84em;
+            font-size: 0.95em;
             font-weight: 600;
             color: #2a1f18;
             letter-spacing: 0.02em;
@@ -289,7 +282,7 @@
 
         .model-stats .counts,
         .model-stats .averages {
-            font-size: 0.68em;
+            font-size: 0.78em;
             color: rgba(42, 31, 24, 0.62);
             letter-spacing: 0.02em;
         }
@@ -403,9 +396,6 @@
                 font-weight: 600;
             }
 
-            .model-id {
-                display: none;
-            }
 
             .model-stats {
                 text-align: left;
@@ -444,7 +434,7 @@
             <div class="content-inner">
                 <a href="/" class="back-link">Back to Game</a>
                 <header class="hero">
-                    <h1>Leaderboard</h1>
+                    <h1>Improv Comedy Leaderboard</h1>
                 </header>
                 <div class="leaderboard-section">
                     <div id="loading" class="loading-block">
@@ -532,16 +522,14 @@
                     card.style.backgroundPosition = `${bgX}% ${bgY}%`;
 
                     const avgTimeText = model.avgTime != null ? `${model.avgTime.toFixed(2)}s` : '—';
-                    const avgTokensText = model.avgTokens != null ? `${Math.round(model.avgTokens)}` : '—';
                     card.innerHTML = `
                         <div class="rank-badge">${index + 1}</div>
                         <div class="model-meta">
-                            <div class="model-name" data-rank="${index + 1}">${model.model_name}</div>
-                            <div class="model-id">${model.model_id}</div>
+                            <div class="model-name" data-rank="${index + 1}" title="${model.model_id}">${model.model_name}</div>
                         </div>
                         <div class="model-stats">
                             <div class="win-rate">${model.rateDisplay}% win rate — wins ${model.vote_count} / appearances ${model.appearance_count}</div>
-                            <div class="averages">avg time ${avgTimeText} • avg tokens ${avgTokensText}</div>
+                            <div class="averages">avg time ${avgTimeText}</div>
                         </div>
                     `;
                     leaderboard.appendChild(card);

@@ -417,11 +417,7 @@ def compete():
             grouped[text]['models'].append(r['model_name'])
             grouped[text]['response_ids'].append(r['id'])
 
-        # Track appearances - record that these responses were shown with matchup ID
-        for r in contestant_responses:
-            db.execute('INSERT INTO appearances (response_id, suggestion_id, matchup_id) VALUES (?, ?, ?)',
-                      (r['id'], suggestion['id'], matchup_id))
-        db.commit()
+        # Don't record appearances here - only when a vote is made
 
         # Get non-contestant responses for cached case
         non_contestant_responses = []
@@ -494,15 +490,10 @@ def compete():
                 comp['contestant_responses'] = contestant_responses
                 comp['ready'] = True
 
-                # Track appearances for contestants - generate matchup ID
+                # Generate matchup ID for tracking
                 matchup_id = str(uuid.uuid4())
                 comp['matchup_id'] = matchup_id  # Store in competition tracking
-                db = get_db()
-                for r in contestant_responses:
-                    db.execute('INSERT INTO appearances (response_id, suggestion_id, matchup_id) VALUES (?, ?, ?)',
-                              (r['id'], suggestion_id, matchup_id))
-                db.commit()
-                db.close()
+                # Don't record appearances here - only when a vote is made
 
             # Continue waiting for remaining responses in background
             for _name, future, is_contestant in futures:
@@ -635,6 +626,7 @@ def vote():
     suggestion_id = data.get('suggestion_id')
     response_ids = data.get('response_ids')  # Can be multiple if grouped
     matchup_id = data.get('matchup_id')  # Track which matchup this vote belongs to
+    contestant_ids = data.get('contestant_ids')  # All contestant response IDs shown in this matchup
 
     if not suggestion_id or not response_ids:
         return jsonify({'error': 'Missing data'}), 400
@@ -658,6 +650,14 @@ def vote():
             'INSERT INTO votes (suggestion_id, response_id, matchup_id, voter_ip, voter_session) VALUES (?, ?, ?, ?, ?)',
             (suggestion_id, response_id, matchup_id, voter_ip, voter_session)
         )
+
+    # Record appearances for ALL contestants shown in this matchup (only when vote is made)
+    if contestant_ids and matchup_id:
+        for contestant_id in contestant_ids:
+            db.execute(
+                'INSERT INTO appearances (response_id, suggestion_id, matchup_id) VALUES (?, ?, ?)',
+                (contestant_id, suggestion_id, matchup_id)
+            )
 
     db.commit()
     db.close()
