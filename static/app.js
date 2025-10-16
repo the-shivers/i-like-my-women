@@ -360,6 +360,7 @@ async function showAnswers() {
                     loadingContainer.classList.add('hidden');
                     currentData.responses = status.responses;
                     currentData.contestant_ids = status.contestant_ids;
+                    currentData.matchup_id = status.matchup_id;  // Store matchup_id
                     generateAnswerCards(currentData.responses);
                     answersContainer.classList.remove('hidden');
                 }
@@ -422,7 +423,8 @@ async function selectCard(card, cardData) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 suggestion_id: currentData.suggestion_id,
-                response_ids: [cardData.response_id]
+                response_ids: [cardData.response_id],
+                matchup_id: currentData.matchup_id
             })
         });
     } catch (error) {

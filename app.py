@@ -177,11 +177,12 @@ def init_db():
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                   FOREIGN KEY (suggestion_id) REFERENCES suggestions(id))''')
 
-    # Votes table - now tracks voter identity
+    # Votes table - now tracks voter identity AND matchup
     c.execute('''CREATE TABLE IF NOT EXISTS votes
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
                   suggestion_id INTEGER NOT NULL,
                   response_id INTEGER NOT NULL,
+                  matchup_id TEXT,
                   voter_ip TEXT,
                   voter_session TEXT,
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -197,6 +198,14 @@ def init_db():
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                   FOREIGN KEY (response_id) REFERENCES responses(id),
                   FOREIGN KEY (suggestion_id) REFERENCES suggestions(id))''')
+
+    # Migration: Add matchup_id to votes table if it doesn't exist
+    try:
+        c.execute('SELECT matchup_id FROM votes LIMIT 1')
+    except sqlite3.OperationalError:
+        print("Adding matchup_id column to votes table...")
+        c.execute('ALTER TABLE votes ADD COLUMN matchup_id TEXT')
+        conn.commit()
 
     conn.commit()
     conn.close()
@@ -469,6 +478,7 @@ def compete():
 
                 # Track appearances for contestants - generate matchup ID
                 matchup_id = str(uuid.uuid4())
+                comp['matchup_id'] = matchup_id  # Store in competition tracking
                 db = get_db()
                 for r in contestant_responses:
                     db.execute('INSERT INTO appearances (response_id, suggestion_id, matchup_id) VALUES (?, ?, ?)',
@@ -501,6 +511,7 @@ def compete_status():
         total_count = len(comp['contestants'])
         ready = comp['ready']
         contestant_responses = comp['contestant_responses'] if ready else []
+        matchup_id = comp.get('matchup_id') if ready else None
 
     response_data = {
         'completed': completed_count,
@@ -534,6 +545,7 @@ def compete_status():
 
         response_data['responses'] = list(grouped.values())
         response_data['contestant_ids'] = [r['id'] for r in contestant_responses]
+        response_data['matchup_id'] = matchup_id
 
     return jsonify(response_data)
 
@@ -565,6 +577,7 @@ def vote():
     data = request.json
     suggestion_id = data.get('suggestion_id')
     response_ids = data.get('response_ids')  # Can be multiple if grouped
+    matchup_id = data.get('matchup_id')  # Track which matchup this vote belongs to
 
     if not suggestion_id or not response_ids:
         return jsonify({'error': 'Missing data'}), 400
@@ -585,8 +598,8 @@ def vote():
     # Record vote for each response (if grouped duplicates)
     for response_id in response_ids:
         db.execute(
-            'INSERT INTO votes (suggestion_id, response_id, voter_ip, voter_session) VALUES (?, ?, ?, ?)',
-            (suggestion_id, response_id, voter_ip, voter_session)
+            'INSERT INTO votes (suggestion_id, response_id, matchup_id, voter_ip, voter_session) VALUES (?, ?, ?, ?, ?)',
+            (suggestion_id, response_id, matchup_id, voter_ip, voter_session)
         )
 
     db.commit()
