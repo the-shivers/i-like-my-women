@@ -267,7 +267,7 @@ Oops! I accidentally included it. How careless of me.
 
         .input-controls {
             display: flex;
-            gap: 10px;
+            gap: 14px;
             position: absolute;
             top: 100%;
             left: 50%;
@@ -281,9 +281,9 @@ Oops! I accidentally included it. How careless of me.
         .random-btn,
         .submit-btn {
             position: relative;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.25);
             border: none;
-            border-radius: 0;
+            border-radius: 4px;
             cursor: pointer;
             transition: all 0.3s;
             overflow: hidden;
@@ -314,6 +314,7 @@ Oops! I accidentally included it. How careless of me.
             width: 28px;
             height: 28px;
             display: block;
+            filter: invert(1);
         }
 
         .submit-btn {
@@ -327,21 +328,21 @@ Oops! I accidentally included it. How careless of me.
 
         .random-btn span,
         .submit-btn span {
-            color: black;
+            color: white;
             position: relative;
             z-index: 1;
         }
 
         .random-btn:hover,
         .submit-btn:hover {
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.4);
             transform: translate3d(0, -1px, 0);
         }
 
         .random-btn:active,
         .submit-btn:active {
             transform: translate3d(0, 0, 0);
-            background: white;
+            background: rgba(255, 255, 255, 0.55);
         }
 
         .footer {
@@ -774,7 +775,7 @@ Oops! I accidentally included it. How careless of me.
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.15);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -998,7 +999,7 @@ Oops! I accidentally included it. How careless of me.
                 I like my women like I like my <span style="position: relative; display: inline-block; white-space: nowrap;">
                     <span class="input-wrapper">
                         <span id="wiggle-display">{% for char in initial_word %}<span>{{ char }}</span>{% endfor %}</span>
-                        <input type="text" value="{{ initial_word }}" id="word-input">
+                        <input type="text" value="{{ initial_word }}" id="word-input" maxlength="20">
                         <div class="input-controls">
                             <button class="random-btn" id="random-btn" title="Random word"><span><img src="arrowblack.svg" alt="Random"></span></button>
                             <button class="submit-btn" id="submit-btn"><span>Submit</span></button>
