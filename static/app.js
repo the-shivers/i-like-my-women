@@ -35,12 +35,12 @@ function clearGraffiti() {
     existingGraffiti.forEach(icon => icon.remove());
 }
 
-// Brick wall click handler - add graffiti
-brickWall.addEventListener('click', (e) => {
+// Graffiti drawing function
+function drawGraffiti(clientX, clientY) {
     // Get click position relative to the stage
     const rect = stage.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
 
     // Create graffiti icon
     const icon = document.createElement('img');
@@ -89,6 +89,20 @@ brickWall.addEventListener('click', (e) => {
 
     // Add to stage
     stage.appendChild(icon);
+}
+
+// Forward clicks on empty content area to brick wall
+const content = document.querySelector('.content');
+content.addEventListener('click', (e) => {
+    // Only forward if clicking directly on content (empty space), not on children
+    if (e.target === content) {
+        drawGraffiti(e.clientX, e.clientY);
+    }
+});
+
+// Brick wall click handler - add graffiti
+brickWall.addEventListener('click', (e) => {
+    drawGraffiti(e.clientX, e.clientY);
 });
 
 // Random words list (matches backend)
