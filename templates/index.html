@@ -281,7 +281,7 @@ Oops! I accidentally included it. How careless of me.
         .random-btn,
         .submit-btn {
             position: relative;
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.6);
             border: none;
             border-radius: 0;
             cursor: pointer;
@@ -291,6 +291,9 @@ Oops! I accidentally included it. How careless of me.
             align-items: center;
             justify-content: center;
             isolation: isolate;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            backface-visibility: hidden;
         }
 
         .random-btn {
@@ -330,7 +333,7 @@ Oops! I accidentally included it. How careless of me.
 
         .random-btn:hover,
         .submit-btn:hover {
-            background: rgba(255, 255, 255, 0.65);
+            background: rgba(255, 255, 255, 0.75);
             transform: translateY(-1px);
         }
 
@@ -410,6 +413,9 @@ Oops! I accidentally included it. How careless of me.
             min-height: 80px;
             align-items: center;
             overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            backface-visibility: hidden;
         }
 
         /* Ransom note style - rotation and position set dynamically via JS */
@@ -673,6 +679,9 @@ Oops! I accidentally included it. How careless of me.
             text-transform: uppercase;
             --tilt: -0.6deg;
             transform: rotate(var(--tilt));
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            backface-visibility: hidden;
         }
 
         .action-btn::before {
