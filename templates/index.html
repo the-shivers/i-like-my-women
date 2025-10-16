@@ -53,6 +53,30 @@ Oops! I accidentally included it. How careless of me.
             background: black;
         }
 
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Firefox scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) rgba(0, 0, 0, 0.3);
+        }
+
         .stage {
             position: relative;
             width: 100%;
@@ -107,7 +131,7 @@ Oops! I accidentally included it. How careless of me.
                 rgba(0, 0, 0, 0.5) 45%,
                 rgba(0, 0, 0, 0.85) 65%,
                 rgba(0, 0, 0, 0.96) 85%,
-                rgba(0, 0, 0, 0.99) 100%
+                black 100%
             );
         }
 
@@ -498,7 +522,7 @@ Oops! I accidentally included it. How careless of me.
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, calc(-50% + 15px));
             font-family: 'Sedgwick Ave Display', cursive;
             font-size: 4em;
             color: rgba(255, 215, 0, 0.3);
@@ -519,16 +543,16 @@ Oops! I accidentally included it. How careless of me.
 
         @keyframes graffitiShake {
             0%, 32.99% {
-                transform: translate(-50%, -50%) translateX(0) translateY(0) rotate(0deg);
+                transform: translate(-50%, calc(-50% + 15px)) translateX(0) translateY(0) rotate(0deg);
             }
             33%, 65.99% {
-                transform: translate(-50%, -50%) translateX(-3px) translateY(0) rotate(-0.5deg);
+                transform: translate(-50%, calc(-50% + 15px)) translateX(-3px) translateY(0) rotate(-0.5deg);
             }
             66%, 99.99% {
-                transform: translate(-50%, -50%) translateX(2px) translateY(-3px) rotate(0.5deg);
+                transform: translate(-50%, calc(-50% + 15px)) translateX(2px) translateY(-3px) rotate(0.5deg);
             }
             100% {
-                transform: translate(-50%, -50%) translateX(0) translateY(0) rotate(0deg);
+                transform: translate(-50%, calc(-50% + 15px)) translateX(0) translateY(0) rotate(0deg);
             }
         }
 
@@ -803,7 +827,7 @@ Oops! I accidentally included it. How careless of me.
                     rgba(0, 0, 0, 0.5) 45%,
                     rgba(0, 0, 0, 0.85) 65%,
                     rgba(0, 0, 0, 0.96) 85%,
-                    rgba(0, 0, 0, 0.99) 100%
+                    black 100%
                 );
             }
         }
@@ -862,7 +886,7 @@ Oops! I accidentally included it. How careless of me.
                     rgba(0, 0, 0, 0.5) 45%,
                     rgba(0, 0, 0, 0.85) 65%,
                     rgba(0, 0, 0, 0.96) 85%,
-                    rgba(0, 0, 0, 0.99) 100%
+                    black 100%
                 );
             }
 
