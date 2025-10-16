@@ -135,7 +135,7 @@
         }
 
         .content-inner {
-            width: min(760px, calc(100% - 40px));
+            width: min(850px, calc(100% - 10px));
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -170,7 +170,7 @@
         }
 
         .hero h1 {
-            font-size: clamp(2.5rem, 6vw, 3.8rem);
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
             font-weight: 400;
             letter-spacing: 0.02em;
             text-shadow:
@@ -185,110 +185,85 @@
         }
 
         .leaderboard {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
         }
 
-        .leaderboard-card {
-            position: relative;
-            background-image: url('parch2.jpg');
-            background-size: 900px auto;
-            padding: 10px 16px;
-            display: grid;
-            grid-template-columns: 44px minmax(0, 2.2fr) minmax(0, 2.1fr);
-            align-items: center;
-            gap: 12px;
-            box-shadow:
-                0 1px 6px rgba(0, 0, 0, 0.22),
-                inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        .leaderboard table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Open Sans', sans-serif;
         }
 
-        .leaderboard-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
-            opacity: 0.4;
-            pointer-events: none;
+        .leaderboard thead th {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+            text-align: left;
+            padding: 10px 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.85em;
+            letter-spacing: 0;
         }
 
+        .leaderboard thead th:first-child {
+            width: 50px;
+            text-align: center;
+        }
 
-        .rank-badge {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .leaderboard tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            transition: background 0.2s;
+        }
+
+        .leaderboard tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .leaderboard tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .leaderboard tbody td {
+            color: rgba(255, 255, 255, 0.9);
+            padding: 10px 10px;
+            font-size: 0.9em;
+            vertical-align: middle;
+        }
+
+        .leaderboard tbody td.rank {
+            text-align: center;
             font-family: 'Special Elite', monospace;
+            font-weight: 600;
+            font-size: 1em;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .leaderboard tbody td.model {
+            font-weight: 600;
             font-size: 0.95em;
-            font-variant-numeric: tabular-nums;
-            color: #fff;
-            background: rgba(128, 63, 0, 0.8);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-            position: relative;
-            z-index: 1;
-            line-height: 1;
-            padding-top: 4px;
-        }
-
-        .leaderboard-card.gold .rank-badge {
-            background: linear-gradient(135deg, #ffe082, #fbc02d);
-            color: #4b3600;
-        }
-
-        .leaderboard-card.silver .rank-badge {
-            background: linear-gradient(135deg, #eceff1, #b0bec5);
-            color: #2c3e50;
-        }
-
-        .leaderboard-card.bronze .rank-badge {
-            background: linear-gradient(135deg, #f6c08a, #c57c36);
-            color: #3b2310;
-        }
-
-        .model-meta {
-            position: relative;
-            z-index: 1;
-        }
-
-        .model-name {
-            font-size: 1.3em;
-            font-weight: 400;
-            color: #2a1f18;
             cursor: help;
         }
 
-        .model-stats {
-            font-family: 'Open Sans', sans-serif;
-            position: relative;
-            z-index: 1;
-            text-align: right;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+        .leaderboard tbody td.stats {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.7);
         }
 
-        .model-stats .win-rate {
-            font-size: 0.95em;
-            font-weight: 600;
-            color: #2a1f18;
-            letter-spacing: 0.02em;
+        /* Gold, Silver, Bronze rows */
+        .leaderboard tbody tr.gold td.rank {
+            color: #ffd700;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
         }
 
-        .model-stats .counts,
-        .model-stats .averages {
-            font-size: 0.78em;
-            color: rgba(42, 31, 24, 0.62);
-            letter-spacing: 0.02em;
+        .leaderboard tbody tr.silver td.rank {
+            color: #c0c0c0;
+            text-shadow: 0 0 8px rgba(192, 192, 192, 0.4);
         }
 
-        .model-stats .averages {
-            color: rgba(42, 31, 24, 0.52);
+        .leaderboard tbody tr.bronze td.rank {
+            color: #cd7f32;
+            text-shadow: 0 0 8px rgba(205, 127, 50, 0.4);
         }
 
         .loading-block {
@@ -313,7 +288,7 @@
             position: relative;
             text-align: center;
             color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9em;
+            font-size: 0.85em;
             z-index: 20;
             display: flex;
             align-items: center;
@@ -370,43 +345,50 @@
                     black 100%
                 );
             }
+
+            .leaderboard thead th {
+                font-size: 0.9em;
+            }
+
+            .leaderboard tbody td {
+                font-size: 0.95em;
+            }
+
+            .leaderboard tbody td.model {
+                font-size: 1em;
+            }
+
+            .leaderboard tbody td.rank {
+                font-size: 1.05em;
+            }
         }
 
         @media (max-width: 720px) {
-            .leaderboard-card {
-                grid-template-columns: 1fr;
-                padding: 12px 14px;
-                gap: 6px;
+            .leaderboard {
+                padding: 6px;
             }
 
-            .rank-badge {
-                display: none;
+            .leaderboard thead th,
+            .leaderboard tbody td {
+                padding: 6px 3px;
+                font-size: 0.7em;
+                vertical-align: middle;
             }
 
-            .model-meta {
-                text-align: left;
+            .leaderboard thead th:first-child {
+                width: 30px;
             }
 
-            .model-name {
-                font-size: 1.05em;
+            .leaderboard tbody td.model {
+                font-size: 0.72em;
             }
 
-            .model-name::before {
-                content: attr(data-rank) ". ";
-                font-weight: 600;
+            .leaderboard tbody td.stats {
+                font-size: 0.68em;
             }
 
-
-            .model-stats {
-                text-align: left;
-            }
-
-            .model-stats .win-rate {
-                font-size: 0.78em;
-            }
-
-            .model-stats .averages {
-                font-size: 0.62em;
+            .leaderboard tbody td.rank {
+                font-size: 0.75em;
             }
         }
 
@@ -421,6 +403,33 @@
                     rgba(0, 0, 0, 0.96) 85%,
                     black 100%
                 );
+            }
+
+            .leaderboard {
+                padding: 3px;
+            }
+
+            .leaderboard thead th,
+            .leaderboard tbody td {
+                padding: 4px 2px;
+                font-size: 0.58em;
+                vertical-align: middle;
+            }
+
+            .leaderboard thead th:first-child {
+                width: 22px;
+            }
+
+            .leaderboard tbody td.rank {
+                font-size: 0.6em;
+            }
+
+            .leaderboard tbody td.model {
+                font-size: 0.6em;
+            }
+
+            .leaderboard tbody td.stats {
+                font-size: 0.56em;
             }
         }
     </style>
@@ -511,29 +520,46 @@
                     return;
                 }
 
-                filtered.forEach((model, index) => {
-                    const card = document.createElement('div');
-                    const accent = tierClasses[index] || '';
-                    card.className = ['leaderboard-card', accent].filter(Boolean).join(' ');
+                // Create table
+                const table = document.createElement('table');
+                const thead = document.createElement('thead');
+                const tbody = document.createElement('tbody');
 
-                    // Random background position for varied parchment texture
-                    const bgX = Math.floor(Math.random() * 100);
-                    const bgY = Math.floor(Math.random() * 100);
-                    card.style.backgroundPosition = `${bgX}% ${bgY}%`;
+                // Create header row
+                thead.innerHTML = `
+                    <tr>
+                        <th>Rank</th>
+                        <th>Model</th>
+                        <th>Win Rate</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                        <th>Avg Time</th>
+                    </tr>
+                `;
+
+                // Create data rows
+                filtered.forEach((model, index) => {
+                    const tr = document.createElement('tr');
+                    const accent = tierClasses[index] || '';
+                    if (accent) tr.className = accent;
 
                     const avgTimeText = model.avgTime != null ? `${model.avgTime.toFixed(2)}s` : '—';
-                    card.innerHTML = `
-                        <div class="rank-badge">${index + 1}</div>
-                        <div class="model-meta">
-                            <div class="model-name" data-rank="${index + 1}" title="${model.model_id}">${model.model_name}</div>
-                        </div>
-                        <div class="model-stats">
-                            <div class="win-rate">${model.rateDisplay}% win rate — wins ${model.vote_count} / appearances ${model.appearance_count}</div>
-                            <div class="averages">avg time ${avgTimeText}</div>
-                        </div>
+                    const losses = model.appearance_count - model.vote_count;
+
+                    tr.innerHTML = `
+                        <td class="rank">${index + 1}</td>
+                        <td class="model" title="${model.model_id}">${model.model_name}</td>
+                        <td class="stats">${model.rateDisplay}%</td>
+                        <td class="stats">${model.vote_count}</td>
+                        <td class="stats">${losses}</td>
+                        <td class="stats">${avgTimeText}</td>
                     `;
-                    leaderboard.appendChild(card);
+                    tbody.appendChild(tr);
                 });
+
+                table.appendChild(thead);
+                table.appendChild(tbody);
+                leaderboard.appendChild(table);
             } catch (error) {
                 alert('Error loading stats: ' + error.message);
             }
