@@ -1,5 +1,6 @@
 let currentData = null;
 let selectedCard = null;
+let otherResponses = [];  // Store other (non-contestant) responses
 
 // DOM elements
 const input = document.getElementById('word-input');
@@ -194,6 +195,13 @@ function resetGame() {
     // Reset state
     selectedCard = null;
     currentData = null;
+    otherResponses = [];
+
+    // Stop polling if active
+    if (pollOthersInterval) {
+        clearInterval(pollOthersInterval);
+        pollOthersInterval = null;
+    }
 
     // Navigate back to home page
     window.history.pushState({}, '', '/');
@@ -328,6 +336,7 @@ async function showAnswers() {
         // If cached, display immediately
         if (currentData.cached) {
             loadingContainer.classList.add('hidden');
+            otherResponses = currentData.other_responses || [];  // Store other responses
             generateAnswerCards(currentData.responses);
             answersContainer.classList.remove('hidden');
             return;
@@ -349,6 +358,7 @@ async function showAnswers() {
                     currentData.responses = status.responses;
                     currentData.contestant_ids = status.contestant_ids;
                     currentData.matchup_id = status.matchup_id;  // Store matchup_id
+                    otherResponses = status.other_responses || [];  // Store other responses
                     generateAnswerCards(currentData.responses);
                     answersContainer.classList.remove('hidden');
                 }
@@ -421,68 +431,130 @@ async function selectCard(card, cardData) {
 }
 
 // Show other answers button
-showOthersBtn.addEventListener('click', async () => {
-    if (!currentData || !currentData.suggestion_id) return;
+showOthersBtn.addEventListener('click', () => {
+    // Generate cards for other responses immediately (no API call needed)
+    otherAnswersContainer.innerHTML = '';
+    otherResponses.forEach((responseData, index) => {
+        const card = document.createElement('div');
+        card.className = 'answer-card revealed';
+        card.dataset.modelName = responseData.model_name;
 
-    // Fetch all responses for this suggestion
-    try {
-        const response = await fetch(`/api/responses?suggestion_id=${currentData.suggestion_id}`);
-        const data = await response.json();
+        // Random rotation between -1 and 1 degrees
+        const rotation = (Math.random() * 2 - 1).toFixed(1);
+        const translateX = Math.floor(Math.random() * 30 - 15);
+        const bgX = Math.floor(Math.random() * 100);
+        const bgY = Math.floor(Math.random() * 100);
+        const slideDir = index % 2 === 0 ? 'slide-left' : 'slide-right';
+        card.classList.add(slideDir);
 
-        // Filter out contestant responses (already shown)
-        const contestantIds = new Set(currentData.contestant_ids || []);
-        const otherResponses = data.responses.filter(r => !contestantIds.has(r.id));
+        card.style.transform = `rotate(${rotation}deg) translateX(${translateX}px)`;
+        card.style.backgroundPosition = `${bgX}% ${bgY}%`;
+        card.style.pointerEvents = 'none';
 
-        // Generate cards for other responses
-        otherAnswersContainer.innerHTML = '';
-        otherResponses.forEach((responseData, index) => {
-            const card = document.createElement('div');
-            card.className = 'answer-card revealed';
-
-            // Random rotation between -1 and 1 degrees
-            const rotation = (Math.random() * 2 - 1).toFixed(1);
-            const translateX = Math.floor(Math.random() * 30 - 15);
-            const bgX = Math.floor(Math.random() * 100);
-            const bgY = Math.floor(Math.random() * 100);
-            const slideDir = index % 2 === 0 ? 'slide-left' : 'slide-right';
-            card.classList.add(slideDir);
-
-            card.style.transform = `rotate(${rotation}deg) translateX(${translateX}px)`;
-            card.style.backgroundPosition = `${bgX}% ${bgY}%`;
-            card.style.pointerEvents = 'none';
-
-            // Add text
-            const text = document.createElement('div');
-            text.className = 'answer-text';
+        // Add text (or loading indicator if pending)
+        const text = document.createElement('div');
+        text.className = 'answer-text';
+        if (responseData.status === 'pending') {
+            text.classList.add('loading-dots');
+            text.textContent = '';  // Empty, dots will be added by CSS
+        } else {
             text.textContent = responseData.response_text;
-            card.appendChild(text);
+        }
+        card.appendChild(text);
 
-            // Add model name
-            const modelName = document.createElement('div');
-            modelName.className = 'model-name';
-            modelName.textContent = responseData.model_name;
-            card.appendChild(modelName);
+        // Add model name
+        const modelName = document.createElement('div');
+        modelName.className = 'model-name';
+        modelName.textContent = responseData.model_name;
+        card.appendChild(modelName);
 
-            // Add model stats
-            const modelStats = document.createElement('div');
-            modelStats.className = 'model-stats';
+        // Add model stats (or loading indicator if pending)
+        const modelStats = document.createElement('div');
+        modelStats.className = 'model-stats';
+        if (responseData.status === 'pending') {
+            modelStats.classList.add('loading-dots');
+            modelStats.textContent = '';  // Empty, dots will be added by CSS
+        } else {
             const timeStr = responseData.response_time ? `${responseData.response_time.toFixed(2)}s` : '...';
             const tokenStr = responseData.completion_tokens ? `${Math.round(responseData.completion_tokens)} tokens` : '...';
             modelStats.textContent = `${timeStr} • ${tokenStr}`;
-            card.appendChild(modelStats);
+        }
+        card.appendChild(modelStats);
 
-            otherAnswersContainer.appendChild(card);
-        });
+        otherAnswersContainer.appendChild(card);
+    });
 
-        // Show the other answers section
-        otherAnswers.classList.remove('hidden');
+    // Show the other answers section
+    otherAnswers.classList.remove('hidden');
 
-        // Hide the "Show Other Answers" button
-        showOthersBtn.classList.add('hidden');
-    } catch (error) {
-        console.error('Error loading other answers:', error);
-    }
+    // Hide the "Show Other Answers" button
+    showOthersBtn.classList.add('hidden');
+
+    // Start polling to update pending responses
+    startPollingOtherResponses();
 });
+
+// Poll to update pending "other" responses
+let pollOthersInterval = null;
+function startPollingOtherResponses() {
+    // Clear any existing poll
+    if (pollOthersInterval) {
+        clearInterval(pollOthersInterval);
+    }
+
+    pollOthersInterval = setInterval(async () => {
+        if (!currentData || !currentData.suggestion_id) {
+            clearInterval(pollOthersInterval);
+            return;
+        }
+
+        try {
+            const statusResponse = await fetch(`/api/compete/status?suggestion_id=${currentData.suggestion_id}`);
+            const status = await statusResponse.json();
+
+            if (status.ready && status.other_responses) {
+                // Update our stored other responses
+                otherResponses = status.other_responses;
+
+                // Check if all are complete
+                const allComplete = otherResponses.every(r => r.status === 'completed');
+
+                // Update the cards in the DOM
+                otherResponses.forEach((responseData) => {
+                    const card = otherAnswersContainer.querySelector(`[data-model-name="${responseData.model_name}"]`);
+                    if (!card) return;
+
+                    const text = card.querySelector('.answer-text');
+                    const stats = card.querySelector('.model-stats');
+
+                    if (responseData.status === 'completed') {
+                        // Update text
+                        if (text.classList.contains('loading-dots')) {
+                            text.classList.remove('loading-dots');
+                            text.textContent = responseData.response_text;
+                        }
+
+                        // Update stats
+                        if (stats.classList.contains('loading-dots')) {
+                            stats.classList.remove('loading-dots');
+                            const timeStr = responseData.response_time ? `${responseData.response_time.toFixed(2)}s` : '...';
+                            const tokenStr = responseData.completion_tokens ? `${Math.round(responseData.completion_tokens)} tokens` : '...';
+                            stats.textContent = `${timeStr} • ${tokenStr}`;
+                        }
+                    }
+                });
+
+                // Stop polling if all complete
+                if (allComplete) {
+                    clearInterval(pollOthersInterval);
+                    pollOthersInterval = null;
+                }
+            }
+        } catch (error) {
+            console.error('Error polling other responses:', error);
+        }
+    }, 1000);  // Poll every second
+}
 
 submitBtn.addEventListener('click', showAnswers);
 

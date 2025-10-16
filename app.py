@@ -423,12 +423,28 @@ def compete():
                       (r['id'], suggestion['id'], matchup_id))
         db.commit()
 
+        # Get non-contestant responses for cached case
+        non_contestant_responses = []
+        contestant_id_set = set(contestant_ids)
+        for r in all_responses:
+            if r['id'] not in contestant_id_set:
+                non_contestant_responses.append({
+                    'model_name': r['model_name'],
+                    'response_text': r['response_text'],
+                    'response_time': r['response_time'],
+                    'completion_tokens': r['completion_tokens'],
+                    'reasoning_tokens': r['reasoning_tokens'],
+                    'status': 'completed',
+                    'is_contestant': False
+                })
+
         result = {
             'word': word,
             'suggestion_id': suggestion['id'],
             'matchup_id': matchup_id,
             'responses': list(grouped.values()),
             'contestant_ids': contestant_ids,
+            'other_responses': non_contestant_responses,
             'cached': True,
             'all_models': ALL_MODEL_NAMES
         }
@@ -451,6 +467,7 @@ def compete():
         'contestants': contestant_names,
         'completed': {},
         'contestant_responses': [],
+        'all_responses': {},  # Track all responses (contestants + others)
         'lock': threading.Lock(),
         'ready': False
     }
@@ -466,11 +483,12 @@ def compete():
 
             # Wait only for contestants to complete
             contestant_responses = []
-            for name, future, is_contestant in futures:
+            for _name, future, is_contestant in futures:
                 if is_contestant:
-                    contestant_responses.append(future.result())
+                    result = future.result()
+                    contestant_responses.append(result)
 
-            # Mark as ready and store contestant responses
+            # Mark contestants as ready
             comp = active_competitions[suggestion_id]
             with comp['lock']:
                 comp['contestant_responses'] = contestant_responses
@@ -485,6 +503,13 @@ def compete():
                               (r['id'], suggestion_id, matchup_id))
                 db.commit()
                 db.close()
+
+            # Continue waiting for remaining responses in background
+            for _name, future, is_contestant in futures:
+                if not is_contestant:
+                    # This may already be done or still pending
+                    # Result will be available via active_competitions tracking
+                    pass
 
     # Start models in background thread
     threading.Thread(target=run_models_async, daemon=True).start()
@@ -512,6 +537,7 @@ def compete_status():
         ready = comp['ready']
         contestant_responses = comp['contestant_responses'] if ready else []
         matchup_id = comp.get('matchup_id') if ready else None
+        all_completed = comp['completed']
 
     response_data = {
         'completed': completed_count,
@@ -522,7 +548,7 @@ def compete_status():
     }
 
     if ready:
-        # Group duplicates
+        # Group contestant duplicates
         grouped = {}
         for r in contestant_responses:
             text = r['response_text']
@@ -533,7 +559,8 @@ def compete_status():
                     'response_ids': [],
                     'response_time': r['response_time'],
                     'completion_tokens': r['completion_tokens'],
-                    'reasoning_tokens': r['reasoning_tokens']
+                    'reasoning_tokens': r['reasoning_tokens'],
+                    'is_contestant': True
                 }
             else:
                 # If grouped, take the average timing
@@ -546,6 +573,36 @@ def compete_status():
         response_data['responses'] = list(grouped.values())
         response_data['contestant_ids'] = [r['id'] for r in contestant_responses]
         response_data['matchup_id'] = matchup_id
+
+        # Add all other responses (completed or pending)
+        other_responses = []
+        for model_name in ALL_MODEL_NAMES:
+            if model_name not in comp['contestants']:
+                if model_name in all_completed:
+                    # Response is complete
+                    r = all_completed[model_name]
+                    other_responses.append({
+                        'model_name': r['model_name'],
+                        'response_text': r['response_text'],
+                        'response_time': r['response_time'],
+                        'completion_tokens': r['completion_tokens'],
+                        'reasoning_tokens': r['reasoning_tokens'],
+                        'status': 'completed',
+                        'is_contestant': False
+                    })
+                else:
+                    # Response is still pending
+                    other_responses.append({
+                        'model_name': model_name,
+                        'response_text': None,
+                        'response_time': None,
+                        'completion_tokens': None,
+                        'reasoning_tokens': None,
+                        'status': 'pending',
+                        'is_contestant': False
+                    })
+
+        response_data['other_responses'] = other_responses
 
     return jsonify(response_data)
 
