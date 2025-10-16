@@ -30,10 +30,10 @@ Oops! I accidentally included it. How careless of me.
     <link rel="preload" as="image" href="parch2.jpg">
     <link rel="preload" as="image" href="Hardwood-flooring.png">
     <link rel="preload" as="image" href="medium-ironspot-77-velour-face-brick-modular-running-bond-322-in-architextures.jpg">
-    <link rel="preload" as="image" href="ribbon.webp" fetchpriority="low">
-    <link rel="preload" as="image" href="p1.png" fetchpriority="low">
-    <link rel="preload" as="image" href="p2.png" fetchpriority="low">
-    <link rel="preload" as="image" href="p3.png" fetchpriority="low">
+    <link rel="preload" as="image" href="checkstamp.png" fetchpriority="low">
+    <link rel="preload" as="image" href="p1cyan.png" fetchpriority="low">
+    <link rel="preload" as="image" href="p2cyan.png" fetchpriority="low">
+    <link rel="preload" as="image" href="p3cyan.png" fetchpriority="low">
     <style>
         * {
             margin: 0;
@@ -55,10 +55,12 @@ Oops! I accidentally included it. How careless of me.
         .stage {
             position: relative;
             width: 100%;
+            max-width: 1600px;
             height: 100%;
             background: black;
             display: flex;
             flex-direction: column;
+            margin: 0 auto;
         }
 
         /* Brick wall - fills remaining space above wood floor */
@@ -98,13 +100,13 @@ Oops! I accidentally included it. How careless of me.
             pointer-events: none;
             z-index: 5;
             background: radial-gradient(
-                ellipse 65vmax 75vmax at center 55%,
+                ellipse 560px 640px at center 60%,
                 transparent 0%,
-                transparent 35%,
-                rgba(0, 0, 0, 0.5) 55%,
-                rgba(0, 0, 0, 0.8) 75%,
-                rgba(0, 0, 0, 0.92) 90%,
-                rgba(0, 0, 0, 0.97) 100%
+                transparent 25%,
+                rgba(0, 0, 0, 0.5) 45%,
+                rgba(0, 0, 0, 0.85) 65%,
+                rgba(0, 0, 0, 0.96) 85%,
+                rgba(0, 0, 0, 0.99) 100%
             );
         }
 
@@ -158,8 +160,9 @@ Oops! I accidentally included it. How careless of me.
             max-width: 900px;
             padding: 0 40px;
             text-shadow:
-                0 2px 8px rgba(0, 0, 0, 0.6),
-                0 4px 16px rgba(0, 0, 0, 0.4);
+                0 2px 4px rgba(0, 0, 0, 0.9),
+                0 4px 12px rgba(0, 0, 0, 0.8),
+                0 8px 24px rgba(0, 0, 0, 0.6);
         }
 
         .input-wrapper {
@@ -253,7 +256,7 @@ Oops! I accidentally included it. How careless of me.
         .random-btn,
         .submit-btn {
             position: relative;
-            background: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.5);
             border: none;
             border-radius: 0;
             cursor: pointer;
@@ -291,20 +294,14 @@ Oops! I accidentally included it. How careless of me.
 
         .random-btn span,
         .submit-btn span {
-            background: url('medium-ironspot-77-velour-face-brick-modular-running-bond-322-in-architextures.jpg');
-            background-size: 400px auto;
-            background-attachment: fixed;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            color: transparent;
+            color: black;
             position: relative;
             z-index: 1;
         }
 
         .random-btn:hover,
         .submit-btn:hover {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.65);
             transform: translateY(-1px);
         }
 
@@ -699,8 +696,9 @@ Oops! I accidentally included it. How careless of me.
             font-family: 'IBM Plex Serif', serif;
             letter-spacing: 0.05em;
             text-shadow:
-                0 2px 4px rgba(0, 0, 0, 0.6),
-                0 4px 14px rgba(0, 0, 0, 0.45);
+                0 2px 4px rgba(0, 0, 0, 0.9),
+                0 4px 12px rgba(0, 0, 0, 0.8),
+                0 8px 24px rgba(0, 0, 0, 0.6);
         }
 
         .other-answers .answers-container {
@@ -711,9 +709,8 @@ Oops! I accidentally included it. How careless of me.
         .graffiti-icon {
             position: absolute;
             pointer-events: none;
-            opacity: 0.5;
+            opacity: 0.8;
             mix-blend-mode: overlay;
-            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
         }
 
         /* Modal */
@@ -795,6 +792,21 @@ Oops! I accidentally included it. How careless of me.
             color: #666;
         }
 
+        /* Large screens - bigger spotlight */
+        @media (min-width: 1200px) {
+            .spotlight-overlay {
+                background: radial-gradient(
+                    ellipse 680px 760px at center 60%,
+                    transparent 0%,
+                    transparent 25%,
+                    rgba(0, 0, 0, 0.5) 45%,
+                    rgba(0, 0, 0, 0.85) 65%,
+                    rgba(0, 0, 0, 0.96) 85%,
+                    rgba(0, 0, 0, 0.99) 100%
+                );
+            }
+        }
+
         /* Mobile responsive */
         @media (max-width: 768px) {
             .headline {
@@ -841,6 +853,18 @@ Oops! I accidentally included it. How careless of me.
         }
 
         @media (max-width: 480px) {
+            .spotlight-overlay {
+                background: radial-gradient(
+                    ellipse 280px 360px at center 60%,
+                    transparent 0%,
+                    transparent 25%,
+                    rgba(0, 0, 0, 0.5) 45%,
+                    rgba(0, 0, 0, 0.85) 65%,
+                    rgba(0, 0, 0, 0.96) 85%,
+                    rgba(0, 0, 0, 0.99) 100%
+                );
+            }
+
             .headline {
                 font-size: 1.4em;
                 padding: 0 16px;

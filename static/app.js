@@ -21,12 +21,12 @@ const aboutLink = document.getElementById('about-link');
 const aboutModal = document.getElementById('about-modal');
 const closeModal = document.querySelector('.close-modal');
 
-// Graffiti images and colors
-const graffitiImages = ['p1.png', 'p2.png', 'p3.png'];
-const graffitiColors = [
-    'rgba(0, 255, 255, 1)',      // cyan
-    'rgba(255, 0, 255, 1)',      // magenta
-    'rgba(255, 215, 0, 1)'       // yellow (HA-HA color)
+// Graffiti images (pre-colored cyan) and hue shifts
+const graffitiImages = ['p1cyan.png', 'p2cyan.png', 'p3cyan.png'];
+const graffitiHueShifts = [
+    0,      // cyan (no shift)
+    120,    // magenta (cyan + 120deg)
+    -120    // yellow (cyan - 120deg)
 ];
 
 // Function to clear all graffiti
@@ -62,30 +62,18 @@ function drawGraffiti(clientX, clientY) {
     const flipX = Math.random() > 0.5 ? -1 : 1;
     const flipY = Math.random() > 0.5 ? -1 : 1;
 
-    // Random color filter
-    const color = graffitiColors[Math.floor(Math.random() * graffitiColors.length)];
+    // Random color (hue shift from cyan base)
+    const hueShift = graffitiHueShifts[Math.floor(Math.random() * graffitiHueShifts.length)];
 
     // Position centered on click (accounting for size)
     icon.style.left = (x - size / 2) + 'px';
     icon.style.top = (y - size / 2) + 'px';
 
-    // Apply transform (rotation and flip) and color
+    // Apply transform (rotation and flip)
     icon.style.transform = `rotate(${rotation}deg) scale(${flipX}, ${flipY})`;
 
-    // For black images, invert to white then colorize
-    if (color.includes('0, 255, 255')) {
-        // Cyan
-        icon.style.filter = 'invert(1) sepia(1) saturate(10000%) hue-rotate(140deg) brightness(1)';
-    } else if (color.includes('255, 0, 255')) {
-        // Magenta
-        icon.style.filter = 'invert(1) sepia(1) saturate(10000%) hue-rotate(280deg) brightness(1)';
-    } else if (color.includes('255, 215, 0')) {
-        // Yellow
-        icon.style.filter = 'invert(1) sepia(1) saturate(10000%) hue-rotate(20deg) brightness(1.1)';
-    } else {
-        // Neon green
-        icon.style.filter = 'invert(1) sepia(1) saturate(10000%) hue-rotate(80deg) brightness(1.1)';
-    }
+    // Apply hue shift to get different colors from cyan base
+    icon.style.filter = `hue-rotate(${hueShift}deg)`;
 
     // Add to stage
     stage.appendChild(icon);
