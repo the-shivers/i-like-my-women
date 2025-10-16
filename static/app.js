@@ -290,8 +290,7 @@ function generateAnswerCards(responses) {
         const modelStats = document.createElement('div');
         modelStats.className = 'model-stats';
         const timeStr = cardData.response_time ? `${cardData.response_time.toFixed(2)}s` : '...';
-        const tokenStr = cardData.completion_tokens ? `${Math.round(cardData.completion_tokens)} tokens` : '...';
-        modelStats.textContent = `${timeStr} • ${tokenStr}`;
+        modelStats.textContent = timeStr;
         card.appendChild(modelStats);
 
         // Click handler - reveal model info and record vote
@@ -410,9 +409,17 @@ async function selectCard(card, cardData) {
         }
     });
 
-    // Show action buttons
+    // Show action buttons with random background positions
     actionButtons.classList.remove('hidden');
     showOthersBtn.classList.remove('hidden');
+
+    // Randomize background positions for action buttons
+    const actionBtns = actionButtons.querySelectorAll('.action-btn');
+    actionBtns.forEach(btn => {
+        const bgX = Math.floor(Math.random() * 100);
+        const bgY = Math.floor(Math.random() * 100);
+        btn.style.backgroundPosition = `${bgX}% ${bgY}%`;
+    });
 
     // Record vote
     try {
@@ -476,8 +483,7 @@ showOthersBtn.addEventListener('click', () => {
             modelStats.textContent = '';  // Empty, dots will be added by CSS
         } else {
             const timeStr = responseData.response_time ? `${responseData.response_time.toFixed(2)}s` : '...';
-            const tokenStr = responseData.completion_tokens ? `${Math.round(responseData.completion_tokens)} tokens` : '...';
-            modelStats.textContent = `${timeStr} • ${tokenStr}`;
+            modelStats.textContent = timeStr;
         }
         card.appendChild(modelStats);
 
@@ -538,8 +544,7 @@ function startPollingOtherResponses() {
                         if (stats.classList.contains('loading-dots')) {
                             stats.classList.remove('loading-dots');
                             const timeStr = responseData.response_time ? `${responseData.response_time.toFixed(2)}s` : '...';
-                            const tokenStr = responseData.completion_tokens ? `${Math.round(responseData.completion_tokens)} tokens` : '...';
-                            stats.textContent = `${timeStr} • ${tokenStr}`;
+                            stats.textContent = timeStr;
                         }
                     }
                 });

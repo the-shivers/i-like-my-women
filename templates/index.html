@@ -294,7 +294,6 @@ Oops! I accidentally included it. How careless of me.
         }
 
         .random-btn {
-            font-size: 0.75em;
             padding: 8px 14px;
             min-width: 44px;
             height: 34px;
@@ -307,8 +306,14 @@ Oops! I accidentally included it. How careless of me.
             justify-content: center;
         }
 
+        .random-btn img {
+            width: 28px;
+            height: 28px;
+            display: block;
+        }
+
         .submit-btn {
-            font-size: 0.48em;
+            font-size: 19px;
             padding: 8px 18px;
             min-width: 70px;
             height: 34px;
@@ -460,7 +465,7 @@ Oops! I accidentally included it. How careless of me.
             grid-column: 2;
             grid-row: 1;
             font-family: 'IBM Plex Serif', serif;
-            font-size: 0.85em;
+            font-size: 0.9em;
             color: #444;
             font-weight: 600;
             text-align: right;
@@ -474,7 +479,7 @@ Oops! I accidentally included it. How careless of me.
             grid-column: 2;
             grid-row: 2;
             font-family: 'IBM Plex Serif', serif;
-            font-size: 0.85em;
+            font-size: 0.9em;
             color: #666;
             text-align: right;
             white-space: nowrap;
@@ -653,7 +658,7 @@ Oops! I accidentally included it. How careless of me.
         .action-btn {
             position: relative;
             background-image: url('parch2.jpg');
-            background-size: 600px auto;
+            background-size: 1000px auto;
             border: 1px solid rgba(0, 0, 0, 0.25);
             color: #2a1f18;
             font-family: 'Special Elite', monospace;
@@ -980,7 +985,7 @@ Oops! I accidentally included it. How careless of me.
                         <span id="wiggle-display">{% for char in initial_word %}<span>{{ char }}</span>{% endfor %}</span>
                         <input type="text" value="{{ initial_word }}" id="word-input">
                         <div class="input-controls">
-                            <button class="random-btn" id="random-btn" title="Random word"><span>↻</span></button>
+                            <button class="random-btn" id="random-btn" title="Random word"><span><img src="arrowblack.svg" alt="Random"></span></button>
                             <button class="submit-btn" id="submit-btn"><span>Submit</span></button>
                         </div>
                     </span><span style="position: relative; z-index: 100;">...</span>
