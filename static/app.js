@@ -2,6 +2,41 @@ let currentData = null;
 let selectedCard = null;
 let otherResponses = [];  // Store other (non-contestant) responses
 
+// Retry helper for transient network errors
+async function fetchWithRetry(url, options = {}, maxRetries = 3) {
+    const retryableStatuses = [502, 503, 504];
+    const retryDelays = [1000, 2000, 4000];  // Exponential backoff: 1s, 2s, 4s
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+            const response = await fetch(url, options);
+
+            // Don't retry on client errors or rate limits
+            if (response.status === 400 || response.status === 429 ||
+                response.status === 401 || response.status === 403) {
+                return response;
+            }
+
+            // Retry on server errors
+            if (retryableStatuses.includes(response.status) && attempt < maxRetries - 1) {
+                console.log(`Server error ${response.status}, retrying in ${retryDelays[attempt]}ms... (attempt ${attempt + 1}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, retryDelays[attempt]));
+                continue;
+            }
+
+            return response;
+        } catch (error) {
+            // Network error (server down, timeout, etc.)
+            if (attempt < maxRetries - 1) {
+                console.log(`Network error, retrying in ${retryDelays[attempt]}ms... (attempt ${attempt + 1}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, retryDelays[attempt]));
+                continue;
+            }
+            throw error;
+        }
+    }
+}
+
 // Preload parchment background to prevent text showing before background loads
 const parchmentLoaded = new Promise((resolve) => {
     const img = new Image();
@@ -295,13 +330,23 @@ async function showAnswers() {
     selectedCard = null;
 
     try {
-        const response = await fetch('/api/compete', {
+        const response = await fetchWithRetry('/api/compete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ word })
         });
 
+        // Check if response is ok
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+
         currentData = await response.json();
+
+        // Null safety check
+        if (!currentData || !currentData.suggestion_id) {
+            throw new Error('Invalid response from server');
+        }
 
         // If cached, display immediately (but wait for parchment to load)
         if (currentData.cached) {
@@ -315,9 +360,35 @@ async function showAnswers() {
 
         // Poll for status - continues in background until all responses complete
         let contestantsReady = false;
+        const pollStartTime = Date.now();
+        const POLL_TIMEOUT_MS = 120000;  // 2 minutes
+
         const pollInterval = setInterval(async () => {
             try {
+                // Timeout check - prevent infinite polling
+                if (Date.now() - pollStartTime > POLL_TIMEOUT_MS) {
+                    clearInterval(pollInterval);
+                    loadingContainer.classList.add('hidden');
+                    alert('Request timed out after 2 minutes. Please try again.');
+                    return;
+                }
+
+                // Null safety check
+                if (!currentData || !currentData.suggestion_id) {
+                    clearInterval(pollInterval);
+                    loadingContainer.classList.add('hidden');
+                    alert('Error: Lost connection to server. Please try again.');
+                    return;
+                }
+
                 const statusResponse = await fetch(`/api/compete/status?suggestion_id=${currentData.suggestion_id}`);
+
+                if (!statusResponse.ok) {
+                    // Don't clear interval on transient errors, just skip this poll
+                    console.warn(`Status poll failed: ${statusResponse.status}`);
+                    return;
+                }
+
                 const status = await statusResponse.json();
 
                 // Update progress counter
