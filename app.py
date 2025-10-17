@@ -163,9 +163,12 @@ You: "ground up and in the freezer"
 Just give the punchline. Nothing else.
 """
 
+# Database configuration - use Railway volume path if set, otherwise local file
+DB_PATH = os.getenv('DATABASE_PATH', 'comedy.db')
+
 # Database setup
 def init_db():
-    conn = sqlite3.connect('comedy.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     # Suggestions table
@@ -231,7 +234,7 @@ def init_db():
 init_db()
 
 def get_db():
-    conn = sqlite3.connect('comedy.db', timeout=10.0)
+    conn = sqlite3.connect(DB_PATH, timeout=10.0)
     conn.row_factory = sqlite3.Row
     # Enable WAL mode for better concurrency
     conn.execute('PRAGMA journal_mode=WAL')
