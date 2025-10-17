@@ -84,6 +84,18 @@
   - Analyze position bias: Do people pick top option more? Bottom?
   - Calculate win rate by position to detect order effects
 
+## 🐛 Bug Fixes
+- [x] **Fixed 404 error on "Show Other Answers"**
+  - Issue: Clicking "Show Other Answers" on NEW words caused 404s
+  - Root cause: Initial polling stopped when contestants ready, then tried to restart polling later
+  - Fix: Keep initial polling running in background until ALL models complete
+  - "Show Other Answers" now just reveals already-loaded data (no new polling)
+- [x] **Removed redundant second polling loop**
+  - Issue: Extra API call after clicking "Show Other Answers"
+  - Root cause: Button click started a second polling loop (was redundant with initial polling)
+  - Fix: Removed `startPollingOtherResponses()` function entirely
+  - Initial polling now handles everything - cleaner, more efficient
+
 ## 🐛 Testing
 - [ ] **GET JUGGY TO HELP DEBUG**
   - Test rate limiting

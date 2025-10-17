@@ -194,12 +194,6 @@ function resetGame() {
     currentData = null;
     otherResponses = [];
 
-    // Stop polling if active
-    if (pollOthersInterval) {
-        clearInterval(pollOthersInterval);
-        pollOthersInterval = null;
-    }
-
     // Navigate back to home page
     window.history.pushState({}, '', '/');
 
@@ -339,7 +333,8 @@ async function showAnswers() {
             return;
         }
 
-        // Otherwise, poll for status
+        // Poll for status - continues in background until all responses complete
+        let contestantsReady = false;
         const pollInterval = setInterval(async () => {
             try {
                 const statusResponse = await fetch(`/api/compete/status?suggestion_id=${currentData.suggestion_id}`);
@@ -348,16 +343,32 @@ async function showAnswers() {
                 // Update progress counter
                 loadingProgress.textContent = `${status.completed}/${status.total}`;
 
-                // When ready, stop polling and display
-                if (status.ready) {
-                    clearInterval(pollInterval);
+                // When contestants ready, show them (but keep polling for others)
+                if (status.ready && !contestantsReady) {
+                    contestantsReady = true;
                     loadingContainer.classList.add('hidden');
                     currentData.responses = status.responses;
                     currentData.contestant_ids = status.contestant_ids;
-                    currentData.matchup_id = status.matchup_id;  // Store matchup_id
-                    otherResponses = status.other_responses || [];  // Store other responses
+                    currentData.matchup_id = status.matchup_id;
+                    otherResponses = status.other_responses || [];
                     generateAnswerCards(currentData.responses);
                     answersContainer.classList.remove('hidden');
+                }
+
+                // Update other responses as they complete
+                if (status.ready && status.other_responses) {
+                    otherResponses = status.other_responses;
+
+                    // If "other answers" section is visible, update the cards
+                    if (!otherAnswers.classList.contains('hidden')) {
+                        updateOtherAnswersCards();
+                    }
+
+                    // Check if all responses complete
+                    const allComplete = otherResponses.every(r => r.status === 'completed');
+                    if (allComplete) {
+                        clearInterval(pollInterval);
+                    }
                 }
             } catch (error) {
                 clearInterval(pollInterval);
@@ -445,6 +456,32 @@ async function selectCard(card, cardData) {
     }
 }
 
+// Update "other answers" cards with latest data from otherResponses array
+function updateOtherAnswersCards() {
+    otherResponses.forEach((responseData) => {
+        const card = otherAnswersContainer.querySelector(`[data-model-name="${responseData.model_name}"]`);
+        if (!card) return;
+
+        const text = card.querySelector('.answer-text');
+        const stats = card.querySelector('.model-stats');
+
+        if (responseData.status === 'completed') {
+            // Update text
+            if (text.classList.contains('loading-dots')) {
+                text.classList.remove('loading-dots');
+                text.textContent = responseData.response_text;
+            }
+
+            // Update stats
+            if (stats.classList.contains('loading-dots')) {
+                stats.classList.remove('loading-dots');
+                const timeStr = responseData.response_time ? `${responseData.response_time.toFixed(2)}s` : '...';
+                stats.textContent = timeStr;
+            }
+        }
+    });
+}
+
 // Show other answers button
 showOthersBtn.addEventListener('click', () => {
     // Generate cards for other responses immediately (no API call needed)
@@ -504,70 +541,9 @@ showOthersBtn.addEventListener('click', () => {
     // Hide the "Show Other Answers" button
     showOthersBtn.classList.add('hidden');
 
-    // Start polling to update pending responses
-    startPollingOtherResponses();
+    // Note: No need to start polling - the initial polling loop
+    // already updates otherResponses and calls updateOtherAnswersCards()
 });
-
-// Poll to update pending "other" responses
-let pollOthersInterval = null;
-function startPollingOtherResponses() {
-    // Clear any existing poll
-    if (pollOthersInterval) {
-        clearInterval(pollOthersInterval);
-    }
-
-    pollOthersInterval = setInterval(async () => {
-        if (!currentData || !currentData.suggestion_id) {
-            clearInterval(pollOthersInterval);
-            return;
-        }
-
-        try {
-            const statusResponse = await fetch(`/api/compete/status?suggestion_id=${currentData.suggestion_id}`);
-            const status = await statusResponse.json();
-
-            if (status.ready && status.other_responses) {
-                // Update our stored other responses
-                otherResponses = status.other_responses;
-
-                // Check if all are complete
-                const allComplete = otherResponses.every(r => r.status === 'completed');
-
-                // Update the cards in the DOM
-                otherResponses.forEach((responseData) => {
-                    const card = otherAnswersContainer.querySelector(`[data-model-name="${responseData.model_name}"]`);
-                    if (!card) return;
-
-                    const text = card.querySelector('.answer-text');
-                    const stats = card.querySelector('.model-stats');
-
-                    if (responseData.status === 'completed') {
-                        // Update text
-                        if (text.classList.contains('loading-dots')) {
-                            text.classList.remove('loading-dots');
-                            text.textContent = responseData.response_text;
-                        }
-
-                        // Update stats
-                        if (stats.classList.contains('loading-dots')) {
-                            stats.classList.remove('loading-dots');
-                            const timeStr = responseData.response_time ? `${responseData.response_time.toFixed(2)}s` : '...';
-                            stats.textContent = timeStr;
-                        }
-                    }
-                });
-
-                // Stop polling if all complete
-                if (allComplete) {
-                    clearInterval(pollOthersInterval);
-                    pollOthersInterval = null;
-                }
-            }
-        } catch (error) {
-            console.error('Error polling other responses:', error);
-        }
-    }, 1000);  // Poll every second
-}
 
 submitBtn.addEventListener('click', showAnswers);
 
