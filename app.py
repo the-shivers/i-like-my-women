@@ -3,6 +3,7 @@ import sqlite3
 import time
 import threading
 import uuid
+import json
 from flask import Flask, request, jsonify, send_from_directory, session, render_template
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -95,59 +96,45 @@ ALL_MODEL_NAMES = [m["name"] for m in MODELS]
 # Random word suggestions - curated list of 200+ funny/interesting nouns
 RANDOM_WORDS = [
     # Food & Drinks
-    "coffee", "pizza", "tacos", "wine", "beer", "whiskey", "tequila", "vodka", "champagne",
-    "sushi", "burgers", "hot dogs", "ice cream", "donuts", "cookies", "cake", "pie", "steak",
-    "pasta", "ramen", "sandwiches", "salad", "soup", "curry", "bbq", "bacon", "eggs",
-    "pancakes", "waffles", "cereal", "toast", "bagels", "croissants", "tea", "kombucha",
+    "coffee", "pizza", "tacos", "wine", "beer", "whiskey",
+    "pasta", "sandwiches", "soup", "cereal", "tea"
 
     # Animals
-    "cats", "dogs", "horses", "lions", "tigers", "bears", "elephants", "dolphins", "sharks",
-    "eagles", "owls", "penguins", "flamingos", "peacocks", "snakes", "lizards", "turtles",
-    "rabbits", "hamsters", "guinea pigs", "ferrets", "monkeys", "gorillas", "pandas", "koalas",
-    "wolves", "foxes", "deer", "moose", "hippos", "rhinos", "giraffes", "zebras",
+    "cats", "dogs", "horses", "bears", "elephants", "dolphins", "sharks", "hippos",
+    "owls", "snakes", "rabbits", "guinea pigs", "ferrets", "monkeys", "pandas",
 
     # Objects
-    "cars", "motorcycles", "bicycles", "skateboards", "guitars", "pianos", "drums", "violins",
-    "books", "phones", "laptops", "tablets", "cameras", "watches", "sunglasses", "hats",
-    "shoes", "socks", "jackets", "backpacks", "umbrellas", "hammers", "screwdrivers", "saws",
-    "knives", "scissors", "pens", "pencils", "paintbrushes", "candles", "lamps", "mirrors",
+    "books", "phones", "cameras", "backpacks", "umbrellas", 
+    "candles", "lamps", "mirrors", "hammers", "screwdrivers",
 
     # Nature & Weather
-    "storms", "hurricanes", "tornadoes", "earthquakes", "volcanoes", "tsunamis", "avalanches",
-    "sunshine", "rain", "snow", "fog", "wind", "lightning", "thunder", "rainbows",
-    "mountains", "valleys", "forests", "deserts", "oceans", "rivers", "lakes", "waterfalls",
-    "stars", "planets", "moons", "comets", "asteroids", "galaxies", "black holes",
+    "storms", "hurricanes", "earthquakes", "volcanoes", "sunshine", "rain", "wind", 
+    "mountains", "valleys", "forests", "deserts", "waterfalls",
 
     # Music & Instruments
-    "snare drum", "bass drum", "cymbals", "tambourines", "harmonicas", "trumpets", "saxophones",
-    "synthesizers", "turntables", "microphones", "speakers", "headphones", "vinyl records",
-
-    # Sports & Activities
-    "basketball", "football", "baseball", "soccer", "tennis", "golf", "hockey", "volleyball",
-    "boxing", "wrestling", "karate", "yoga", "pilates", "running", "swimming", "surfing",
-    "skiing", "snowboarding", "skateboarding", "rock climbing", "fishing", "camping", "hiking",
-
-    # Technology
-    "robots", "drones", "satellites", "rockets", "spaceships", "ai", "algorithms", "databases",
-    "servers", "routers", "modems", "cables", "batteries", "chargers", "processors", "hard drives",
+    "drums", "cymbals", "tambourines", "harmonicas", "saxophones",
+    "microphones", "speakers", "headphones", "vinyl records",
 
     # Household Items
-    "refrigerators", "ovens", "microwaves", "blenders", "toasters", "coffee makers", "vacuums",
-    "washing machines", "dryers", "dishwashers", "couches", "beds", "chairs", "tables", "desks",
-    "pillows", "blankets", "towels", "soap", "shampoo", "toothbrushes", "razors",
-
-    # Vehicles
-    "trucks", "vans", "buses", "trains", "planes", "helicopters", "boats", "yachts", "submarines",
-    "tanks", "tractors", "scooters", "segways", "hoverboards",
+    "toasters", "coffee makers", "vacuums", "beds", "tables",
+    "pillows", "blankets", "towels", "soap", "toothbrushes"
 
     # Random Fun Stuff
     "fireworks", "balloons", "confetti", "glitter", "magnets", "puzzles", "dice", "playing cards",
-    "rubik's cubes", "yo-yos", "frisbees", "boomerangs", "kites", "bouncy balls", "slinkies",
-    "lava lamps", "disco balls", "kazoos", "whoopee cushions", "fidget spinners",
+    "rubik's cubes", "bouncy balls", "slinkies", "lava lamps", "disco balls", "kazoos", "whoopee cushions", "fidget spinners",
 
     # Abstract/Funny
-    "chaos", "drama", "revenge", "karma", "destiny", "fate", "luck", "secrets", "mysteries",
-    "adventures", "quests", "legends", "myths", "dreams", "nightmares", "paradoxes"
+    "luck", "secrets", "quests", "myths", "dreams", "nightmares"
+
+    # Famous Figures and Events
+    "White Houses", "Donald Trump", "Xi Jinping", "Adolf Hitler", "Taylor Swift", "Elon Musk",
+    "MrBeast", "Twitch streamers", "9/11", "Titanic", "Tiananmen Square", "Obama", "Joe Biden",
+
+    # Dark Comedy, other shit I just wanted to add.
+    "murders", "abortions", "plastic surgeries", "cops", "politicians", "lawyers", "psychologists",
+    "dieticians", "Twitter", "AI Labs", "TikToks", "twin towers", "political corruption",
+    "slop", "AI-generated slop", "data centers", "mental illnesses", "personality disorders",
+    "Discord", "beaches", "boating accidents", "anime", "veal", "factory farming"
 ]
 
 SYSTEM_PROMPT = """
@@ -334,7 +321,7 @@ def call_llm(model_config, word):
 def index():
     # Pick a random word for the homepage
     initial_word = random.choice(RANDOM_WORDS)
-    return render_template('index.html', initial_word=initial_word)
+    return render_template('index.html', initial_word=initial_word, random_words_json=json.dumps(RANDOM_WORDS))
 
 @app.route('/stats')
 def stats():
@@ -344,7 +331,7 @@ def stats():
 def loading():
     """Test page to view the loading spinner"""
     initial_word = random.choice(RANDOM_WORDS)
-    return render_template('index.html', initial_word=initial_word, show_loading=True)
+    return render_template('index.html', initial_word=initial_word, show_loading=True, random_words_json=json.dumps(RANDOM_WORDS))
 
 @app.route('/random')
 def random_word():
@@ -360,7 +347,7 @@ def suggestion_route(suggestion):
     if '.' in suggestion:
         return app.send_static_file(suggestion)
     # Render template with the suggestion word
-    return render_template('index.html', initial_word=suggestion)
+    return render_template('index.html', initial_word=suggestion, random_words_json=json.dumps(RANDOM_WORDS))
 
 def call_llm_and_save(model_config, word, suggestion_id, is_contestant):
     """Call LLM and save result to DB, updating active competition status"""

@@ -104,42 +104,8 @@ brickWall.addEventListener('click', (e) => {
     drawGraffiti(e.clientX, e.clientY);
 });
 
-// Random words list (matches backend)
-const randomWords = [
-    "coffee", "pizza", "tacos", "wine", "beer", "whiskey", "tequila", "vodka", "champagne",
-    "sushi", "burgers", "hot dogs", "ice cream", "donuts", "cookies", "cake", "pie", "steak",
-    "pasta", "ramen", "sandwiches", "salad", "soup", "curry", "bbq", "bacon", "eggs",
-    "pancakes", "waffles", "cereal", "toast", "bagels", "croissants", "tea", "kombucha",
-    "cats", "dogs", "horses", "lions", "tigers", "bears", "elephants", "dolphins", "sharks",
-    "eagles", "owls", "penguins", "flamingos", "peacocks", "snakes", "lizards", "turtles",
-    "rabbits", "hamsters", "guinea pigs", "ferrets", "monkeys", "gorillas", "pandas", "koalas",
-    "wolves", "foxes", "deer", "moose", "hippos", "rhinos", "giraffes", "zebras",
-    "cars", "motorcycles", "bicycles", "skateboards", "guitars", "pianos", "drums", "violins",
-    "books", "phones", "laptops", "tablets", "cameras", "watches", "sunglasses", "hats",
-    "shoes", "socks", "jackets", "backpacks", "umbrellas", "hammers", "screwdrivers", "saws",
-    "knives", "scissors", "pens", "pencils", "paintbrushes", "candles", "lamps", "mirrors",
-    "storms", "hurricanes", "tornadoes", "earthquakes", "volcanoes", "tsunamis", "avalanches",
-    "sunshine", "rain", "snow", "fog", "wind", "lightning", "thunder", "rainbows",
-    "mountains", "valleys", "forests", "deserts", "oceans", "rivers", "lakes", "waterfalls",
-    "stars", "planets", "moons", "comets", "asteroids", "galaxies", "black holes",
-    "snare drum", "bass drum", "cymbals", "tambourines", "harmonicas", "trumpets", "saxophones",
-    "synthesizers", "turntables", "microphones", "speakers", "headphones", "vinyl records",
-    "basketball", "football", "baseball", "soccer", "tennis", "golf", "hockey", "volleyball",
-    "boxing", "wrestling", "karate", "yoga", "pilates", "running", "swimming", "surfing",
-    "skiing", "snowboarding", "skateboarding", "rock climbing", "fishing", "camping", "hiking",
-    "robots", "drones", "satellites", "rockets", "spaceships", "ai", "algorithms", "databases",
-    "servers", "routers", "modems", "cables", "batteries", "chargers", "processors", "hard drives",
-    "refrigerators", "ovens", "microwaves", "blenders", "toasters", "coffee makers", "vacuums",
-    "washing machines", "dryers", "dishwashers", "couches", "beds", "chairs", "tables", "desks",
-    "pillows", "blankets", "towels", "soap", "shampoo", "toothbrushes", "razors",
-    "trucks", "vans", "buses", "trains", "planes", "helicopters", "boats", "yachts", "submarines",
-    "tanks", "tractors", "scooters", "segways", "hoverboards",
-    "fireworks", "balloons", "confetti", "glitter", "magnets", "puzzles", "dice", "playing cards",
-    "rubik's cubes", "yo-yos", "frisbees", "boomerangs", "kites", "bouncy balls", "slinkies",
-    "lava lamps", "disco balls", "kazoos", "whoopee cushions", "fidget spinners",
-    "chaos", "drama", "revenge", "karma", "destiny", "fate", "luck", "secrets", "mysteries",
-    "adventures", "quests", "legends", "myths", "dreams", "nightmares", "paradoxes"
-];
+// Random words list is injected from backend via template (see index.html)
+// This ensures a single source of truth in app.py
 
 // Value is now set server-side, so we don't need to set it in JS
 const path = window.location.pathname;
