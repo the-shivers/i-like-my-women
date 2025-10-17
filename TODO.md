@@ -19,7 +19,6 @@
   - `--threads=2`: Thread pool per worker for better concurrency
   - `--timeout=120`: Allow LLM calls to complete (some models take 15s+)
 - [ ] Optional: Create `railway.json` for config
-- [ ] Add Redis service to Railway project (for rate limiting)
 
 ## 🐌 Railway Performance Debugging (if still sluggish after Procfile)
 - [ ] **Check Railway logs** for issues:
@@ -61,6 +60,29 @@
   - Added font-display: swap for instant text visibility
   - Preloaded critical fonts for above-the-fold content
   - Removed 200-400ms of cross-origin latency
+- [x] **Hide text until fonts are loaded**
+  - Current font-display: swap causes ugly layout shift as fonts load
+  - Changed font-display: swap → font-display: block in all @font-face declarations
+  - Text now remains invisible until custom fonts load (no layout shift)
+  - Updated in both index.html and stats.html
+- [x] **Fix cards showing text before parchment background on mobile**
+  - Issue: On slow mobile connections, card text renders before parch2.webp background loads
+  - Even though parch2.webp is preloaded, CSS background-image doesn't block rendering
+  - Fix: Added Promise-based parchment preload in both app.js and modal.js
+  - Cards and about modal now await parchment loading before becoming visible
+- [x] **Fix about modal using old parch2.jpg instead of parch2.webp**
+  - Issue: About modal takes ages to load on mobile
+  - Root cause: Still using parch2.jpg (736KB) instead of parch2.webp (47KB) - 15x larger!
+  - Fix: Updated modal.js line 21 to use parch2.webp
+  - This will make about modal load 15x faster on mobile
+- [x] **Fix stamp delay on mobile (first click only)**
+  - Issue: checkstamp.webp has delay on first click, instant on successive clicks
+  - Root cause: Preload has fetchpriority="low" so browser doesn't load it until needed
+  - Fix: Removed fetchpriority="low" from checkstamp.webp preload in index.html line 37
+- [x] **Fix graffiti spilling into black letterbox on very wide monitors**
+  - Issue: On very wide screens, black letterboxes appear (good), but graffiti drawn near edge of center panel spills over into black areas where it appears super bright
+  - Root cause: .stage has max-width 1600px but no overflow clipping, graffiti icons can extend beyond boundaries
+  - Fix: Added overflow: hidden to .stage element - graffiti now clips at stage boundaries
 - [ ] Adjust spotlight/floodlight if desired
   - Edit `.spotlight-overlay` radial gradients in index.html & stats.html
 - [x] move fade down slightly
@@ -95,6 +117,18 @@
   - Root cause: Button click started a second polling loop (was redundant with initial polling)
   - Fix: Removed `startPollingOtherResponses()` function entirely
   - Initial polling now handles everything - cleaner, more efficient
+- [ ] **Fix null reference error on page load**
+  - Issue: "Cannot read properties of null (reading 'suggestion_id')" popup
+  - Shows "undefined/undefined" in loading spinner
+  - Happens when initial /api/compete request fails or returns unexpected data
+  - Polling loop tries to access currentData.suggestion_id when currentData is null
+  - Need safety checks before accessing currentData in polling loop
+- [ ] **Fix infinite polling causing loading cursor on Windows**
+  - Issue: Loading cursor (pointer with spinner) persists even when page looks fine
+  - Root cause: Polling loop runs forever if any model fails or times out
+  - Polling only stops when ALL otherResponses reach status='completed'
+  - If one model hangs, browser keeps making requests every 500ms forever
+  - Need: Timeout on polling loop (e.g., stop after 2 minutes max)
 
 ## 🐛 Testing
 - [ ] **GET JUGGY TO HELP DEBUG**

@@ -34,7 +34,7 @@ Oops! I accidentally included it. How careless of me.
     <link rel="preload" as="image" href="wood.webp">
     <link rel="preload" as="image" href="brick.webp">
     <link rel="preload" as="image" href="arrowblack.svg">
-    <link rel="preload" as="image" href="checkstamp.webp" fetchpriority="low">
+    <link rel="preload" as="image" href="checkstamp.webp">
     <link rel="preload" as="image" href="p1cyan.webp" fetchpriority="low">
     <link rel="preload" as="image" href="p2cyan.webp" fetchpriority="low">
     <link rel="preload" as="image" href="p3cyan.webp" fetchpriority="low">
@@ -45,42 +45,42 @@ Oops! I accidentally included it. How careless of me.
             src: url('fonts/ibm-plex-serif-v20-latin-regular.woff2') format('woff2');
             font-weight: 400;
             font-style: normal;
-            font-display: swap;
+            font-display: block;
         }
         @font-face {
             font-family: 'IBM Plex Serif';
             src: url('fonts/ibm-plex-serif-v20-latin-600.woff2') format('woff2');
             font-weight: 600;
             font-style: normal;
-            font-display: swap;
+            font-display: block;
         }
         @font-face {
             font-family: 'Open Sans';
             src: url('fonts/open-sans-v44-latin-regular.woff2') format('woff2');
             font-weight: 400;
             font-style: normal;
-            font-display: swap;
+            font-display: block;
         }
         @font-face {
             font-family: 'Open Sans';
             src: url('fonts/open-sans-v44-latin-600.woff2') format('woff2');
             font-weight: 600;
             font-style: normal;
-            font-display: swap;
+            font-display: block;
         }
         @font-face {
             font-family: 'Special Elite';
             src: url('fonts/special-elite-v20-latin-regular.woff2') format('woff2');
             font-weight: 400;
             font-style: normal;
-            font-display: swap;
+            font-display: block;
         }
         @font-face {
             font-family: 'Sedgwick Ave Display';
             src: url('fonts/sedgwick-ave-display-v23-latin-regular.woff2') format('woff2');
             font-weight: 400;
             font-style: normal;
-            font-display: swap;
+            font-display: block;
         }
 
         * {
@@ -134,6 +134,7 @@ Oops! I accidentally included it. How careless of me.
             display: flex;
             flex-direction: column;
             margin: 0 auto;
+            overflow: hidden;
         }
 
         /* Brick wall - fills remaining space above wood floor */
@@ -370,7 +371,7 @@ Oops! I accidentally included it. How careless of me.
             padding: 8px 18px;
             min-width: 70px;
             height: 34px;
-            font-family: 'IBM Plex Serif', serif;
+            font-family: 'Open Sans', sans-serif;
             font-weight: 400;
         }
 
@@ -521,7 +522,7 @@ Oops! I accidentally included it. How careless of me.
         .model-name {
             grid-column: 2;
             grid-row: 1;
-            font-family: 'IBM Plex Serif', serif;
+            font-family: 'Open Sans', sans-serif;
             font-size: 0.9em;
             color: #444;
             font-weight: 600;
@@ -535,7 +536,7 @@ Oops! I accidentally included it. How careless of me.
         .model-stats {
             grid-column: 2;
             grid-row: 2;
-            font-family: 'IBM Plex Serif', serif;
+            font-family: 'Open Sans', sans-serif;
             font-size: 0.9em;
             color: #666;
             text-align: right;
@@ -1009,7 +1010,7 @@ Oops! I accidentally included it. How careless of me.
                 <span>|</span>
                 <a href="#" id="about-link">about</a>
                 <span>|</span>
-                <a href="https://twitter.com/thinkingshivers" target="_blank">@thinkingshivers</a>
+                <a href="https://twitter.com/thinkingshivers" target="_blank">@shivers</a>
             </div>
         </div>
     </div>
