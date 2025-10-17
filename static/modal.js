@@ -109,7 +109,7 @@
 
                 <p><i>"I like my women like I like my coffee…"</i></p>
 
-                <p>One LLM might say, <b>"hot!"</b> Not bad. See, the word accurately describes how one might like both coffee and women!</p>
+                <p>One LLM might say, <b>"hot!"</b> Not bad. You like your women hot, you like your coffee hot. Makes sense.</p>
 
                 <p>Another might say <b>"black!"</b></p>
 
@@ -133,6 +133,7 @@
                     <li><b>DeepSeek Chat v3.1</b> - I know I'm not supposed to pick favorites, but I don't care for this one.</li>
                     <li><b>GPT-5 Chat</b> - Non-thinking (lobotomized) version of GPT-5</li>
                     <li><b>Claude Sonnet 4.5</b> - Anthropic's dearest, darlingest.</li>
+                    <li><b>Claude Haiku 4.5</b> - Worse version of Sonnet.</li>
                     <li><b>Kimi K2</b> - Moonshot AI's hyped-up model</li>
                     <li><b>DeepSeek v3</b> - Added this because I was mad at how long DeepSeek v3.1's responses were taking but I think it was just a really bad OpenRouter provider.</li>
                 </ul>
@@ -150,6 +151,12 @@
                 <h3>Can I see the data?</h3>
 
                 <p>It's right <a href="/stats" style="color: #1a1a1a; text-decoration: underline;">here</a>, babe.</p>
+
+                <h3>How did you make this?</h3>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="gyatt.gif" alt="gyatt" style="max-width: 100%; height: auto; border-radius: 4px;">
+                </div>
             </div>
         </div>
     `;
