@@ -18,12 +18,36 @@ app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', os.urandom(24).hex())
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = 2592000  # 30 days
 
-# Rate limiting - DISABLED for now
+# Rate limiting exemption function
+def rate_limit_exempt():
+    """Exempt from rate limiting if: debug mode, localhost, or secret header matches"""
+    # Exempt in debug mode
+    if app.debug:
+        return True
+
+    # Exempt localhost
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    if ',' in ip:
+        ip = ip.split(',')[0].strip()
+    if ip in ['127.0.0.1', 'localhost', '::1']:
+        return True
+
+    # Exempt if secret header matches
+    bypass_secret = os.getenv('RATE_LIMIT_BYPASS_SECRET')
+    if bypass_secret:
+        header_secret = request.headers.get('X-Bypass-Secret')
+        if header_secret == bypass_secret:
+            return True
+
+    return False
+
+# Rate limiting
 limiter = Limiter(
     get_remote_address,
     app=app,
-    default_limits=[],  # No limits for now
-    storage_uri="memory://"
+    default_limits=[],
+    storage_uri="memory://",
+    enabled=lambda: not rate_limit_exempt()
 )
 
 # OpenRouter setup
@@ -369,6 +393,7 @@ def call_llm_and_save(model_config, word, suggestion_id, is_contestant):
     return response_data
 
 @app.route('/api/compete', methods=['POST'])
+@limiter.limit("10/minute")
 def compete():
     """Get responses from all models for a given word"""
     data = request.json
@@ -376,6 +401,10 @@ def compete():
 
     if not word:
         return jsonify({'error': 'No word provided'}), 400
+
+    # Server-side validation: enforce max word length
+    if len(word) > 100:
+        return jsonify({'error': 'Word too long (max 100 characters)'}), 400
 
     db = get_db()
 
@@ -620,6 +649,7 @@ def get_responses():
     })
 
 @app.route('/api/vote', methods=['POST'])
+@limiter.limit("30/minute")
 def vote():
     """Record a vote for a response"""
     data = request.json
