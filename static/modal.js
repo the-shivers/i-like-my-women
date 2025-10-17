@@ -1,5 +1,13 @@
 // Shared About Modal
 (function() {
+    // Preload parchment background to prevent text showing before background loads
+    const parchmentLoaded = new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve();
+        img.onerror = () => resolve(); // Resolve anyway on error to not block UI
+        img.src = 'parch2.webp';
+    });
+
     // Inject modal CSS
     const style = document.createElement('style');
     style.textContent = `
@@ -18,7 +26,7 @@
         }
 
         .modal-content {
-            background-image: url('parch2.jpg');
+            background-image: url('parch2.webp');
             background-size: 800px auto;
             padding: 40px;
             border: 2px solid rgba(0, 0, 0, 0.3);
@@ -162,8 +170,9 @@
         const modal = document.getElementById('about-modal');
         const closeBtn = modal.querySelector('.close-modal');
 
-        aboutLink.addEventListener('click', function(e) {
+        aboutLink.addEventListener('click', async function(e) {
             e.preventDefault();
+            await parchmentLoaded;
             modal.classList.remove('hidden');
         });
 

@@ -2,6 +2,14 @@ let currentData = null;
 let selectedCard = null;
 let otherResponses = [];  // Store other (non-contestant) responses
 
+// Preload parchment background to prevent text showing before background loads
+const parchmentLoaded = new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve(); // Resolve anyway on error to not block UI
+    img.src = 'parch2.webp';
+});
+
 // DOM elements
 const input = document.getElementById('word-input');
 const wiggleDisplay = document.getElementById('wiggle-display');
@@ -324,11 +332,12 @@ async function showAnswers() {
 
         currentData = await response.json();
 
-        // If cached, display immediately
+        // If cached, display immediately (but wait for parchment to load)
         if (currentData.cached) {
             loadingContainer.classList.add('hidden');
             otherResponses = currentData.other_responses || [];  // Store other responses
             generateAnswerCards(currentData.responses);
+            await parchmentLoaded;
             answersContainer.classList.remove('hidden');
             return;
         }
@@ -352,6 +361,7 @@ async function showAnswers() {
                     currentData.matchup_id = status.matchup_id;
                     otherResponses = status.other_responses || [];
                     generateAnswerCards(currentData.responses);
+                    await parchmentLoaded;
                     answersContainer.classList.remove('hidden');
                 }
 
