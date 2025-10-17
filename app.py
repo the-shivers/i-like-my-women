@@ -72,6 +72,7 @@ MODELS = [
     {"name": "GPT-5 Chat", "model": "openai/gpt-5-chat", "reasoning_effort": "low"},  # 1.53s avg
     # {"name": "Rocinante 12B", "model": "thedrummer/rocinante-12b"},  # 1.72s avg
     {"name": "Claude Sonnet 4.5", "model": "anthropic/claude-sonnet-4.5"},  # 1.83s avg
+    {"name": "Claude Haiku 4.5", "model": "anthropic/claude-haiku-4.5"},
     {"name": "Kimi K2", "model": "moonshotai/kimi-k2-0905"},  # 2.19s avg
     # {"name": "Qwen 2.5 VL 32B", "model": "qwen/qwen2.5-vl-32b-instruct"},  # 2.21s avg (too similar to 72B/235B, parking it)
     # {"name": "Claude Opus 4.1", "model": "anthropic/claude-opus-4.1"},  # 2.35s avg (too expensive)
@@ -227,8 +228,14 @@ def init_db():
     try:
         c.execute('SELECT matchup_id FROM votes LIMIT 1')
     except sqlite3.OperationalError:
-        print("Adding matchup_id column to votes table...")
         c.execute('ALTER TABLE votes ADD COLUMN matchup_id TEXT')
+        conn.commit()
+
+    # Migration: Add display_position to appearances table if it doesn't exist
+    try:
+        c.execute('SELECT display_position FROM appearances LIMIT 1')
+    except sqlite3.OperationalError:
+        c.execute('ALTER TABLE appearances ADD COLUMN display_position INTEGER')
         conn.commit()
 
     conn.commit()
@@ -296,8 +303,6 @@ def call_llm(model_config, word):
             if cost_usd == 0 and hasattr(usage, 'cost_details') and usage.cost_details:
                 cost_usd = usage.cost_details.get('upstream_inference_cost', 0.0)
 
-        print(f"DEBUG {model_config['name']}: Time={response_time:.2f}s, Content='{content}', Tokens={completion_tokens}, Reasoning={reasoning_tokens}, Cost=${cost_usd:.6f}")
-
         if content:
             content = content.strip().strip('"').strip("'")
 
@@ -314,7 +319,6 @@ def call_llm(model_config, word):
     except Exception as e:
         end_time = time.time()
         response_time = end_time - start_time
-        print(f"Error calling {model_config['name']}: {e}")
         return {
             'model_name': model_config['name'],
             'model_id': model_config['model'],
@@ -657,6 +661,7 @@ def vote():
     response_ids = data.get('response_ids')  # Can be multiple if grouped
     matchup_id = data.get('matchup_id')  # Track which matchup this vote belongs to
     contestant_ids = data.get('contestant_ids')  # All contestant response IDs shown in this matchup
+    contestant_positions = data.get('contestant_positions', {})  # Map of response_id -> display_position
 
     if not suggestion_id or not response_ids:
         return jsonify({'error': 'Missing data'}), 400
@@ -684,9 +689,11 @@ def vote():
     # Record appearances for ALL contestants shown in this matchup (only when vote is made)
     if contestant_ids and matchup_id:
         for contestant_id in contestant_ids:
+            # Get display position for this contestant (convert to int if it's a string key)
+            position = contestant_positions.get(str(contestant_id))
             db.execute(
-                'INSERT INTO appearances (response_id, suggestion_id, matchup_id) VALUES (?, ?, ?)',
-                (contestant_id, suggestion_id, matchup_id)
+                'INSERT INTO appearances (response_id, suggestion_id, matchup_id, display_position) VALUES (?, ?, ?, ?)',
+                (contestant_id, suggestion_id, matchup_id, position)
             )
 
     db.commit()

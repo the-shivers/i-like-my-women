@@ -1,16 +1,16 @@
 # Pre-Deployment TODO
 
 ## 🚨 CRITICAL - Security
-- [ ] **Enable rate limiting** to protect API credits
+- [x] **Enable rate limiting** to protect API credits
   - Update limiter config in app.py (currently DISABLED at line 22)
   - Add limits to `/api/compete` endpoint (suggest: 10/min per IP)
   - Add limits to `/api/vote` (suggest: 30/min per IP)
   - Change `storage_uri` from `memory://` to redis for Railway persistence
-- [ ] **Add server-side validation**
+- [x] **Add server-side validation**
   - Enforce max word length (currently only client-side)
 
 ## 🚀 Railway Deployment
-- [ ] **Create proper `Procfile`** (CRITICAL for performance):
+- [x] **Create proper `Procfile`** (CRITICAL for performance):
   ```
   web: gunicorn --workers=4 --threads=2 --timeout=120 --preload --bind 0.0.0.0:$PORT app:app
   ```
@@ -20,11 +20,6 @@
   - `--timeout=120`: Allow LLM calls to complete (some models take 15s+)
 - [ ] Optional: Create `railway.json` for config
 - [ ] Add Redis service to Railway project (for rate limiting)
-- [ ] Set environment variables in Railway:
-  - `FLASK_DEBUG=False`
-  - `FLASK_SECRET_KEY` (secure random key)
-  - `OPENROUTER_API_KEY`
-- [ ] **API key email for OpenAI - need to deal with this**
 
 ## 🐌 Railway Performance Debugging (if still sluggish after Procfile)
 - [ ] **Check Railway logs** for issues:
@@ -49,34 +44,41 @@
   - Test if closer region to OpenRouter API helps
 - [ ] **If all else fails**: Profile with `--log-level debug` in Procfile
 
-## 💾 Database Seeding
-- [ ] Seed 10-15 funny words with all model responses:
-  - Suggested words: coffee, whiskey, toaster, pizza, drums, shoes, wine, beer, cats, dogs, burgers, bacon, tacos, sushi, donuts
-  - Gives visitors immediate content to explore
+## 💾 Random Words Curation
+- [ ] Change the random words to have more funny ones and remove unfunny ones
+  - Some words have no good answers
+  - Need to review and improve the list
 
 ## 🎨 UI Polish
-- [ ] **Make first paint look nicer / Fix asset loading**
-  - Currently ugly as bricks load in piecewise
-  - Show spinner on black background until all assets are ready
-  - Only paint page once everything is loaded (wait for images to load)
-  - Make loading elegant and smooth
+- [x] **Make first paint look nicer / Fix asset loading**
+  - Converted all images to WebP (88% size reduction: 1.97MB → 230KB)
+  - Page now loads assets ~7x faster (40s → 5-6s at 3G speeds)
+  - parch2: 736KB→47KB, wood: 604KB→32KB, brick: 150KB→84KB
+  - graffiti icons: ~120KB→45KB, checkstamp: 356KB→21KB
+- [x] **Self-host fonts for better performance**
+  - Eliminated Google Fonts CDN dependency (saves DNS lookup + TLS handshake)
+  - All 6 fonts now served locally (~161KB total)
+  - Added font-display: swap for instant text visibility
+  - Preloaded critical fonts for above-the-fold content
+  - Removed 200-400ms of cross-origin latency
 - [ ] Adjust spotlight/floodlight if desired
   - Edit `.spotlight-overlay` radial gradients in index.html & stats.html
+- [x] move fade down slightly
 
 ## 🧹 Code Cleanup (Optional)
-- [ ] Clean up debug print() statements (lines 206, 275, 293 in app.py)
+- [x] Clean up debug print() statements (lines 206, 275, 293 in app.py)
   - Or gate them behind debug flag
 
 ## 🤖 Model Updates
-- [ ] **Add Claude Haiku 4.5 model**
+- [x] **Add Claude Haiku 4.5 model**
   - Add to MODELS list in app.py
   - Test response time to see if it qualifies (need <4s avg)
-- [ ] **Check BYOK (Bring Your Own Key) setup**
+- [x] **Check BYOK (Bring Your Own Key) setup**
   - Verify cost tracking is working correctly
   - Ensure upstream_inference_cost is being captured properly
 
 ## 📊 Analytics Features
-- [ ] **Track display position for votes**
+- [x] **Track display position for votes**
   - Add `display_position` column to appearances table (0-3 or 1-4)
   - Send position data from frontend when voting
   - Analyze position bias: Do people pick top option more? Bottom?
@@ -87,6 +89,3 @@
   - Test rate limiting
   - Test under load
   - Check for any edge cases
-
-## ⚠️ CRITICAL NOTE
-**Without rate limiting, someone could easily burn through your OpenRouter credits in minutes. This MUST be done before deploying.**

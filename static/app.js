@@ -20,7 +20,7 @@ const brickWall = document.querySelector('.brick-wall');
 const stage = document.querySelector('.stage');
 
 // Graffiti images (pre-colored cyan) and hue shifts
-const graffitiImages = ['p1cyan.png', 'p2cyan.png', 'p3cyan.png'];
+const graffitiImages = ['p1cyan.webp', 'p2cyan.webp', 'p3cyan.webp'];
 const graffitiHueShifts = [
     0,      // cyan (no shift)
     120,    // magenta (cyan + 120deg)
@@ -244,6 +244,7 @@ function generateAnswerCards(responses) {
         card.className = 'answer-card';
         card.dataset.responseId = cardData.response_id;
         card.dataset.response = cardData.response;
+        card.dataset.position = index;  // Track display position (0-3)
 
         // Check if this is a duplicate response - hide it during voting
         const isDuplicate = seenResponses.has(cardData.response);
@@ -420,6 +421,14 @@ async function selectCard(card, cardData) {
 
     // Record vote
     try {
+        // Collect positions for all contestants
+        const contestant_positions = {};
+        mainCards.forEach(c => {
+            const responseId = c.dataset.responseId;
+            const position = parseInt(c.dataset.position);
+            contestant_positions[responseId] = position;
+        });
+
         await fetch('/api/vote', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -427,7 +436,8 @@ async function selectCard(card, cardData) {
                 suggestion_id: currentData.suggestion_id,
                 response_ids: [cardData.response_id],
                 matchup_id: currentData.matchup_id,
-                contestant_ids: currentData.contestant_ids
+                contestant_ids: currentData.contestant_ids,
+                contestant_positions: contestant_positions
             })
         });
     } catch (error) {
