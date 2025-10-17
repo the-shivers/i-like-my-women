@@ -117,7 +117,7 @@ RANDOM_WORDS = [
 
     # Household Items
     "toasters", "coffee makers", "vacuums", "beds", "tables",
-    "pillows", "blankets", "towels", "soap", "toothbrushes"
+    "pillows", "blankets", "towels", "soap", "toothbrushes",
 
     # Random Fun Stuff
     "fireworks", "balloons", "confetti", "glitter", "magnets", "puzzles", "dice", "playing cards",
