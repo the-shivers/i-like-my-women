@@ -117,18 +117,61 @@
   - Root cause: Button click started a second polling loop (was redundant with initial polling)
   - Fix: Removed `startPollingOtherResponses()` function entirely
   - Initial polling now handles everything - cleaner, more efficient
-- [ ] **Fix null reference error on page load**
-  - Issue: "Cannot read properties of null (reading 'suggestion_id')" popup
-  - Shows "undefined/undefined" in loading spinner
-  - Happens when initial /api/compete request fails or returns unexpected data
-  - Polling loop tries to access currentData.suggestion_id when currentData is null
-  - Need safety checks before accessing currentData in polling loop
-- [ ] **Fix infinite polling causing loading cursor on Windows**
-  - Issue: Loading cursor (pointer with spinner) persists even when page looks fine
-  - Root cause: Polling loop runs forever if any model fails or times out
-  - Polling only stops when ALL otherResponses reach status='completed'
-  - If one model hangs, browser keeps making requests every 500ms forever
-  - Need: Timeout on polling loop (e.g., stop after 2 minutes max)
+- [ ] **Fix null reference error + add resilient retry logic** 🎯 FINAL ITEM
+
+  ### Problem Description
+  When Railway has transient issues (502, restarts, etc), the frontend crashes:
+  - Initial `/api/compete` returns 502 (but with valid JSON)
+  - Frontend doesn't handle failure → `currentData` becomes null
+  - Polling loop accesses `currentData.suggestion_id` → crashes with "Cannot read properties of null"
+  - Loading spinner shows "undefined/undefined"
+  - Continues polling `/api/compete/status?suggestion_id=undefined` → 404 errors forever
+
+  ### How to Replicate (Pick One)
+
+  **Option 1: Browser DevTools (Easiest)**
+  1. Open DevTools → Network tab
+  2. Right-click network panel → "Block request URL"
+  3. Add pattern: `*/api/compete*`
+  4. Submit a word → Bug triggers immediately
+
+  **Option 2: Random 502 Injection (Most Realistic)**
+  Add this to `app.py` line 386 in `compete()` function:
+  ```python
+  # TEMPORARY: Force 502 for testing
+  import random
+  if random.random() < 0.5:  # 50% chance
+      return jsonify({'error': 'Simulated 502'}), 502
+  ```
+
+  **Option 3: Kill Backend Mid-Request**
+  1. Start local server
+  2. Submit word, then quickly Ctrl+C the server
+  3. Frontend gets network error → bug triggers
+
+  ### Proposed Solution (Two-Layer Defense)
+
+  **Layer 1: Automatic Retries (Handles 95% of transient failures)**
+  - Add `fetchWithRetry()` helper function
+  - Retry on: 502, 503, 504, network errors
+  - Don't retry on: 400, 429 (rate limit), 401, 403
+  - Exponential backoff: 1s, 2s, 4s (3 total attempts)
+  - User just sees loading spinner - seamless experience
+
+  **Layer 2: Null Safety Checks (Final safety net)**
+  - Add null checks before accessing `currentData.suggestion_id`
+  - Graceful error handling if all retries fail
+  - Display user-friendly error message instead of crash
+  - Add 2-minute timeout on polling loop to prevent infinite requests
+
+  ### Implementation Checklist
+  - [ ] Add `fetchWithRetry()` function to app.js
+  - [ ] Wrap `/api/compete` call with retry logic
+  - [ ] Add null checks in polling loop
+  - [ ] Add 2-minute timeout to polling
+  - [ ] Test with Option 1 (DevTools blocking)
+  - [ ] Test with Option 2 (Random 502s)
+  - [ ] Verify graceful degradation when all retries fail
 
 ## 🐛 Testing
 - [ ] **GET JUGGY TO HELP DEBUG**

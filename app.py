@@ -131,7 +131,7 @@ RANDOM_WORDS = [
     "MrBeast", "Twitch streamers", "9/11", "Titanic", "Tiananmen Square", "Obama", "Joe Biden",
 
     # Dark Comedy, other shit I just wanted to add.
-    "murders", "abortions", "plastic surgeries", "cops", "politicians", "lawyers", "psychologists",
+    "abortions", "plastic surgeries", "cops", "politicians", "lawyers", "psychologists",
     "dieticians", "Twitter", "AI Labs", "TikToks", "twin towers", "political corruption",
     "slop", "AI-generated slop", "data centers", "mental illnesses", "personality disorders",
     "Discord", "beaches", "boating accidents", "anime", "veal", "factory farming"
