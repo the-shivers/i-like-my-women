@@ -121,7 +121,7 @@
 
                 <p>Okay fine.</p>
 
-                <p>This is a semi-serious LLM benchmark to evaluate which LLMs are funniest. Since we can't measure "funny" in an objective way, we fall back to human evaluations, and that's where you come in. If we get enough human feedback, we get a pretty good measure of which models are funniest. And this happens to be a great improv game for LLMs. So there's the benchmark: whichever LLM has the funniest answers in this game, most often, based on human feedback (win rate).</p>
+                <p>This is a semi-serious LLM benchmark to evaluate which LLMs are funniest. Since we can't measure "funny" in an objective way, we fall back on human evaluations, and that's where you come in. If we get enough human feedback, we get a pretty good measure of which models are funniest. And this happens to be a great improv game for LLMs. So there's the benchmark: whichever LLM has the funniest answers in this game, most often, based on human feedback (win rate).</p>
 
                 <h3>Which models are competing?</h3>
                 <ul>
