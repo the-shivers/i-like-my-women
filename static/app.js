@@ -58,6 +58,7 @@ function drawGraffiti(clientX, clientY) {
 
     // Random size (between 80px and 200px)
     const size = 80 + Math.random() * 120;
+    const halfSize = size / 2;
     icon.style.width = size + 'px';
     icon.style.height = 'auto';
 
@@ -71,9 +72,13 @@ function drawGraffiti(clientX, clientY) {
     // Random color (hue shift from cyan base)
     const hueShift = graffitiHueShifts[Math.floor(Math.random() * graffitiHueShifts.length)];
 
-    // Position centered on click (accounting for size)
-    icon.style.left = (x - size / 2) + 'px';
-    icon.style.top = (y - size / 2) + 'px';
+    // Clamp position to keep graffiti fully within stage boundaries
+    const clampedX = Math.max(halfSize, Math.min(rect.width - halfSize, x));
+    const clampedY = Math.max(halfSize, Math.min(rect.height - halfSize, y));
+
+    // Position centered on click (accounting for size and clamping)
+    icon.style.left = (clampedX - halfSize) + 'px';
+    icon.style.top = (clampedY - halfSize) + 'px';
 
     // Apply transform (rotation and flip)
     icon.style.transform = `rotate(${rotation}deg) scale(${flipX}, ${flipY})`;
