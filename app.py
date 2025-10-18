@@ -144,7 +144,7 @@ You should usually try to make your answer work for both the suggestion and wome
 Don't think too hard or spend too long thinking. Oftentimes less is more, and remember, brevity is the soul of wit!
 IMPORTANT: Respond with ONLY the punchline/completion. Do NOT repeat the full sentence and do NOT use punctuation
 
-Examples:
+Examples: 
 User: "I like my women like I like my coffee..."
 You: "hot"
 
