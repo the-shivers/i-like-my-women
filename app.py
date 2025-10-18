@@ -57,9 +57,6 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY")
 )
 
-# Track ongoing competitions: {suggestion_id: {contestants: [...], completed: {...}, lock: threading.Lock()}}
-active_competitions = {}
-
 # Models to compete - Avg response times from benchmark (models >4s are commented out)
 MODELS = [
     {"name": "Gemini 2.5 Flash", "model": "google/gemini-2.5-flash", "reasoning_max_tokens": 0},  # 0.69s avg
@@ -177,13 +174,14 @@ def init_db():
                   word TEXT NOT NULL UNIQUE,
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
 
-    # Responses table
+    # Responses table - with status and nullable fields for optimistic creation
     c.execute('''CREATE TABLE IF NOT EXISTS responses
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
                   suggestion_id INTEGER NOT NULL,
                   model_name TEXT NOT NULL,
                   model_id TEXT NOT NULL,
-                  response_text TEXT NOT NULL,
+                  status TEXT DEFAULT 'pending',
+                  response_text TEXT,
                   response_time REAL,
                   completion_tokens INTEGER,
                   reasoning_tokens INTEGER,
@@ -192,7 +190,27 @@ def init_db():
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                   FOREIGN KEY (suggestion_id) REFERENCES suggestions(id))''')
 
-    # Votes table - now tracks voter identity AND matchup
+    # Games table - each row represents one page load/matchup
+    c.execute('''CREATE TABLE IF NOT EXISTS games
+                 (id TEXT PRIMARY KEY,
+                  suggestion_id INTEGER NOT NULL,
+                  winning_response_id INTEGER,
+                  voter_ip TEXT,
+                  voter_session TEXT,
+                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                  FOREIGN KEY (suggestion_id) REFERENCES suggestions(id),
+                  FOREIGN KEY (winning_response_id) REFERENCES responses(id))''')
+
+    # Game contestants - which responses were contestants in each game
+    c.execute('''CREATE TABLE IF NOT EXISTS game_contestants
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  game_id TEXT NOT NULL,
+                  response_id INTEGER NOT NULL,
+                  display_position INTEGER,
+                  FOREIGN KEY (game_id) REFERENCES games(id),
+                  FOREIGN KEY (response_id) REFERENCES responses(id))''')
+
+    # Old tables (kept for backward compatibility)
     c.execute('''CREATE TABLE IF NOT EXISTS votes
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
                   suggestion_id INTEGER NOT NULL,
@@ -204,7 +222,6 @@ def init_db():
                   FOREIGN KEY (suggestion_id) REFERENCES suggestions(id),
                   FOREIGN KEY (response_id) REFERENCES responses(id))''')
 
-    # Appearances table - track when responses are shown to users (matchups)
     c.execute('''CREATE TABLE IF NOT EXISTS appearances
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
                   response_id INTEGER NOT NULL,
@@ -214,18 +231,11 @@ def init_db():
                   FOREIGN KEY (response_id) REFERENCES responses(id),
                   FOREIGN KEY (suggestion_id) REFERENCES suggestions(id))''')
 
-    # Migration: Add matchup_id to votes table if it doesn't exist
+    # Migration: Add status column to responses if it doesn't exist
     try:
-        c.execute('SELECT matchup_id FROM votes LIMIT 1')
+        c.execute('SELECT status FROM responses LIMIT 1')
     except sqlite3.OperationalError:
-        c.execute('ALTER TABLE votes ADD COLUMN matchup_id TEXT')
-        conn.commit()
-
-    # Migration: Add display_position to appearances table if it doesn't exist
-    try:
-        c.execute('SELECT display_position FROM appearances LIMIT 1')
-    except sqlite3.OperationalError:
-        c.execute('ALTER TABLE appearances ADD COLUMN display_position INTEGER')
+        c.execute('ALTER TABLE responses ADD COLUMN status TEXT DEFAULT "completed"')
         conn.commit()
 
     conn.commit()
@@ -352,22 +362,29 @@ def suggestion_route(suggestion):
     # Render template with the suggestion word
     return render_template('index.html', initial_word=suggestion, random_words_json=json.dumps(RANDOM_WORDS))
 
-def call_llm_and_save(model_config, word, suggestion_id, is_contestant):
-    """Call LLM and save result to DB, updating active competition status"""
+def call_llm_and_save(model_config, word, response_id):
+    """Call LLM and update response record in DB"""
     result = call_llm(model_config, word)
 
     db = get_db()
-    cursor = db.execute(
-        'INSERT INTO responses (suggestion_id, model_name, model_id, response_text, response_time, completion_tokens, reasoning_tokens, prompt_tokens, cost_usd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        (suggestion_id, result['model_name'], result['model_id'], result['response'], result['response_time'], result['completion_tokens'], result['reasoning_tokens'], result['prompt_tokens'], result['cost_usd'])
+    db.execute(
+        '''UPDATE responses
+           SET status = 'completed',
+               response_text = ?,
+               response_time = ?,
+               completion_tokens = ?,
+               reasoning_tokens = ?,
+               prompt_tokens = ?,
+               cost_usd = ?
+           WHERE id = ?''',
+        (result['response'], result['response_time'], result['completion_tokens'],
+         result['reasoning_tokens'], result['prompt_tokens'], result['cost_usd'], response_id)
     )
-    response_id = cursor.lastrowid
     db.commit()
     db.close()
 
     response_data = {
         'id': response_id,
-        'suggestion_id': suggestion_id,
         'model_name': result['model_name'],
         'model_id': result['model_id'],
         'response_text': result['response'],
@@ -375,14 +392,9 @@ def call_llm_and_save(model_config, word, suggestion_id, is_contestant):
         'completion_tokens': result['completion_tokens'],
         'reasoning_tokens': result['reasoning_tokens'],
         'prompt_tokens': result['prompt_tokens'],
-        'cost_usd': result['cost_usd']
+        'cost_usd': result['cost_usd'],
+        'status': 'completed'
     }
-
-    # Update active competition tracking
-    if suggestion_id in active_competitions:
-        comp = active_competitions[suggestion_id]
-        with comp['lock']:
-            comp['completed'][model_config['name']] = response_data
 
     return response_data
 
@@ -406,9 +418,9 @@ def compete():
     suggestion = db.execute('SELECT * FROM suggestions WHERE word = ?', (word,)).fetchone()
 
     if suggestion:
-        # Return cached responses
+        # CACHED WORD - create game from existing responses
         responses = db.execute(
-            'SELECT * FROM responses WHERE suggestion_id = ?',
+            'SELECT * FROM responses WHERE suggestion_id = ? AND status = "completed"',
             (suggestion['id'],)
         ).fetchall()
 
@@ -418,8 +430,21 @@ def compete():
         contestant_responses = random.sample(all_responses, min(4, len(all_responses)))
         contestant_ids = [r['id'] for r in contestant_responses]
 
-        # Generate unique matchup ID for this showing
-        matchup_id = str(uuid.uuid4())
+        # Create game record
+        game_id = str(uuid.uuid4())
+        db.execute(
+            'INSERT INTO games (id, suggestion_id) VALUES (?, ?)',
+            (game_id, suggestion['id'])
+        )
+
+        # Create game_contestants records
+        for position, contestant in enumerate(contestant_responses):
+            db.execute(
+                'INSERT INTO game_contestants (game_id, response_id, display_position) VALUES (?, ?, ?)',
+                (game_id, contestant['id'], position)
+            )
+
+        db.commit()
 
         # Group duplicates
         grouped = {}
@@ -431,18 +456,19 @@ def compete():
                     'models': [],
                     'response_ids': [],
                     'response_time': r['response_time'],
-                    'completion_tokens': r['completion_tokens']
+                    'completion_tokens': r['completion_tokens'],
+                    'reasoning_tokens': r['reasoning_tokens'],
+                    'is_contestant': True
                 }
             else:
                 # If grouped, take the average timing
                 grouped[text]['response_time'] = (grouped[text]['response_time'] + r['response_time']) / 2
                 grouped[text]['completion_tokens'] = (grouped[text]['completion_tokens'] + r['completion_tokens']) / 2
+                grouped[text]['reasoning_tokens'] = (grouped[text]['reasoning_tokens'] + r['reasoning_tokens']) / 2
             grouped[text]['models'].append(r['model_name'])
             grouped[text]['response_ids'].append(r['id'])
 
-        # Don't record appearances here - only when a vote is made
-
-        # Get non-contestant responses for cached case
+        # Get non-contestant responses
         non_contestant_responses = []
         contestant_id_set = set(contestant_ids)
         for r in all_responses:
@@ -459,77 +485,72 @@ def compete():
 
         result = {
             'word': word,
+            'game_id': game_id,
             'suggestion_id': suggestion['id'],
-            'matchup_id': matchup_id,
             'responses': list(grouped.values()),
             'contestant_ids': contestant_ids,
             'other_responses': non_contestant_responses,
             'cached': True,
+            'ready': True,
             'all_models': ALL_MODEL_NAMES
         }
 
         db.close()
         return jsonify(result)
 
-    # New word - create suggestion and select 4 random contestants
+    # NEW WORD - create suggestion, pending responses, and game
     cursor = db.execute('INSERT INTO suggestions (word) VALUES (?)', (word,))
     suggestion_id = cursor.lastrowid
     db.commit()
-    db.close()
+
+    # Create 11 pending response records
+    response_ids = []
+    response_map = {}  # model_name -> response_id
+    for model in MODELS:
+        cursor = db.execute(
+            '''INSERT INTO responses (suggestion_id, model_name, model_id, status)
+               VALUES (?, ?, ?, 'pending')''',
+            (suggestion_id, model['name'], model['model'])
+        )
+        response_id = cursor.lastrowid
+        response_ids.append(response_id)
+        response_map[model['name']] = response_id
+    db.commit()
 
     # Randomly select 4 contestants
     contestants = random.sample(MODELS, min(4, len(MODELS)))
-    contestant_names = [m['name'] for m in contestants]
+    contestant_ids = [response_map[m['name']] for m in contestants]
 
-    # Initialize active competition tracking
-    active_competitions[suggestion_id] = {
-        'contestants': contestant_names,
-        'completed': {},
-        'contestant_responses': [],
-        'all_responses': {},  # Track all responses (contestants + others)
-        'lock': threading.Lock(),
-        'ready': False
-    }
+    # Create game record
+    game_id = str(uuid.uuid4())
+    db.execute(
+        'INSERT INTO games (id, suggestion_id) VALUES (?, ?)',
+        (game_id, suggestion_id)
+    )
 
+    # Create game_contestants records
+    for position, contestant_id in enumerate(contestant_ids):
+        db.execute(
+            'INSERT INTO game_contestants (game_id, response_id, display_position) VALUES (?, ?, ?)',
+            (game_id, contestant_id, position)
+        )
+
+    db.commit()
+    db.close()
+
+    # Launch all 11 LLM calls in background
     def run_models_async():
-        """Run all models in background and update when contestants are done"""
+        """Run all models in background"""
         with ThreadPoolExecutor(max_workers=len(MODELS)) as executor:
-            futures = []
             for model in MODELS:
-                is_contestant = model['name'] in contestant_names
-                future = executor.submit(call_llm_and_save, model, word, suggestion_id, is_contestant)
-                futures.append((model['name'], future, is_contestant))
+                response_id = response_map[model['name']]
+                executor.submit(call_llm_and_save, model, word, response_id)
 
-            # Wait only for contestants to complete
-            contestant_responses = []
-            for _name, future, is_contestant in futures:
-                if is_contestant:
-                    result = future.result()
-                    contestant_responses.append(result)
-
-            # Mark contestants as ready
-            comp = active_competitions[suggestion_id]
-            with comp['lock']:
-                comp['contestant_responses'] = contestant_responses
-                comp['ready'] = True
-
-                # Generate matchup ID for tracking
-                matchup_id = str(uuid.uuid4())
-                comp['matchup_id'] = matchup_id  # Store in competition tracking
-                # Don't record appearances here - only when a vote is made
-
-            # Continue waiting for remaining responses in background
-            for _name, future, is_contestant in futures:
-                if not is_contestant:
-                    # This may already be done or still pending
-                    # Result will be available via active_competitions tracking
-                    pass
-
-    # Start models in background thread
     threading.Thread(target=run_models_async, daemon=True).start()
 
     return jsonify({
         'word': word,
+        'game_id': game_id,
         'suggestion_id': suggestion_id,
         'cached': False,
         'ready': False,
@@ -538,27 +559,47 @@ def compete():
 
 @app.route('/api/compete/status', methods=['GET'])
 def compete_status():
-    """Check status of ongoing competition and get responses when ready"""
-    suggestion_id = request.args.get('suggestion_id', type=int)
+    """Check status of ongoing game and get responses when ready"""
+    game_id = request.args.get('game_id')
 
-    if not suggestion_id or suggestion_id not in active_competitions:
-        return jsonify({'error': 'Invalid or completed competition'}), 404
+    if not game_id:
+        return jsonify({'error': 'Missing game_id'}), 400
 
-    comp = active_competitions[suggestion_id]
-    with comp['lock']:
-        completed_count = len([name for name in comp['contestants'] if name in comp['completed']])
-        total_count = len(comp['contestants'])
-        ready = comp['ready']
-        contestant_responses = comp['contestant_responses'] if ready else []
-        matchup_id = comp.get('matchup_id') if ready else None
-        all_completed = comp['completed']
+    db = get_db()
+
+    # Check if game exists
+    game = db.execute('SELECT * FROM games WHERE id = ?', (game_id,)).fetchone()
+    if not game:
+        return jsonify({'error': 'Invalid game'}), 404
+
+    suggestion_id = game['suggestion_id']
+
+    # Get contestant responses
+    contestant_responses = db.execute(
+        '''SELECT r.* FROM responses r
+           JOIN game_contestants gc ON r.id = gc.response_id
+           WHERE gc.game_id = ?
+           ORDER BY gc.display_position''',
+        (game_id,)
+    ).fetchall()
+
+    contestant_responses = [dict(r) for r in contestant_responses]
+    contestant_ids = [r['id'] for r in contestant_responses]
+
+    # Check if all contestants are completed
+    completed_count = sum(1 for r in contestant_responses if r['status'] == 'completed')
+    total_count = len(contestant_responses)
+    ready = completed_count == total_count
+
+    # Get contestant model names
+    contestant_models = [r['model_name'] for r in contestant_responses]
 
     response_data = {
         'completed': completed_count,
         'total': total_count,
         'ready': ready,
         'all_models': ALL_MODEL_NAMES,
-        'contestant_models': comp['contestants']
+        'contestant_models': contestant_models
     }
 
     if ready:
@@ -585,39 +626,33 @@ def compete_status():
             grouped[text]['response_ids'].append(r['id'])
 
         response_data['responses'] = list(grouped.values())
-        response_data['contestant_ids'] = [r['id'] for r in contestant_responses]
-        response_data['matchup_id'] = matchup_id
+        response_data['contestant_ids'] = contestant_ids
+        response_data['game_id'] = game_id
 
-        # Add all other responses (completed or pending)
+        # Get all responses for this suggestion
+        all_responses = db.execute(
+            'SELECT * FROM responses WHERE suggestion_id = ?',
+            (suggestion_id,)
+        ).fetchall()
+
+        # Add non-contestant responses
         other_responses = []
-        for model_name in ALL_MODEL_NAMES:
-            if model_name not in comp['contestants']:
-                if model_name in all_completed:
-                    # Response is complete
-                    r = all_completed[model_name]
-                    other_responses.append({
-                        'model_name': r['model_name'],
-                        'response_text': r['response_text'],
-                        'response_time': r['response_time'],
-                        'completion_tokens': r['completion_tokens'],
-                        'reasoning_tokens': r['reasoning_tokens'],
-                        'status': 'completed',
-                        'is_contestant': False
-                    })
-                else:
-                    # Response is still pending
-                    other_responses.append({
-                        'model_name': model_name,
-                        'response_text': None,
-                        'response_time': None,
-                        'completion_tokens': None,
-                        'reasoning_tokens': None,
-                        'status': 'pending',
-                        'is_contestant': False
-                    })
+        contestant_id_set = set(contestant_ids)
+        for r in all_responses:
+            if r['id'] not in contestant_id_set:
+                other_responses.append({
+                    'model_name': r['model_name'],
+                    'response_text': r['response_text'],
+                    'response_time': r['response_time'],
+                    'completion_tokens': r['completion_tokens'],
+                    'reasoning_tokens': r['reasoning_tokens'],
+                    'status': r['status'],
+                    'is_contestant': False
+                })
 
         response_data['other_responses'] = other_responses
 
+    db.close()
     return jsonify(response_data)
 
 @app.route('/api/responses', methods=['GET'])
@@ -647,13 +682,10 @@ def get_responses():
 def vote():
     """Record a vote for a response"""
     data = request.json
-    suggestion_id = data.get('suggestion_id')
+    game_id = data.get('game_id')
     response_ids = data.get('response_ids')  # Can be multiple if grouped
-    matchup_id = data.get('matchup_id')  # Track which matchup this vote belongs to
-    contestant_ids = data.get('contestant_ids')  # All contestant response IDs shown in this matchup
-    contestant_positions = data.get('contestant_positions', {})  # Map of response_id -> display_position
 
-    if not suggestion_id or not response_ids:
+    if not game_id or not response_ids:
         return jsonify({'error': 'Missing data'}), 400
 
     # Get voter identity
@@ -669,22 +701,17 @@ def vote():
 
     db = get_db()
 
-    # Record vote for each response (if grouped duplicates)
-    for response_id in response_ids:
-        db.execute(
-            'INSERT INTO votes (suggestion_id, response_id, matchup_id, voter_ip, voter_session) VALUES (?, ?, ?, ?, ?)',
-            (suggestion_id, response_id, matchup_id, voter_ip, voter_session)
-        )
+    # Update game with winning response (use first response_id if multiple due to grouping)
+    winning_response_id = response_ids[0] if isinstance(response_ids, list) else response_ids
 
-    # Record appearances for ALL contestants shown in this matchup (only when vote is made)
-    if contestant_ids and matchup_id:
-        for contestant_id in contestant_ids:
-            # Get display position for this contestant (convert to int if it's a string key)
-            position = contestant_positions.get(str(contestant_id))
-            db.execute(
-                'INSERT INTO appearances (response_id, suggestion_id, matchup_id, display_position) VALUES (?, ?, ?, ?)',
-                (contestant_id, suggestion_id, matchup_id, position)
-            )
+    db.execute(
+        '''UPDATE games
+           SET winning_response_id = ?,
+               voter_ip = ?,
+               voter_session = ?
+           WHERE id = ?''',
+        (winning_response_id, voter_ip, voter_session, game_id)
+    )
 
     db.commit()
     db.close()
@@ -696,7 +723,7 @@ def get_stats():
     """Get leaderboard stats"""
     db = get_db()
 
-    # Get vote counts and appearance counts per model
+    # Get win counts and appearance counts per model using games table
     stats = db.execute('''
         WITH response_stats AS (
             SELECT
@@ -706,36 +733,40 @@ def get_stats():
                 AVG(response_time) AS avg_response_time,
                 AVG(completion_tokens) AS avg_completion_tokens
             FROM responses
+            WHERE status = 'completed'
             GROUP BY model_name, model_id
         ),
-        vote_stats AS (
+        win_stats AS (
             SELECT
                 r.model_name,
                 r.model_id,
-                COUNT(DISTINCT v.id) AS vote_count
+                COUNT(DISTINCT g.id) AS vote_count
             FROM responses r
-            LEFT JOIN votes v ON r.id = v.response_id
+            LEFT JOIN games g ON r.id = g.winning_response_id
+            WHERE g.winning_response_id IS NOT NULL
             GROUP BY r.model_name, r.model_id
         ),
         appearance_stats AS (
             SELECT
                 r.model_name,
                 r.model_id,
-                COUNT(DISTINCT a.id) AS appearance_count
+                COUNT(DISTINCT gc.id) AS appearance_count
             FROM responses r
-            LEFT JOIN appearances a ON r.id = a.response_id
+            LEFT JOIN game_contestants gc ON r.id = gc.response_id
+            LEFT JOIN games g ON gc.game_id = g.id
+            WHERE g.winning_response_id IS NOT NULL
             GROUP BY r.model_name, r.model_id
         )
         SELECT
             rs.model_name,
             rs.model_id,
-            COALESCE(vs.vote_count, 0) AS vote_count,
+            COALESCE(ws.vote_count, 0) AS vote_count,
             COALESCE(ap.appearance_count, 0) AS appearance_count,
             rs.avg_response_time,
             rs.avg_completion_tokens
         FROM response_stats rs
-        LEFT JOIN vote_stats vs
-            ON rs.model_name = vs.model_name AND rs.model_id = vs.model_id
+        LEFT JOIN win_stats ws
+            ON rs.model_name = ws.model_name AND rs.model_id = ws.model_id
         LEFT JOIN appearance_stats ap
             ON rs.model_name = ap.model_name AND rs.model_id = ap.model_id
     ''').fetchall()

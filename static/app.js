@@ -351,7 +351,7 @@ async function showAnswers() {
         currentData = await response.json();
 
         // Null safety check
-        if (!currentData || !currentData.suggestion_id) {
+        if (!currentData || !currentData.game_id) {
             throw new Error('Invalid response from server');
         }
 
@@ -381,14 +381,14 @@ async function showAnswers() {
                 }
 
                 // Null safety check
-                if (!currentData || !currentData.suggestion_id) {
+                if (!currentData || !currentData.game_id) {
                     clearInterval(pollInterval);
                     loadingContainer.classList.add('hidden');
                     alert('Error: Lost connection to server. Please try again.');
                     return;
                 }
 
-                const statusResponse = await fetch(`/api/compete/status?suggestion_id=${currentData.suggestion_id}`);
+                const statusResponse = await fetch(`/api/compete/status?game_id=${currentData.game_id}`);
 
                 if (!statusResponse.ok) {
                     // Don't clear interval on transient errors, just skip this poll
@@ -407,7 +407,6 @@ async function showAnswers() {
                     loadingContainer.classList.add('hidden');
                     currentData.responses = status.responses;
                     currentData.contestant_ids = status.contestant_ids;
-                    currentData.matchup_id = status.matchup_id;
                     otherResponses = status.other_responses || [];
                     generateAnswerCards(currentData.responses);
                     await parchmentLoaded;
@@ -503,11 +502,8 @@ async function selectCard(card, cardData) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                suggestion_id: currentData.suggestion_id,
-                response_ids: [cardData.response_id],
-                matchup_id: currentData.matchup_id,
-                contestant_ids: currentData.contestant_ids,
-                contestant_positions: contestant_positions
+                game_id: currentData.game_id,
+                response_ids: [cardData.response_id]
             })
         });
     } catch (error) {
