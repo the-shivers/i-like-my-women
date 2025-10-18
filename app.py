@@ -97,7 +97,7 @@ ALL_MODEL_NAMES = [m["name"] for m in MODELS]
 RANDOM_WORDS = [
     # Food & Drinks
     "coffee", "pizza", "tacos", "wine", "beer", "whiskey",
-    "pasta", "sandwiches", "soup", "cereal", "tea"
+    "pasta", "sandwiches", "soup", "cereal", "tea",
 
     # Animals
     "cats", "dogs", "horses", "bears", "elephants", "dolphins", "sharks", "hippos",
