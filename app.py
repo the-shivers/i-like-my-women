@@ -124,7 +124,7 @@ RANDOM_WORDS = [
     "rubik's cubes", "bouncy balls", "slinkies", "lava lamps", "disco balls", "kazoos", "whoopee cushions", "fidget spinners",
 
     # Abstract/Funny
-    "luck", "secrets", "quests", "myths", "dreams", "nightmares"
+    "luck", "secrets", "quests", "myths", "dreams", "nightmares",
 
     # Famous Figures and Events
     "White Houses", "Donald Trump", "Xi Jinping", "Adolf Hitler", "Taylor Swift", "Elon Musk",

@@ -1,6 +1,7 @@
 let currentData = null;
 let selectedCard = null;
 let otherResponses = [];  // Store other (non-contestant) responses
+let pollInterval = null;  // Store polling interval so we can clear it on reset
 
 // Retry helper for transient network errors
 async function fetchWithRetry(url, options = {}, maxRetries = 3) {
@@ -203,6 +204,12 @@ function resetGame() {
     // Clear graffiti
     clearGraffiti();
 
+    // Clear any ongoing polling
+    if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+    }
+
     // Reset state
     selectedCard = null;
     currentData = null;
@@ -363,7 +370,7 @@ async function showAnswers() {
         const pollStartTime = Date.now();
         const POLL_TIMEOUT_MS = 120000;  // 2 minutes
 
-        const pollInterval = setInterval(async () => {
+        pollInterval = setInterval(async () => {
             try {
                 // Timeout check - prevent infinite polling
                 if (Date.now() - pollStartTime > POLL_TIMEOUT_MS) {
