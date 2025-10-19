@@ -20,7 +20,8 @@
       "Bash(pkill:*)",
       "Bash(FLASK_DEBUG=True python3:*)",
       "Read(//Users/brian/**)",
-      "Bash(brew install:*)"
+      "Bash(brew install:*)",
+      "Bash(nslookup men.ilikemywomen.com)"
     ],
     "deny": [],
     "ask": []
