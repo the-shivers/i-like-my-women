@@ -152,6 +152,10 @@
 
                 <p>It's right <a href="/stats" style="color: #1a1a1a; text-decoration: underline;">here</a>, babe.</p>
 
+                <h3>Men mode?</h3>
+
+                <p><a href="#" id="men-mode-link" style="color: #1a1a1a; text-decoration: underline;">men mode</a></p>
+
                 <h3>How did you make this?</h3>
 
                 <div style="text-align: center; margin-top: 20px;">
@@ -192,5 +196,29 @@
                 modal.classList.add('hidden');
             }
         });
+
+        // Set up men mode link (use click event instead of href to avoid blocking)
+        const menModeLink = document.getElementById('men-mode-link');
+        if (menModeLink) {
+            menModeLink.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Detect current mode and build opposite URL (always go to root, no path)
+                const hostname = window.location.hostname;
+                const port = window.location.port;
+                const currentMode = hostname.startsWith('men.') ? 'men' : 'women';
+
+                let oppositeUrl;
+                if (currentMode === 'women') {
+                    // Going to men mode: add men. prefix
+                    oppositeUrl = window.location.protocol + '//men.' + hostname + (port ? ':' + port : '') + '/';
+                } else {
+                    // Going to women mode: remove men. prefix
+                    oppositeUrl = window.location.protocol + '//' + hostname.replace('men.', '') + (port ? ':' + port : '') + '/';
+                }
+
+                window.location.href = oppositeUrl;
+            });
+        }
     }
 })();

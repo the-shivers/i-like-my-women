@@ -476,7 +476,7 @@ async function selectCard(card, cardData) {
         }
     });
 
-    // Show action buttons with random background positions
+    // Show action buttons
     actionButtons.classList.remove('hidden');
     showOthersBtn.classList.remove('hidden');
 

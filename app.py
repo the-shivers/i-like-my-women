@@ -134,7 +134,7 @@ RANDOM_WORDS = [
     "Discord", "beaches", "boating accidents", "anime", "veal", "factory farming"
 ]
 
-SYSTEM_PROMPT = """
+SYSTEM_PROMPT_WOMEN = """
 You are participating in an improv comedy game called "I like my women."
 The user will give you a word or phrase to complete the sentence: "I like my women like I like my [their word]..."
 Your goal is to be FUNNY. Use wordplay, double meanings, unexpected twists, or absurdist humor. Keep it short and punchy.
@@ -144,7 +144,7 @@ You should usually try to make your answer work for both the suggestion and wome
 Don't think too hard or spend too long thinking. Oftentimes less is more, and remember, brevity is the soul of wit!
 IMPORTANT: Respond with ONLY the punchline/completion. Do NOT repeat the full sentence and do NOT use punctuation
 
-Examples: 
+Examples:
 User: "I like my women like I like my coffee..."
 You: "hot"
 
@@ -155,6 +155,32 @@ User: "I like my women like I like my coffee..."
 You: "with a few pumps of cream"
 
 User: "I like my women like I like my coffee..."
+You: "ground up and in the freezer"
+
+Just give the punchline. Nothing else.
+"""
+
+SYSTEM_PROMPT_MEN = """
+You are participating in an improv comedy game called "I like my men."
+The user will give you a word or phrase to complete the sentence: "I like my men like I like my [their word]..."
+Your goal is to be FUNNY. Use wordplay, double meanings, unexpected twists, or absurdist humor. Keep it short and punchy.
+Try not to be an annoying moralist. This is just for fun! Your answer should always be funny, first and foremost.
+These answers should usually make sense for both the suggestion and men... i.e. coffee and men can both be "hot."
+You should usually try to make your answer work for both the suggestion and men. But things don't always have to make sense though, non-sequiturs are also funny.
+Don't think too hard or spend too long thinking. Oftentimes less is more, and remember, brevity is the soul of wit!
+IMPORTANT: Respond with ONLY the punchline/completion. Do NOT repeat the full sentence and do NOT use punctuation
+
+Examples:
+User: "I like my men like I like my coffee..."
+You: "hot"
+
+User: "I like my men like I like my coffee..."
+You: "black"
+
+User: "I like my men like I like my coffee..."
+You: "with a few pumps of cream"
+
+User: "I like my men like I like my coffee..."
 You: "ground up and in the freezer"
 
 Just give the punchline. Nothing else.
@@ -171,8 +197,10 @@ def init_db():
     # Suggestions table
     c.execute('''CREATE TABLE IF NOT EXISTS suggestions
                  (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  word TEXT NOT NULL UNIQUE,
-                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+                  word TEXT NOT NULL,
+                  mode TEXT DEFAULT 'women',
+                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                  UNIQUE(word, mode))''')
 
     # Responses table - with status and nullable fields for optimistic creation
     c.execute('''CREATE TABLE IF NOT EXISTS responses
@@ -180,6 +208,7 @@ def init_db():
                   suggestion_id INTEGER NOT NULL,
                   model_name TEXT NOT NULL,
                   model_id TEXT NOT NULL,
+                  mode TEXT DEFAULT 'women',
                   status TEXT DEFAULT 'pending',
                   response_text TEXT,
                   response_time REAL,
@@ -194,6 +223,7 @@ def init_db():
     c.execute('''CREATE TABLE IF NOT EXISTS games
                  (id TEXT PRIMARY KEY,
                   suggestion_id INTEGER NOT NULL,
+                  mode TEXT DEFAULT 'women',
                   winning_response_id INTEGER,
                   voter_ip TEXT,
                   voter_session TEXT,
@@ -238,10 +268,39 @@ def init_db():
         c.execute('ALTER TABLE responses ADD COLUMN status TEXT DEFAULT "completed"')
         conn.commit()
 
+    # Migration: Add mode column to suggestions if it doesn't exist
+    try:
+        c.execute('SELECT mode FROM suggestions LIMIT 1')
+    except sqlite3.OperationalError:
+        c.execute('ALTER TABLE suggestions ADD COLUMN mode TEXT DEFAULT "women"')
+        conn.commit()
+
+    # Migration: Add mode column to responses if it doesn't exist
+    try:
+        c.execute('SELECT mode FROM responses LIMIT 1')
+    except sqlite3.OperationalError:
+        c.execute('ALTER TABLE responses ADD COLUMN mode TEXT DEFAULT "women"')
+        conn.commit()
+
+    # Migration: Add mode column to games if it doesn't exist
+    try:
+        c.execute('SELECT mode FROM games LIMIT 1')
+    except sqlite3.OperationalError:
+        c.execute('ALTER TABLE games ADD COLUMN mode TEXT DEFAULT "women"')
+        conn.commit()
+
     conn.commit()
     conn.close()
 
 init_db()
+
+# Helper function to detect mode from subdomain
+def get_mode():
+    """Detect mode (women/men) from subdomain"""
+    host = request.headers.get('Host', '')
+    if host.startswith('men.'):
+        return 'men'
+    return 'women'
 
 def get_db():
     conn = sqlite3.connect(DB_PATH, timeout=10.0)
@@ -250,17 +309,23 @@ def get_db():
     conn.execute('PRAGMA journal_mode=WAL')
     return conn
 
-def call_llm(model_config, word):
+def call_llm(model_config, word, mode='women', retry_count=0):
     """Call a single LLM and return its response"""
     start_time = time.time()
 
     try:
-        prompt = f'I like my women like I like my {word}...'
+        # Generate mode-specific prompt and system prompt
+        if mode == 'men':
+            prompt = f'I like my men like I like my {word}...'
+            system_prompt = SYSTEM_PROMPT_MEN
+        else:
+            prompt = f'I like my women like I like my {word}...'
+            system_prompt = SYSTEM_PROMPT_WOMEN
 
         params = {
             "model": model_config['model'],
             "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.0,
@@ -306,10 +371,15 @@ def call_llm(model_config, word):
         if content:
             content = content.strip().strip('"').strip("'")
 
+        # Check if response is empty or whitespace only - retry once if so
+        if (not content or not content.strip()) and retry_count == 0:
+            print(f"Warning: Empty response from {model_config['name']}, retrying once...")
+            return call_llm(model_config, word, mode, retry_count=1)
+
         return {
             'model_name': model_config['name'],
             'model_id': model_config['model'],
-            'response': content,
+            'response': content if content else "[No response]",
             'response_time': response_time,
             'completion_tokens': completion_tokens,
             'reasoning_tokens': reasoning_tokens,
@@ -362,9 +432,9 @@ def suggestion_route(suggestion):
     # Render template with the suggestion word
     return render_template('index.html', initial_word=suggestion, random_words_json=json.dumps(RANDOM_WORDS))
 
-def call_llm_and_save(model_config, word, response_id):
+def call_llm_and_save(model_config, word, response_id, mode='women'):
     """Call LLM and update response record in DB"""
-    result = call_llm(model_config, word)
+    result = call_llm(model_config, word, mode)
 
     db = get_db()
     db.execute(
@@ -412,10 +482,13 @@ def compete():
     if len(word) > 100:
         return jsonify({'error': 'Word too long (max 100 characters)'}), 400
 
+    # Detect mode from subdomain
+    mode = get_mode()
+
     db = get_db()
 
-    # Check if we already have responses for this word
-    suggestion = db.execute('SELECT * FROM suggestions WHERE word = ?', (word,)).fetchone()
+    # Check if we already have responses for this word + mode combination
+    suggestion = db.execute('SELECT * FROM suggestions WHERE word = ? AND mode = ?', (word, mode)).fetchone()
 
     if suggestion:
         # CACHED WORD - create game from existing responses
@@ -433,8 +506,8 @@ def compete():
         # Create game record
         game_id = str(uuid.uuid4())
         db.execute(
-            'INSERT INTO games (id, suggestion_id) VALUES (?, ?)',
-            (game_id, suggestion['id'])
+            'INSERT INTO games (id, suggestion_id, mode) VALUES (?, ?, ?)',
+            (game_id, suggestion['id'], mode)
         )
 
         # Create game_contestants records
@@ -499,7 +572,7 @@ def compete():
         return jsonify(result)
 
     # NEW WORD - create suggestion, pending responses, and game
-    cursor = db.execute('INSERT INTO suggestions (word) VALUES (?)', (word,))
+    cursor = db.execute('INSERT INTO suggestions (word, mode) VALUES (?, ?)', (word, mode))
     suggestion_id = cursor.lastrowid
     db.commit()
 
@@ -508,9 +581,9 @@ def compete():
     response_map = {}  # model_name -> response_id
     for model in MODELS:
         cursor = db.execute(
-            '''INSERT INTO responses (suggestion_id, model_name, model_id, status)
-               VALUES (?, ?, ?, 'pending')''',
-            (suggestion_id, model['name'], model['model'])
+            '''INSERT INTO responses (suggestion_id, model_name, model_id, mode, status)
+               VALUES (?, ?, ?, ?, 'pending')''',
+            (suggestion_id, model['name'], model['model'], mode)
         )
         response_id = cursor.lastrowid
         response_ids.append(response_id)
@@ -524,8 +597,8 @@ def compete():
     # Create game record
     game_id = str(uuid.uuid4())
     db.execute(
-        'INSERT INTO games (id, suggestion_id) VALUES (?, ?)',
-        (game_id, suggestion_id)
+        'INSERT INTO games (id, suggestion_id, mode) VALUES (?, ?, ?)',
+        (game_id, suggestion_id, mode)
     )
 
     # Create game_contestants records
@@ -544,7 +617,7 @@ def compete():
         with ThreadPoolExecutor(max_workers=len(MODELS)) as executor:
             for model in MODELS:
                 response_id = response_map[model['name']]
-                executor.submit(call_llm_and_save, model, word, response_id)
+                executor.submit(call_llm_and_save, model, word, response_id, mode)
 
     threading.Thread(target=run_models_async, daemon=True).start()
 

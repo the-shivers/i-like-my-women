@@ -24,6 +24,28 @@ Oops! I accidentally included it. How careless of me.
     <title>I Like My Women</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🎤</text></svg>">
 
+    <!-- Mode detection script (runs first) -->
+    <script>
+        // Detect mode from hostname and set up environment
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        const currentMode = hostname.startsWith('men.') ? 'men' : 'women';
+        const oppositeMode = currentMode === 'men' ? 'women' : 'men';
+
+        // Build opposite subdomain URL (always go to root, no path)
+        let oppositeUrl;
+        if (currentMode === 'women') {
+            // Going to men mode: add men. prefix
+            oppositeUrl = window.location.protocol + '//men.' + hostname + (port ? ':' + port : '') + '/';
+        } else {
+            // Going to women mode: remove men. prefix
+            oppositeUrl = window.location.protocol + '//' + hostname.replace('men.', '') + (port ? ':' + port : '') + '/';
+        }
+
+        // Add mode class to html element for CSS theming
+        document.documentElement.classList.add('mode-' + currentMode);
+    </script>
+
     <!-- Preload critical fonts -->
     <link rel="preload" as="font" type="font/woff2" href="fonts/ibm-plex-serif-v20-latin-regular.woff2" crossorigin>
     <link rel="preload" as="font" type="font/woff2" href="fonts/special-elite-v20-latin-regular.woff2" crossorigin>
@@ -149,6 +171,16 @@ Oops! I accidentally included it. How careless of me.
             background-size: 400px auto;
         }
 
+        /* Blue bricks for men mode */
+        .mode-men .brick-wall {
+            filter: hue-rotate(200deg);
+        }
+
+        /* Blue floor for men mode */
+        .mode-men .wood-floor {
+            filter: hue-rotate(200deg) saturate(0.3) brightness(0.7);
+        }
+
         /* Wood floor - constant 80px height */
         .wood-floor {
             position: absolute;
@@ -237,6 +269,25 @@ Oops! I accidentally included it. How careless of me.
                 0 2px 4px rgba(0, 0, 0, 0.5),
                 0 4px 12px rgba(0, 0, 0, 0.4),
                 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Invisible mode switcher link */
+        .mode-link {
+            color: inherit;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .mode-link:visited {
+            color: inherit;
+        }
+
+        .mode-link:hover {
+            color: inherit;
+        }
+
+        .mode-link:active {
+            color: inherit;
         }
 
         .input-wrapper {
@@ -675,6 +726,7 @@ Oops! I accidentally included it. How careless of me.
                 -1px -1px 2px rgba(255, 215, 0, 0.2);
         }
 
+
         /* Card entrance animations */
         @keyframes slideInFromLeft {
             from {
@@ -963,7 +1015,7 @@ Oops! I accidentally included it. How careless of me.
         <!-- Content layer -->
         <div class="content">
             <div class="headline">
-                I like my women like I like my <span style="position: relative; display: inline-block; white-space: nowrap;">
+                I like my <a href="#" class="mode-link" id="mode-text">women</a> like I like my <span style="position: relative; display: inline-block; white-space: nowrap;">
                     <span class="input-wrapper">
                         <span id="wiggle-display">{% for char in initial_word %}<span>{{ char }}</span>{% endfor %}</span>
                         <input type="text" value="{{ initial_word }}" id="word-input" maxlength="20">
@@ -1018,6 +1070,17 @@ Oops! I accidentally included it. How careless of me.
     <script>
         // Random words list injected from backend (single source of truth)
         const randomWords = {{ random_words_json | safe }};
+
+        // Update mode text and link after page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const modeLink = document.getElementById('mode-text');
+            if (modeLink) {
+                // Set the text to current mode
+                modeLink.textContent = currentMode;
+                // Set the link to opposite mode URL
+                modeLink.href = oppositeUrl;
+            }
+        });
     </script>
     <script src="app.js"></script>
     <script src="modal.js"></script>

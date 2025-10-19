@@ -6,6 +6,17 @@
     <title>Improv Comedy Leaderboard - I Like My Women</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🎤</text></svg>">
 
+    <!-- Mode detection script (runs first) -->
+    <script>
+        // Detect mode from hostname and set up environment
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        const currentMode = hostname.startsWith('men.') ? 'men' : 'women';
+
+        // Add mode class to html element for CSS theming
+        document.documentElement.classList.add('mode-' + currentMode);
+    </script>
+
     <!-- Preload critical fonts -->
     <link rel="preload" as="font" type="font/woff2" href="fonts/ibm-plex-serif-v20-latin-regular.woff2" crossorigin>
     <link rel="preload" as="font" type="font/woff2" href="fonts/open-sans-v44-latin-regular.woff2" crossorigin>
@@ -117,6 +128,11 @@
             background-size: 400px auto;
         }
 
+        /* Blue bricks for men mode */
+        .mode-men .brick-wall {
+            filter: hue-rotate(200deg);
+        }
+
         .wood-floor {
             position: absolute;
             bottom: 0;
@@ -129,6 +145,11 @@
             background-position: center;
             z-index: 1;
             pointer-events: none;
+        }
+
+        /* Blue floor for men mode */
+        .mode-men .wood-floor {
+            filter: hue-rotate(200deg) saturate(0.3) brightness(0.7);
         }
 
         .spotlight-overlay {
