@@ -756,10 +756,10 @@ def vote():
     """Record a vote for a response"""
     data = request.json
     game_id = data.get('game_id')
-    response_ids = data.get('response_ids')  # Can be multiple if grouped
+    response_ids = data.get('response_ids')  # Can be multiple if grouped, or None for "none of the above"
 
-    if not game_id or not response_ids:
-        return jsonify({'error': 'Missing data'}), 400
+    if not game_id:
+        return jsonify({'error': 'Missing game_id'}), 400
 
     # Get voter identity
     voter_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
@@ -775,7 +775,11 @@ def vote():
     db = get_db()
 
     # Update game with winning response (use first response_id if multiple due to grouping)
-    winning_response_id = response_ids[0] if isinstance(response_ids, list) else response_ids
+    # If response_ids is None, set winning_response_id to None (none of the above)
+    if response_ids is None or response_ids == []:
+        winning_response_id = None
+    else:
+        winning_response_id = response_ids[0] if isinstance(response_ids, list) else response_ids
 
     db.execute(
         '''UPDATE games
@@ -827,7 +831,7 @@ def get_stats():
             FROM responses r
             LEFT JOIN game_contestants gc ON r.id = gc.response_id
             LEFT JOIN games g ON gc.game_id = g.id
-            WHERE g.winning_response_id IS NOT NULL
+            WHERE g.voter_session IS NOT NULL
             GROUP BY r.model_name, r.model_id
         )
         SELECT

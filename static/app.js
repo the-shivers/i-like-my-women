@@ -60,6 +60,8 @@ const showOthersBtn = document.getElementById('show-others-btn');
 const resetBtn = document.getElementById('reset-btn');
 const otherAnswers = document.getElementById('other-answers');
 const otherAnswersContainer = document.getElementById('other-answers-container');
+const noneButtonContainer = document.getElementById('none-button-container');
+const noneBtn = document.getElementById('none-btn');
 const brickWall = document.querySelector('.brick-wall');
 const stage = document.querySelector('.stage');
 
@@ -197,9 +199,10 @@ function resetGame() {
     otherAnswers.classList.add('hidden');
     loadingContainer.classList.add('hidden');
 
-    // Hide action buttons container
+    // Hide action buttons container and none button
     actionButtons.classList.add('hidden');
     showOthersBtn.classList.add('hidden');
+    noneButtonContainer.classList.add('hidden');
 
     // Clear graffiti
     clearGraffiti();
@@ -232,6 +235,9 @@ randomBtn.addEventListener('click', resetGame);
 
 // Reset button functionality
 resetBtn.addEventListener('click', resetGame);
+
+// None of the Above button functionality
+noneBtn.addEventListener('click', selectNoneOfTheAbove);
 
 // Generate answer cards with random styling
 function generateAnswerCards(responses) {
@@ -362,6 +368,7 @@ async function showAnswers() {
             generateAnswerCards(currentData.responses);
             await parchmentLoaded;
             answersContainer.classList.remove('hidden');
+            noneButtonContainer.classList.remove('hidden');
             return;
         }
 
@@ -411,6 +418,7 @@ async function showAnswers() {
                     generateAnswerCards(currentData.responses);
                     await parchmentLoaded;
                     answersContainer.classList.remove('hidden');
+                    noneButtonContainer.classList.remove('hidden');
                 }
 
                 // Update other responses as they complete
@@ -476,7 +484,8 @@ async function selectCard(card, cardData) {
         }
     });
 
-    // Show action buttons
+    // Hide none button and show action buttons
+    noneButtonContainer.classList.add('hidden');
     actionButtons.classList.remove('hidden');
     showOthersBtn.classList.remove('hidden');
 
@@ -504,6 +513,55 @@ async function selectCard(card, cardData) {
             body: JSON.stringify({
                 game_id: currentData.game_id,
                 response_ids: [cardData.response_id]
+            })
+        });
+    } catch (error) {
+        console.error('Error recording vote:', error);
+    }
+}
+
+// Handle "None of the Above" selection
+async function selectNoneOfTheAbove() {
+    // If already selected a card, don't allow
+    if (selectedCard) return;
+
+    // Mark as selected (so we can't click again)
+    selectedCard = true;
+
+    // Reveal ALL cards in the main container and their metadata
+    const mainCards = answersContainer.querySelectorAll('.answer-card');
+    mainCards.forEach(c => {
+        // Un-hide any duplicate cards
+        c.classList.remove('hidden');
+
+        // Reveal model info for all cards
+        c.classList.add('revealed');
+
+        // Disable clicking
+        c.style.pointerEvents = 'none';
+    });
+
+    // Hide none button and show action buttons
+    noneButtonContainer.classList.add('hidden');
+    actionButtons.classList.remove('hidden');
+    showOthersBtn.classList.remove('hidden');
+
+    // Randomize background positions for action buttons
+    const actionBtns = actionButtons.querySelectorAll('.action-btn');
+    actionBtns.forEach(btn => {
+        const bgX = Math.floor(Math.random() * 100);
+        const bgY = Math.floor(Math.random() * 100);
+        btn.style.backgroundPosition = `${bgX}% ${bgY}%`;
+    });
+
+    // Record vote with null response_ids (none of the above)
+    try {
+        await fetch('/api/vote', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                game_id: currentData.game_id,
+                response_ids: null
             })
         });
     } catch (error) {

@@ -254,7 +254,7 @@ Oops! I accidentally included it. How careless of me.
         }
 
         /* Prevent content from blocking brick wall clicks */
-        .content > *:not(.headline):not(.answers-container):not(.action-buttons):not(.other-answers):not(.loading-container) {
+        .content > *:not(.headline):not(.answers-container):not(.action-buttons):not(.other-answers):not(.loading-container):not(.none-button-container) {
             pointer-events: none;
         }
 
@@ -294,6 +294,7 @@ Oops! I accidentally included it. How careless of me.
             display: inline-block;
             position: relative;
             width: fit-content;
+            max-width: 600px;
             vertical-align: baseline;
             border-bottom: 2px solid rgba(255, 255, 255, 0.5);
             padding-bottom: 2px;
@@ -324,6 +325,8 @@ Oops! I accidentally included it. How careless of me.
             font-weight: 400;
             color: white;
             line-height: inherit;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .headline input {
@@ -819,6 +822,13 @@ Oops! I accidentally included it. How careless of me.
             --tilt: 0.9deg;
         }
 
+        /* None of the Above button */
+        .none-button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
         /* Other answers section */
         .other-answers {
             width: 100%;
@@ -1015,10 +1025,10 @@ Oops! I accidentally included it. How careless of me.
         <!-- Content layer -->
         <div class="content">
             <div class="headline">
-                I like my <a href="#" class="mode-link" id="mode-text">women</a> like I like my <span style="position: relative; display: inline-block; white-space: nowrap;">
+                I like my <a href="#" class="mode-link" id="mode-text">women</a> like I like my <span style="position: relative; display: inline-block;">
                     <span class="input-wrapper">
                         <span id="wiggle-display">{% for char in initial_word %}<span>{{ char }}</span>{% endfor %}</span>
-                        <input type="text" value="{{ initial_word }}" id="word-input" maxlength="20">
+                        <input type="text" value="{{ initial_word }}" id="word-input" maxlength="50">
                         <div class="input-controls">
                             <button class="random-btn" id="random-btn" title="Random word"><span><img src="arrowblack.svg" alt="Random"></span></button>
                             <button class="submit-btn" id="submit-btn"><span>Submit</span></button>
@@ -1038,6 +1048,11 @@ Oops! I accidentally included it. How careless of me.
 
             <!-- Answer cards (hidden by default, populated by JS) -->
             <div class="answers-container hidden" id="answers-container">
+            </div>
+
+            <!-- None of the Above button (shown with answers, hidden after selection) -->
+            <div class="none-button-container hidden" id="none-button-container">
+                <button class="action-btn" id="none-btn">None of the Above</button>
             </div>
 
             <!-- Action buttons (shown after selection) -->
