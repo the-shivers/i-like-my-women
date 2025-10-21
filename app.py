@@ -71,6 +71,8 @@ MODELS = [
     # {"name": "Rocinante 12B", "model": "thedrummer/rocinante-12b"},  # 1.72s avg
     {"name": "Claude Sonnet 4.5", "model": "anthropic/claude-sonnet-4.5"},  # 1.83s avg
     {"name": "Claude Haiku 4.5", "model": "anthropic/claude-haiku-4.5"},
+    {"name": "Claude 3 Opus", "model": "anthropic/claude-3-opus"},
+    {"name": "Claude 3.5 Haiku", "model": "anthropic/claude-3.5-haiku"},
     {"name": "Kimi K2", "model": "moonshotai/kimi-k2-0905"},  # 2.19s avg
     # {"name": "Qwen 2.5 VL 32B", "model": "qwen/qwen2.5-vl-32b-instruct"},  # 2.21s avg (too similar to 72B/235B, parking it)
     # {"name": "Claude Opus 4.1", "model": "anthropic/claude-opus-4.1"},  # 2.35s avg (too expensive)
